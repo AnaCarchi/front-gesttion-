@@ -200,7 +200,7 @@ import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/m
       </div>
 
       <!-- No Subject Selected -->
-      <div class="empty-state" *ngIf="!loading && !selectedSubjectType && student?.enrolledSubjects && student.enrolledSubjects.length > 0">
+      <div class="empty-state" *ngIf="student?.enrolledSubjects && student?.enrolledSubjects?.length > 0">
         <div class="empty-icon">📝</div>
         <h3>Selecciona una asignatura</h3>
         <p>Elige la asignatura que deseas evaluar</p>

@@ -85,7 +85,7 @@ import { Student, Tutor } from '../../../../core/models';
                   [class.prepro]="subject.type === 'PREPROFESSIONAL_INTERNSHIP'"
                 >
                   <span class="subject-type">{{ getSubjectTypeLabel(subject.type) }}</span>
-                  <span class="subject-period">{{ subject.period?.name }}</span>
+                  <span class="subject-period">{{ subject.academicPeriod.name || subject.period?.name }}</span>
                 </div>
               </div>
             </div>

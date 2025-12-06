@@ -46,9 +46,9 @@ import { Student } from '../../../core/models';
         <h2>📚 Mis Asignaturas</h2>
         <p class="section-description">Accede a tus asignaturas activas</p>
 
-        <div class="subjects-grid" *ngIf="student?.enrolledSubjects && student.enrolledSubjects.length > 0">
+        <div class="subjects-grid" *ngIf="student?.enrolledSubjects && student?.enrolledSubjects?.length > 0">
           <div 
-            *ngFor="let subject of student.enrolledSubjects" 
+            *ngFor="let subject of student?.enrolledSubjects" 
             class="subject-card"
             [class.vinculation]="subject.type === 'VINCULATION'"
             [class.dual]="subject.type === 'DUAL_INTERNSHIP'"
@@ -73,7 +73,7 @@ import { Student } from '../../../core/models';
           </div>
         </div>
 
-        <div class="empty-state" *ngIf="!student?.enrolledSubjects || student.enrolledSubjects.length === 0">
+        <div class="empty-state" *ngIf="!student?.enrolledSubjects || student?.enrolledSubjects?.length === 0">
           <div class="empty-icon">📚</div>
           <p>No tienes asignaturas activas</p>
           <p class="empty-hint">Contacta a tu coordinador de carrera</p>
@@ -86,14 +86,14 @@ import { Student } from '../../../core/models';
         
         <div class="tutor-info-card">
           <div class="tutor-avatar">
-            {{ getInitials(student.tutor.person?.name, student.tutor.person?.lastname) }}
+            {{ getInitials(student?.tutor?.person?.name, student?.tutor?.person?.lastname) }}
           </div>
           <div class="tutor-details">
-            <h3>{{ student.tutor.person?.name }} {{ student.tutor.person?.lastname }}</h3>
+            <h3>{{ student?.tutor?.person?.name }} {{ student?.tutor?.person?.lastname }}</h3>
             <div class="tutor-contact">
-              <span>✉️ {{ student.tutor.email }}</span>
-              <span *ngIf="student.tutor.person?.phonenumber">
-                📞 {{ student.tutor.person.phonenumber }}
+              <span>✉️ {{ student?.tutor?.email }}</span>
+              <span *ngIf="student?.tutor?.person?.phonenumber">
+                📞 {{ student?.tutor?.person?.phonenumber }}
               </span>
             </div>
           </div>
