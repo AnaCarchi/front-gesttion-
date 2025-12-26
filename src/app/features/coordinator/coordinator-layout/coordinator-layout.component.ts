@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -8,127 +8,173 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-    <div class="coordinator-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <circle cx="20" cy="20" r="18" fill="#3b82f6"/>
-              <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="20" font-weight="bold">Y</text>
-            </svg>
-            <span>Yavirac</span>
-          </div>
-        </div>
+<div class="coordinator-layout" [class.collapsed]="isCollapsed">
 
-        <nav class="sidebar-nav">
-          <a routerLink="/coordinator/dashboard" routerLinkActive="active" class="nav-item">
-            <span class="icon">📊</span>
-            <span>Dashboard</span>
-          </a>
-          <a routerLink="/coordinator/students" routerLinkActive="active" class="nav-item">
-            <span class="icon">👥</span>
-            <span>Estudiantes</span>
-          </a>
-          <a routerLink="/coordinator/reports" routerLinkActive="active" class="nav-item">
-            <span class="icon">📄</span>
-            <span>Reportes</span>
-          </a>
-        </nav>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-        <div class="sidebar-footer">
-          <button class="btn-logout" (click)="logout()">
-            <span class="icon">🚪</span>
-            <span>Cerrar Sesión</span>
-          </button>
-        </div>
-      </aside>
+    <!-- HEADER -->
+    <div class="sidebar-header">
+      <img
+        src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
+        class="logo-img"
+        alt="Yavirac Logo"
+      />
+      <span class="logo-text">Yavirac</span>
 
-      <main class="main-content">
-        <header class="top-bar">
-          <h2>Panel de Coordinador</h2>
-          <div class="user-info">
-            <span>Coordinador de Carrera</span>
-          </div>
-        </header>
-        <div class="content-area">
-          <router-outlet></router-outlet>
-        </div>
-      </main>
+      <button class="btn-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span class="material-icons">
+          {{ isCollapsed ? 'menu_open' : 'menu' }}
+        </span>
+      </button>
     </div>
-  `,
+
+    <!-- NAV -->
+    <nav class="sidebar-nav">
+      <a routerLink="/coordinator/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">dashboard</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+
+      <a routerLink="/coordinator/students" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">people</span>
+        <span class="nav-text">Estudiantes</span>
+      </a>
+
+      <a routerLink="/coordinator/reports" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">description</span>
+        <span class="nav-text">Reportes</span>
+      </a>
+
+      <a routerLink="/coordinator/tutors"
+   routerLinkActive="active"
+   class="nav-item">
+  <span class="material-icons">groups</span>
+  <span class="nav-text">Tutores</span>
+</a>
+
+      <a routerLink="/coordinator/tutor-assignments"
+   routerLinkActive="active"
+   class="nav-item">
+  <span class="material-icons">assignment_ind</span>
+  <span class="nav-text">Designación de Tutores</span>
+</a> 
+
+    </nav>
+
+    <!-- FOOTER -->
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span class="material-icons">logout</span>
+        <span class="nav-text">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <header class="top-bar">
+      <h2>Panel de Coordinador</h2>
+
+      <div class="user-info">
+        <span class="material-icons">supervisor_account</span>
+        <span>Coordinador de Carrera</span>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+</div>
+`,
   styles: [`
-    /* ================= LAYOUT GENERAL ================= */
+/* ================= GENERAL ================= */
 .coordinator-layout {
   display: flex;
   min-height: 100vh;
-  background: #f3f4f6;
+  background: #f5f7fb;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 /* ================= SIDEBAR ================= */
 .sidebar {
   width: 260px;
-  background: #1f2937;
+  background: #0f172a;
   color: white;
   display: flex;
   flex-direction: column;
   position: fixed;
-  inset: 0 auto 0 0;
-  z-index: 100;
+  height: 100vh;
+  transition: width 0.3s ease;
 }
 
-/* ================= SIDEBAR HEADER ================= */
+/* ================= HEADER ================= */
 .sidebar-header {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 20px;
-  font-weight: 700;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* ================= NAVEGACIÓN ================= */
+.logo-img {
+  width: 40px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: bold;
+  color: #f97316;
+  white-space: nowrap;
+}
+
+.btn-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #cbd5f5;
+  cursor: pointer;
+}
+
+/* ================= NAV ================= */
 .sidebar-nav {
   flex: 1;
   padding: 16px;
-  overflow-y: auto;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 12px 16px;
-  margin-bottom: 6px;
   border-radius: 10px;
-  color: #d1d5db;
+  color: #cbd5f5;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  margin-bottom: 6px;
+  transition: all 0.25s ease;
+}
+
+.nav-item .material-icons {
+  font-size: 22px;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(59,130,246,0.15);
+  color: #fff;
+  transform: translateX(4px);
 }
 
 .nav-item.active {
-  background: #3b82f6;
-  color: #ffffff;
+  background: #2563eb;
+  color: white;
 }
 
-.nav-item .icon {
-  font-size: 20px;
-}
-
-/* ================= FOOTER SIDEBAR ================= */
+/* ================= FOOTER ================= */
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .btn-logout {
@@ -137,100 +183,92 @@ import { AuthService } from '../../../core/services/auth.service';
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
+  background: rgba(249,115,22,0.15);
+  color: #f97316;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .btn-logout:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgba(249,115,22,0.3);
 }
 
-/* ================= CONTENIDO PRINCIPAL ================= */
+/* ================= MAIN ================= */
 .main-content {
   flex: 1;
   margin-left: 260px;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease;
 }
 
 /* ================= TOP BAR ================= */
 .top-bar {
-  background: #ffffff;
+  background: white;
   padding: 20px 32px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .top-bar h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1f2937;
   margin: 0;
+  font-size: 22px;
+  color: #0f172a;
 }
 
-/* ================= INFO USUARIO ================= */
 .user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #6b7280;
-  font-size: 14px;
+  gap: 8px;
+  color: #2563eb;
   font-weight: 500;
 }
 
-/* ================= CONTENIDO ================= */
+/* ================= CONTENT ================= */
 .content-area {
-  flex: 1;
   padding: 32px;
 }
 
-/* ================= SCROLL BAR ================= */
-.sidebar-nav::-webkit-scrollbar {
-  width: 6px;
+/* ================= COLLAPSED ================= */
+.coordinator-layout.collapsed .sidebar {
+  width: 80px;
 }
 
-.sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+.coordinator-layout.collapsed .main-content {
+  margin-left: 80px;
+}
+
+.coordinator-layout.collapsed .logo-text,
+.coordinator-layout.collapsed .nav-text {
+  display: none;
+}
+
+.coordinator-layout.collapsed .nav-item,
+.coordinator-layout.collapsed .btn-logout {
+  justify-content: center;
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 72px;
-  }
-
-  .logo span,
-  .nav-item span:not(.icon),
-  .btn-logout span:not(.icon) {
-    display: none;
-  }
-
-  .main-content {
-    margin-left: 72px;
-  }
-
-  .top-bar {
-    padding: 16px 20px;
-  }
-
-  .content-area {
-    padding: 20px;
+  .coordinator-layout.collapsed .sidebar {
+    width: 70px;
   }
 }
   `]
 })
 export class CoordinatorLayoutComponent {
+
   private authService = inject(AuthService);
-  private router = inject(Router);
+
+  isCollapsed = false;
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
 
   logout(): void {
     this.authService.logout();

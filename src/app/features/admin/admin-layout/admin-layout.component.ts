@@ -8,49 +8,64 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-<div class="admin-layout">
+<div class="admin-layout" [class.collapsed]="isCollapsed">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+
+    <!-- HEADER -->
     <div class="sidebar-header">
-      <img src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png" class="logo-img" />
+      <img
+        src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
+        class="logo-img"
+        alt="Yavirac Logo"
+      />
       <span class="logo-text">Yavirac</span>
+
+      <button class="btn-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span class="material-icons">
+          {{ isCollapsed ? 'menu_open' : 'menu' }}
+        </span>
+      </button>
     </div>
 
+    <!-- NAV -->
     <nav class="sidebar-nav">
       <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
         <span class="material-icons">dashboard</span>
-        <span>Dashboard</span>
+        <span class="nav-text">Dashboard</span>
       </a>
 
       <a routerLink="/admin/periods" routerLinkActive="active" class="nav-item">
         <span class="material-icons">event</span>
-        <span>Periodos</span>
+        <span class="nav-text">Periodos</span>
       </a>
 
       <a routerLink="/admin/careers" routerLinkActive="active" class="nav-item">
         <span class="material-icons">school</span>
-        <span>Carreras</span>
+        <span class="nav-text">Carreras</span>
       </a>
 
       <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
         <span class="material-icons">people</span>
-        <span>Usuarios</span>
+        <span class="nav-text">Usuarios</span>
       </a>
     </nav>
 
+    <!-- FOOTER -->
     <div class="sidebar-footer">
       <button class="btn-logout" (click)="logout()">
         <span class="material-icons">logout</span>
-        <span>Cerrar sesión</span>
+        <span class="nav-text">Cerrar sesión</span>
       </button>
     </div>
   </aside>
 
-  <!-- CONTENIDO -->
+  <!-- MAIN CONTENT -->
   <main class="main-content">
     <header class="top-bar">
       <h2>Panel de Administración</h2>
+
       <div class="user-info">
         <span class="material-icons">admin_panel_settings</span>
         <span>Administrador</span>
@@ -65,30 +80,32 @@ import { AuthService } from '../../../core/services/auth.service';
 </div>
 `,
   styles: [`
-    .admin-layout {
+/* ================= GENERAL ================= */
+.admin-layout {
   display: flex;
   min-height: 100vh;
   background: #f5f7fb;
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 .sidebar {
   width: 260px;
-  background: #0f172a; /* negro azulado */
+  background: #0f172a;
   color: white;
   display: flex;
   flex-direction: column;
   position: fixed;
   height: 100vh;
+  transition: width 0.3s ease;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 .sidebar-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 24px;
+  padding: 20px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -99,10 +116,19 @@ import { AuthService } from '../../../core/services/auth.service';
 .logo-text {
   font-size: 20px;
   font-weight: bold;
-  color: #f97316; /* naranja */
+  color: #f97316;
+  white-space: nowrap;
 }
 
-/* NAV */
+.btn-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #cbd5f5;
+  cursor: pointer;
+}
+
+/* ================= NAV ================= */
 .sidebar-nav {
   flex: 1;
   padding: 16px;
@@ -127,6 +153,7 @@ import { AuthService } from '../../../core/services/auth.service';
 .nav-item:hover {
   background: rgba(59,130,246,0.15);
   color: #fff;
+  transform: translateX(4px);
 }
 
 .nav-item.active {
@@ -134,7 +161,7 @@ import { AuthService } from '../../../core/services/auth.service';
   color: white;
 }
 
-/* FOOTER */
+/* ================= FOOTER ================= */
 .sidebar-footer {
   padding: 16px;
   border-top: 1px solid rgba(255,255,255,0.1);
@@ -158,15 +185,16 @@ import { AuthService } from '../../../core/services/auth.service';
   background: rgba(249,115,22,0.3);
 }
 
-/* MAIN */
+/* ================= MAIN ================= */
 .main-content {
   flex: 1;
   margin-left: 260px;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease;
 }
 
-/* TOP BAR */
+/* ================= TOP BAR ================= */
 .top-bar {
   background: white;
   padding: 20px 32px;
@@ -190,32 +218,47 @@ import { AuthService } from '../../../core/services/auth.service';
   font-weight: 500;
 }
 
-/* CONTENT */
+/* ================= CONTENT ================= */
 .content-area {
   padding: 32px;
 }
 
-/* RESPONSIVE */
+/* ================= COLLAPSED ================= */
+.admin-layout.collapsed .sidebar {
+  width: 80px;
+}
+
+.admin-layout.collapsed .main-content {
+  margin-left: 80px;
+}
+
+.admin-layout.collapsed .logo-text,
+.admin-layout.collapsed .nav-text {
+  display: none;
+}
+
+.admin-layout.collapsed .nav-item,
+.admin-layout.collapsed .btn-logout {
+  justify-content: center;
+}
+
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .sidebar {
+  .admin-layout.collapsed .sidebar {
     width: 70px;
-  }
-
-  .logo-text,
-  .nav-item span:not(.material-icons),
-  .btn-logout span:not(.material-icons) {
-    display: none;
-  }
-
-  .main-content {
-    margin-left: 70px;
   }
 }
   `]
 })
 export class AdminLayoutComponent {
+
   private authService = inject(AuthService);
-  private router = inject(Router);
+
+  isCollapsed = false;
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
 
   logout(): void {
     this.authService.logout();
