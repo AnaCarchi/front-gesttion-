@@ -9,217 +9,275 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
     <div class="student-layout">
-      <div class="header-banner">
-        <div class="banner-content">
-          <div class="student-icon">🎓</div>
-          <div class="banner-info">
-            <h1>Portal del Estudiante</h1>
-            <p>Sistema de Gestión de Prácticas y Vinculación</p>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+
+        <!-- HEADER -->
+        <div class="sidebar-header">
+          <div class="logo">
+            <span class="material-icons">school</span>
+            <span>Estudiante</span>
           </div>
         </div>
-      </div>
 
-      <div class="content-wrapper">
-        <aside class="sidebar">
-          <nav class="sidebar-nav">
-            <a routerLink="/student/dashboard" routerLinkActive="active" class="nav-item">
-              <span class="icon">🏠</span>
-              <span>Dashboard</span>
-            </a>
-            
-            <div class="nav-section">
-              <div class="section-title">Mis Asignaturas</div>
-              
-              <a routerLink="/student/subjects/vinculation" routerLinkActive="active" class="nav-item sub-item">
-                <span class="icon">🤝</span>
-                <span>Vinculación</span>
-              </a>
-              
-              <a routerLink="/student/subjects/dual-internship" routerLinkActive="active" class="nav-item sub-item">
-                <span class="icon">🎓</span>
-                <span>Prácticas Dual</span>
-              </a>
-              
-              <a routerLink="/student/subjects/preprofessional-internship" routerLinkActive="active" class="nav-item sub-item">
-                <span class="icon">💼</span>
-                <span>Prácticas Preprofesionales</span>
-              </a>
-            </div>
+        <!-- NAV -->
+        <nav class="sidebar-nav">
 
-            <a routerLink="/student/documents" routerLinkActive="active" class="nav-item">
-              <span class="icon">📄</span>
-              <span>Mis Documentos</span>
-            </a>
-          </nav>
+          <a routerLink="/student/dashboard" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">dashboard</span>
+            <span>Dashboard</span>
+          </a>
 
-          <div class="sidebar-footer">
-            <button class="btn-logout" (click)="logout()">
-              <span class="icon">🚪</span>
-              <span>Cerrar Sesión</span>
-            </button>
+          <a routerLink="/student/subjects/vinculation" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">handshake</span>
+            <span>Vinculación</span>
+          </a>
+
+          <a routerLink="/student/subjects/dual-internship" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">school</span>
+            <span>Prácticas Dual</span>
+          </a>
+
+          <a routerLink="/student/subjects/preprofessional-internship" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">work</span>
+            <span>Prácticas Preprofesionales</span>
+          </a>
+
+          <a routerLink="/student/documents" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">description</span>
+            <span>Documentos</span>
+          </a>
+
+        </nav>
+
+        <!-- FOOTER -->
+        <div class="sidebar-footer">
+          <button class="btn-logout" (click)="logout()">
+            <span class="material-icons">logout</span>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+          <h2>Panel del Estudiante</h2>
+
+          <div class="user-info">
+            <span class="material-icons">account_circle</span>
+            <span>Estudiante</span>
           </div>
-        </aside>
+        </div>
 
-        <main class="main-content">
+        <!-- CONTENT -->
+        <div class="content-area">
           <router-outlet></router-outlet>
-        </main>
+        </div>
+
       </div>
     </div>
   `,
   styles: [`
-    .student-layout {
-      min-height: 100vh;
-      background: #f3f4f6;
-    }
+/* ================= LAYOUT GENERAL ================= */
+.student-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
 
-    .header-banner {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      padding: 32px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* ================= SIDEBAR ================= */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.35);
+}
 
-      .banner-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 20px;
+/* ================= SIDEBAR HEADER ================= */
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
 
-        .student-icon {
-          font-size: 64px;
-          line-height: 1;
-        }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #60a5fa;
+}
 
-        .banner-info {
-          h1 {
-            font-size: 32px;
-            color: white;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-          }
+/* ================= NAVEGACIÓN ================= */
+.sidebar-nav {
+  flex: 1;
+  padding: 18px 14px;
+  overflow-y: auto;
+}
 
-          p {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.9);
-            margin: 0;
-          }
-        }
-      }
-    }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  color: #cbd5f5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
 
-    .content-wrapper {
-      display: flex;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 32px;
-      gap: 32px;
+.nav-item .material-icons {
+  font-size: 22px;
+  color: #94a3b8;
+}
 
-      @media (max-width: 768px) {
-        flex-direction: column;
-      }
-    }
+.nav-item:hover {
+  background: rgba(59,130,246,0.15);
+  color: #ffffff;
+  transform: translateX(4px);
+}
 
-    .sidebar {
-      width: 280px;
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      height: fit-content;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 32px;
+.nav-item:hover .material-icons {
+  color: #ffffff;
+}
 
-      @media (max-width: 768px) {
-        width: 100%;
-        position: static;
-      }
+.nav-item.active {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  box-shadow: 0 10px 25px rgba(37,99,235,0.45);
+}
 
-      .sidebar-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        margin-bottom: 24px;
+.nav-item.active .material-icons {
+  color: #ffffff;
+}
 
-        .nav-section {
-          margin: 16px 0;
+/* ================= FOOTER ================= */
+.sidebar-footer {
+  padding: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
 
-          .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 8px 16px;
-            margin-bottom: 4px;
-          }
-        }
+.btn-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(239,68,68,0.15);
+  color: #fecaca;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.25s ease;
+}
 
-        .nav-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          border-radius: 8px;
-          color: #6b7280;
-          text-decoration: none;
-          transition: all 0.2s;
-          font-size: 14px;
-          font-weight: 500;
+.btn-logout:hover {
+  background: rgba(239,68,68,0.35);
+  color: #ffffff;
+}
 
-          &:hover {
-            background: #d1fae5;
-            color: #065f46;
-          }
+/* ================= MAIN ================= */
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+}
 
-          &.active {
-            background: #10b981;
-            color: white;
-          }
+/* ================= TOP BAR ================= */
+.top-bar {
+  background: #ffffff;
+  padding: 22px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+}
 
-          &.sub-item {
-            padding-left: 32px;
-            font-size: 13px;
-          }
+.top-bar h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
 
-          .icon {
-            font-size: 20px;
-          }
-        }
-      }
+/* ================= USER INFO ================= */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+}
 
-      .sidebar-footer {
-        padding-top: 24px;
-        border-top: 1px solid #e5e7eb;
+.user-info .material-icons {
+  font-size: 20px;
+}
 
-        .btn-logout {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          background: rgba(239, 68, 68, 0.1);
-          color: #dc2626;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-size: 14px;
-          font-weight: 500;
+/* ================= CONTENT ================= */
+.content-area {
+  flex: 1;
+  padding: 32px;
+}
 
-          &:hover {
-            background: rgba(239, 68, 68, 0.2);
-          }
+/* ================= SCROLL ================= */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
 
-          .icon {
-            font-size: 20px;
-          }
-        }
-      }
-    }
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
 
-    .main-content {
-      flex: 1;
-      min-width: 0;
-    }
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 74px;
+  }
+
+  .logo span:not(.material-icons),
+  .nav-item span:not(.material-icons),
+  .btn-logout span:not(.material-icons) {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 74px;
+  }
+
+  .nav-item,
+  .btn-logout {
+    justify-content: center;
+  }
+
+  .top-bar {
+    padding: 18px 22px;
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+}
   `]
 })
 export class StudentLayoutComponent {
@@ -228,5 +286,6 @@ export class StudentLayoutComponent {
 
   logout(): void {
     this.authService.logout();
+    
   }
 }

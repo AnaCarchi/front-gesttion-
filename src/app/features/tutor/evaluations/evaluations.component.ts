@@ -10,139 +10,149 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   standalone: true,
   imports: [CommonModule, RouterLink, DateFormatPipe],
   template: `
-    <div class="evaluations-container">
-      <div class="header">
-        <div>
-          <h1>📋 Historial de Evaluaciones</h1>
-          <p>Todas las evaluaciones realizadas</p>
-        </div>
-        <a routerLink="/tutor/my-students" class="btn btn-primary">
-          ➕ Nueva Evaluación
-        </a>
-      </div>
+   <div class="evaluations-container">
 
-      <!-- Filtros -->
-      <div class="filters-card">
-        <div class="filter-tabs">
-          <button 
-            class="tab-btn"
-            [class.active]="selectedFilter === 'all'"
-            (click)="filterEvaluations('all')"
-          >
-            Todas ({{ evaluations.length }})
-          </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedFilter === 'vinculation'"
-            (click)="filterEvaluations('vinculation')"
-          >
-            Vinculación
-          </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedFilter === 'dual'"
-            (click)="filterEvaluations('dual')"
-          >
-            Prácticas Dual
-          </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedFilter === 'prepro'"
-            (click)="filterEvaluations('prepro')"
-          >
-            Preprofesionales
-          </button>
-        </div>
-      </div>
-
-      <!-- Loading -->
-      <div class="loading-spinner" *ngIf="loading">
-        <div class="spinner"></div>
-        <p>Cargando evaluaciones...</p>
-      </div>
-
-      <!-- Lista de Evaluaciones -->
-      <div class="evaluations-list" *ngIf="!loading && filteredEvaluations.length > 0">
-        <div class="evaluation-card" *ngFor="let evaluation of filteredEvaluations">
-          <div class="eval-header">
-            <div class="student-info">
-              <div class="student-avatar">
-                {{ getInitials(evaluation.student.person?.name, evaluation.student.person?.lastname) }}
-              </div>
-              <div class="student-details">
-                <h3>{{ evaluation.student.person?.name }} {{ evaluation.student.person?.lastname }}</h3>
-                <p class="student-email">{{ evaluation.student.email }}</p>
-              </div>
-            </div>
-            <div class="eval-meta">
-              <span class="eval-date">
-                📅 {{ evaluation.evaluationDate | dateFormat }}
-              </span>
-              <span 
-                class="subject-badge"
-                [class.vinculation]="evaluation.subjectType === 'VINCULATION'"
-                [class.dual]="evaluation.subjectType === 'DUAL_INTERNSHIP'"
-                [class.prepro]="evaluation.subjectType === 'PREPROFESSIONAL_INTERNSHIP'"
-              >
-                {{ getSubjectTypeLabel(evaluation.subjectType) }}
-              </span>
-            </div>
-          </div>
-
-          <div class="eval-body">
-            <div class="eval-info-grid">
-              <div class="info-item">
-                <span class="label">Plantilla:</span>
-                <span class="value">{{ evaluation.template.name }}</span>
-              </div>
-              <div class="info-item">
-                <span class="label">Estado:</span>
-                <span class="status-badge" [class.active]="evaluation.status === 'Aprobado'">
-                  {{ evaluation.status }}
-                </span>
-              </div>
-              <div class="info-item" *ngIf="evaluation.score">
-                <span class="label">Calificación:</span>
-                <span class="score-value">{{ evaluation.score }}/10</span>
-              </div>
-            </div>
-
-            <div class="eval-comments" *ngIf="evaluation.comments">
-              <h4>💬 Comentarios:</h4>
-              <p>{{ evaluation.comments }}</p>
-            </div>
-          </div>
-
-          <div class="eval-actions">
-            <a 
-              [routerLink]="['/tutor/evaluate', evaluation.student.id]" 
-              class="btn btn-sm btn-outline"
-            >
-              👁️ Ver Detalle
-            </a>
-            <button class="btn btn-sm btn-outline" (click)="downloadEvaluation(evaluation.id)">
-              📥 Descargar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estado Vacío -->
-      <div class="empty-state" *ngIf="!loading && filteredEvaluations.length === 0">
-        <div class="empty-icon">📋</div>
-        <h3>{{ selectedFilter === 'all' ? 'No hay evaluaciones' : 'No hay evaluaciones de este tipo' }}</h3>
-        <p>{{ selectedFilter === 'all' ? 'Aún no has realizado evaluaciones' : 'Cambia el filtro para ver otras evaluaciones' }}</p>
-        <a routerLink="/tutor/my-students" class="btn btn-primary">
-          Evaluar Estudiantes
-        </a>
-      </div>
-
-      <!-- Error -->
-      <div class="error-message" *ngIf="errorMessage">
-        <span>⚠️</span>
-        <span>{{ errorMessage }}</span>
-      </div>
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>
+        <span class="material-icons">assignment</span>
+        Historial de Evaluaciones
+      </h1>
+      <p>Todas las evaluaciones realizadas</p>
     </div>
+
+    <a routerLink="/tutor/my-students" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nueva Evaluación
+    </a>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters-card">
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="selectedFilter === 'all'" (click)="filterEvaluations('all')">
+        Todas ({{ evaluations.length }})
+      </button>
+      <button class="tab-btn" [class.active]="selectedFilter === 'vinculation'" (click)="filterEvaluations('vinculation')">
+        Vinculación
+      </button>
+      <button class="tab-btn" [class.active]="selectedFilter === 'dual'" (click)="filterEvaluations('dual')">
+        Prácticas Dual
+      </button>
+      <button class="tab-btn" [class.active]="selectedFilter === 'prepro'" (click)="filterEvaluations('prepro')">
+        Preprofesionales
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando evaluaciones...</p>
+  </div>
+
+  <!-- LISTA -->
+  <div class="evaluations-list" *ngIf="!loading && filteredEvaluations.length > 0">
+
+    <div class="evaluation-card" *ngFor="let evaluation of filteredEvaluations">
+
+      <!-- HEADER CARD -->
+      <div class="eval-header">
+
+        <div class="student-info">
+          <div class="student-avatar">
+            {{ getInitials(evaluation.student.person?.name, evaluation.student.person?.lastname) }}
+          </div>
+
+          <div class="student-details">
+            <h3>{{ evaluation.student.person?.name }} {{ evaluation.student.person?.lastname }}</h3>
+            <p class="student-email">{{ evaluation.student.email }}</p>
+          </div>
+        </div>
+
+        <div class="eval-meta">
+          <span class="eval-date">
+            <span class="material-icons">calendar_today</span>
+            {{ evaluation.evaluationDate | dateFormat }}
+          </span>
+
+          <span class="subject-badge"
+            [class.vinculation]="evaluation.subjectType === 'VINCULATION'"
+            [class.dual]="evaluation.subjectType === 'DUAL_INTERNSHIP'"
+            [class.prepro]="evaluation.subjectType === 'PREPROFESSIONAL_INTERNSHIP'">
+            {{ getSubjectTypeLabel(evaluation.subjectType) }}
+          </span>
+        </div>
+
+      </div>
+
+      <!-- BODY -->
+      <div class="eval-body">
+
+        <div class="eval-info-grid">
+          <div class="info-item">
+            <span class="label">Plantilla</span>
+            <span class="value">{{ evaluation.template.name }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Estado</span>
+            <span class="status-badge" [class.active]="evaluation.status === 'Aprobado'">
+              {{ evaluation.status }}
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="evaluation.score">
+            <span class="label">Calificación</span>
+            <span class="score-value">{{ evaluation.score }}/10</span>
+          </div>
+        </div>
+
+        <div class="eval-comments" *ngIf="evaluation.comments">
+          <h4>
+            <span class="material-icons">comment</span>
+            Comentarios
+          </h4>
+          <p>{{ evaluation.comments }}</p>
+        </div>
+
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="eval-actions">
+        <a [routerLink]="['/tutor/evaluate', evaluation.student.id]" class="btn btn-sm btn-outline">
+          <span class="material-icons">visibility</span>
+          Ver Detalle
+        </a>
+
+        <button class="btn btn-sm btn-outline" (click)="downloadEvaluation(evaluation.id)">
+          <span class="material-icons">download</span>
+          Descargar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="empty-state" *ngIf="!loading && filteredEvaluations.length === 0">
+    <span class="material-icons empty-icon">assignment</span>
+    <h3>No hay evaluaciones</h3>
+    <p>Aún no has realizado evaluaciones</p>
+
+    <a routerLink="/tutor/my-students" class="btn btn-primary">
+      Evaluar Estudiantes
+    </a>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-message" *ngIf="errorMessage">
+    <span class="material-icons">warning</span>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+</div>
   `,
   styles: [`
 :root {
@@ -159,6 +169,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 .evaluations-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 10px;
 }
 
 /* ================= HEADER ================= */
@@ -181,6 +192,45 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   font-size: 15px;
   color: var(--gray);
   margin: 0;
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--blue-dark);
+}
+
+.btn-outline {
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--black);
+}
+
+.btn-outline:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 13px;
 }
 
 /* ================= FILTERS ================= */
@@ -244,7 +294,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   box-shadow: 0 20px 40px rgba(37,99,235,0.15);
 }
 
-/* ================= HEADER CARD ================= */
+/* ================= CARD HEADER ================= */
 .eval-header {
   display: flex;
   justify-content: space-between;
@@ -269,6 +319,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   align-items: center;
   justify-content: center;
   font-weight: 700;
+  font-size: 18px;
 }
 
 .student-details h3 {
@@ -296,7 +347,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   color: var(--gray);
 }
 
-/* Subject badge */
+/* ================= SUBJECT BADGES ================= */
 .subject-badge {
   padding: 6px 14px;
   border-radius: 999px;
@@ -341,7 +392,6 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   font-size: 12px;
   color: var(--gray);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
@@ -380,20 +430,6 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   border-left: 4px solid var(--blue);
 }
 
-.eval-comments h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--black);
-  margin-bottom: 6px;
-}
-
-.eval-comments p {
-  font-size: 14px;
-  color: var(--gray);
-  margin: 0;
-  line-height: 1.6;
-}
-
 /* ================= ACTIONS ================= */
 .eval-actions {
   padding: 16px 24px;
@@ -403,7 +439,7 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   gap: 10px;
 }
 
-/* ================= EMPTY & LOADING ================= */
+/* ================= EMPTY / LOADING ================= */
 .empty-state,
 .loading-spinner {
   text-align: center;
@@ -411,21 +447,6 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
   background: white;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-}
-
-.empty-state h3 {
-  font-size: 20px;
-  color: var(--black);
-}
-
-.empty-state p {
-  color: var(--gray);
-  margin-bottom: 24px;
 }
 
 .spinner {
@@ -439,7 +460,9 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ================= ERROR ================= */
@@ -462,21 +485,18 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
   .eval-header {
     flex-direction: column;
-    align-items: flex-start;
   }
 
   .eval-meta {
     align-items: flex-start;
   }
 
-  .eval-info-grid {
-    grid-template-columns: 1fr;
-  }
-
   .btn {
     width: 100%;
+    justify-content: center;
   }
 }
+
 `]
 
 })

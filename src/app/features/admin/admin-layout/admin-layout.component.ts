@@ -64,23 +64,27 @@ import { AuthService } from '../../../core/services/auth.service';
 
 </div>
 `,
-  styles: [`
-    .admin-layout {
+styles: [`
+/* LAYOUT */
+.admin-layout {
   display: flex;
   min-height: 100vh;
   background: #f5f7fb;
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* SIDEBAR */
+/* ========== SIDEBAR ========== */
 .sidebar {
   width: 260px;
-  background: #0f172a; /* negro azulado */
-  color: white;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #0f172a;
+  color: #ffffff;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  height: 100vh;
+  overflow: hidden;
 }
 
 /* HEADER */
@@ -93,19 +97,22 @@ import { AuthService } from '../../../core/services/auth.service';
 }
 
 .logo-img {
-  width: 40px;
+  width: 38px;
+  height: auto;
 }
 
 .logo-text {
   font-size: 20px;
-  font-weight: bold;
-  color: #f97316; /* naranja */
+  font-weight: 700;
+  color: #f97316;
+  white-space: nowrap;
 }
 
 /* NAV */
 .sidebar-nav {
   flex: 1;
-  padding: 16px;
+  padding: 16px 12px;
+  overflow-y: auto;
 }
 
 .nav-item {
@@ -113,11 +120,12 @@ import { AuthService } from '../../../core/services/auth.service';
   align-items: center;
   gap: 14px;
   padding: 12px 16px;
-  border-radius: 10px;
-  color: #cbd5f5;
-  text-decoration: none;
   margin-bottom: 6px;
-  transition: all 0.25s ease;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #cbd5f5;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .nav-item .material-icons {
@@ -126,12 +134,12 @@ import { AuthService } from '../../../core/services/auth.service';
 
 .nav-item:hover {
   background: rgba(59,130,246,0.15);
-  color: #fff;
+  color: #ffffff;
 }
 
 .nav-item.active {
   background: #2563eb;
-  color: white;
+  color: #ffffff;
 }
 
 /* FOOTER */
@@ -151,24 +159,26 @@ import { AuthService } from '../../../core/services/auth.service';
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  font-size: 14px;
+  transition: background 0.25s ease;
 }
 
 .btn-logout:hover {
   background: rgba(249,115,22,0.3);
 }
 
-/* MAIN */
+/* ========== MAIN CONTENT ========== */
 .main-content {
   flex: 1;
   margin-left: 260px;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 /* TOP BAR */
 .top-bar {
-  background: white;
+  background: #ffffff;
   padding: 20px 32px;
   display: flex;
   justify-content: space-between;
@@ -193,12 +203,13 @@ import { AuthService } from '../../../core/services/auth.service';
 /* CONTENT */
 .content-area {
   padding: 32px;
+  flex: 1;
 }
 
-/* RESPONSIVE */
+/* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .sidebar {
-    width: 70px;
+    width: 72px;
   }
 
   .logo-text,
@@ -208,10 +219,18 @@ import { AuthService } from '../../../core/services/auth.service';
   }
 
   .main-content {
-    margin-left: 70px;
+    margin-left: 72px;
+  }
+
+  .nav-item {
+    justify-content: center;
+  }
+
+  .btn-logout {
+    justify-content: center;
   }
 }
-  `]
+`]
 })
 export class AdminLayoutComponent {
   private authService = inject(AuthService);

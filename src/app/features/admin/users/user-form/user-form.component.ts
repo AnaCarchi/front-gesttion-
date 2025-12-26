@@ -12,15 +12,22 @@ import { User, BloodType } from '../../../../core/models';
   template: `
     <div class="user-form-container">
       <div class="form-header">
-        <a routerLink="/admin/users" class="back-link">← Volver</a>
+        <a routerLink="/admin/users" class="back-link">
+          <span class="material-icons">arrow_back</span>
+          Volver
+        </a>
         <h1>{{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h1>
         <p>{{ isEditMode ? 'Modificar información del usuario' : 'Crear un nuevo usuario del sistema' }}</p>
       </div>
 
       <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+
         <!-- Información de Cuenta -->
         <div class="form-card">
-          <h2>🔐 Información de Cuenta</h2>
+          <h2>
+            <span class="material-icons">vpn_key</span>
+            Información de Cuenta
+          </h2>
 
           <div class="form-row">
             <div class="form-group">
@@ -78,7 +85,10 @@ import { User, BloodType } from '../../../../core/models';
 
         <!-- Información Personal -->
         <div class="form-card" formGroupName="person">
-          <h2>👤 Información Personal</h2>
+          <h2>
+            <span class="material-icons">person</span>
+            Información Personal
+          </h2>
 
           <div class="form-row">
             <div class="form-group">
@@ -232,17 +242,14 @@ import { User, BloodType } from '../../../../core/models';
           </div>
         </div>
 
-        <!-- Mensaje de error -->
         <div class="alert alert-danger" *ngIf="errorMessage">
           {{ errorMessage }}
         </div>
 
-        <!-- Mensaje de éxito -->
         <div class="alert alert-success" *ngIf="successMessage">
           {{ successMessage }}
         </div>
 
-        <!-- Acciones -->
         <div class="form-actions">
           <button type="button" routerLink="/admin/users" class="btn btn-secondary">
             Cancelar
@@ -252,38 +259,51 @@ import { User, BloodType } from '../../../../core/models';
             class="btn btn-primary"
             [disabled]="userForm.invalid || loading"
           >
-            <span *ngIf="!loading">{{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}</span>
+            <span *ngIf="!loading">
+              {{ isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' }}
+            </span>
             <span *ngIf="loading" class="loading-content">
               <span class="spinner-border spinner-border-sm"></span>
               {{ isEditMode ? 'Actualizando...' : 'Creando...' }}
             </span>
           </button>
         </div>
+
       </form>
     </div>
   `,
   styles: [`
-  /* ================= CONTENEDOR GENERAL ================= */
+ /* ================= CONTENEDOR GENERAL ================= */
 .user-form-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
-  background: #f3f4f6;
+  padding: 32px 24px;
   min-height: 100vh;
+  background-image:
+    linear-gradient(
+      rgba(15, 23, 42, 0.75),
+      rgba(15, 23, 42, 0.75)
+    ),
+    url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* ================= HEADER ================= */
 .form-header {
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .form-header .back-link {
-  color: #4f46e5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #93c5fd;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 12px;
-  display: inline-block;
+  font-weight: 600;
+  margin-bottom: 14px;
 }
 
 .form-header .back-link:hover {
@@ -291,37 +311,42 @@ import { User, BloodType } from '../../../../core/models';
 }
 
 .form-header h1 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
+  font-size: 34px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 6px;
 }
 
 .form-header p {
-  font-size: 16px;
-  color: #6b7280;
+  font-size: 15px;
+  color: #e5e7eb;
+  margin: 0;
 }
 
 /* ================= FORM ================= */
 .user-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 /* ================= CARD ================= */
 .form-card {
-  background: #ffffff;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
   padding: 32px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.25);
 }
 
 .form-card h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 26px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -330,8 +355,8 @@ import { User, BloodType } from '../../../../core/models';
 .form-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 22px;
+  margin-bottom: 22px;
 }
 
 .form-row:last-child {
@@ -349,19 +374,21 @@ import { User, BloodType } from '../../../../core/models';
 }
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
   margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .form-control {
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
   border: 1.5px solid #e5e7eb;
   font-size: 14px;
-  background: #f9fafb;
-  transition: all 0.2s ease;
+  background: #f8fafc;
+  transition: all 0.25s ease;
   font-family: inherit;
 }
 
@@ -371,9 +398,9 @@ import { User, BloodType } from '../../../../core/models';
 
 .form-control:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: #2563eb;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 /* ================= INVALID ================= */
@@ -384,22 +411,23 @@ import { User, BloodType } from '../../../../core/models';
 
 .invalid-feedback {
   font-size: 13px;
-  color: #ef4444;
+  color: #dc2626;
   margin-top: 6px;
+  font-weight: 500;
 }
 
 /* ================= TEXTAREA ================= */
 textarea.form-control {
   resize: vertical;
-  min-height: 90px;
+  min-height: 100px;
 }
 
 /* ================= ACTIONS ================= */
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 14px;
+  margin-top: 12px;
 }
 
 /* ================= BUTTON STATES ================= */
@@ -412,8 +440,9 @@ textarea.form-control {
 /* ================= ALERTS ================= */
 .alert {
   padding: 16px 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .alert-danger {
@@ -440,6 +469,10 @@ textarea.form-control {
 
   .form-actions button {
     width: 100%;
+  }
+
+  .form-header {
+    text-align: center;
   }
 }
   `]

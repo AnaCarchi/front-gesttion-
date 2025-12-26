@@ -11,9 +11,11 @@ import { Vinculation } from '../../../../core/models';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="vinculation-container">
+
+      <!-- HEADER -->
       <div class="header">
         <div class="header-content">
-          <div class="icon">🤝</div>
+          <span class="material-icons header-icon">handshake</span>
           <div>
             <h1>Vinculación con la Comunidad</h1>
             <p>160 horas de servicio comunitario</p>
@@ -21,308 +23,295 @@ import { Vinculation } from '../../../../core/models';
         </div>
       </div>
 
-      <!-- Información del Proyecto -->
+      <!-- INFO -->
       <div class="info-card">
-        <h2>📋 Información del Proyecto</h2>
+        <h2>
+          <span class="material-icons">info</span>
+          Información del Proyecto
+        </h2>
+
         <div class="info-grid">
           <div class="info-item">
-            <span class="label">Horas Requeridas:</span>
+            <span class="label">Horas requeridas</span>
             <span class="value">160 horas</span>
           </div>
           <div class="info-item">
-            <span class="label">Estado:</span>
-            <span class="badge active">En Curso</span>
+            <span class="label">Estado</span>
+            <span class="badge active">En curso</span>
           </div>
         </div>
       </div>
 
-      <!-- Formulario de Vinculación -->
+      <!-- FORMULARIO -->
       <form [formGroup]="vinculationForm" (ngSubmit)="onSubmit()" class="vinculation-form">
+
+        <!-- ORGANIZACIÓN -->
         <div class="form-card">
-          <h2>🏢 Datos de la Organización</h2>
+          <h2>
+            <span class="material-icons">apartment</span>
+            Datos de la Organización
+          </h2>
 
           <div class="form-row">
             <div class="form-group full-width">
-              <label for="razonSocial">Razón Social *</label>
-              <input
-                type="text"
-                id="razonSocial"
-                formControlName="razonSocial"
-                class="form-control"
-                placeholder="Nombre de la organización"
-              >
+              <label>Razón Social *</label>
+              <input type="text" formControlName="razonSocial" class="form-control">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="representanteLegal">Representante Legal *</label>
-              <input
-                type="text"
-                id="representanteLegal"
-                formControlName="representanteLegal"
-                class="form-control"
-              >
+              <label>Representante Legal *</label>
+              <input type="text" formControlName="representanteLegal" class="form-control">
             </div>
 
             <div class="form-group">
-              <label for="tutorEmpresarial">Tutor Empresarial *</label>
-              <input
-                type="text"
-                id="tutorEmpresarial"
-                formControlName="tutorEmpresarial"
-                class="form-control"
-              >
+              <label>Tutor Empresarial *</label>
+              <input type="text" formControlName="tutorEmpresarial" class="form-control">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="email">Email *</label>
-              <input
-                type="email"
-                id="email"
-                formControlName="email"
-                class="form-control"
-              >
+              <label>Email *</label>
+              <input type="email" formControlName="email" class="form-control">
             </div>
 
             <div class="form-group">
-              <label for="telefono">Teléfono *</label>
-              <input
-                type="tel"
-                id="telefono"
-                formControlName="telefono"
-                class="form-control"
-              >
+              <label>Teléfono *</label>
+              <input type="tel" formControlName="telefono" class="form-control">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group full-width">
-              <label for="direccion">Dirección *</label>
-              <input
-                type="text"
-                id="direccion"
-                formControlName="direccion"
-                class="form-control"
-              >
+              <label>Dirección *</label>
+              <input type="text" formControlName="direccion" class="form-control">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="provincia">Provincia *</label>
-              <select id="provincia" formControlName="provincia" class="form-control">
+              <label>Provincia *</label>
+              <select formControlName="provincia" class="form-control">
                 <option value="">Seleccione</option>
-                <option value="Pichincha">Pichincha</option>
-                <option value="Guayas">Guayas</option>
-                <option value="Azuay">Azuay</option>
+                <option>Pichincha</option>
+                <option>Guayas</option>
+                <option>Azuay</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="canton">Cantón *</label>
-              <input type="text" id="canton" formControlName="canton" class="form-control">
+              <label>Cantón *</label>
+              <input type="text" formControlName="canton" class="form-control">
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-group">
-              <label for="parroquia">Parroquia *</label>
-              <input type="text" id="parroquia" formControlName="parroquia" class="form-control">
+            <div class="form-group full-width">
+              <label>Parroquia *</label>
+              <input type="text" formControlName="parroquia" class="form-control">
             </div>
           </div>
         </div>
 
+        <!-- FECHAS -->
         <div class="form-card">
-          <h2>📅 Fechas del Proyecto</h2>
+          <h2>
+            <span class="material-icons">calendar_month</span>
+            Fechas del Proyecto
+          </h2>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="startDate">Fecha de Inicio *</label>
-              <input type="date" id="startDate" formControlName="startDate" class="form-control">
+              <label>Fecha de inicio *</label>
+              <input type="date" formControlName="startDate" class="form-control">
             </div>
 
             <div class="form-group">
-              <label for="endDate">Fecha de Fin *</label>
-              <input type="date" id="endDate" formControlName="endDate" class="form-control">
+              <label>Fecha de fin *</label>
+              <input type="date" formControlName="endDate" class="form-control">
             </div>
           </div>
         </div>
 
+        <!-- BOTONES -->
         <div class="form-actions">
           <button type="button" routerLink="/student/dashboard" class="btn btn-secondary">
             Cancelar
           </button>
+
           <button type="submit" class="btn btn-primary" [disabled]="vinculationForm.invalid || loading">
-            <span *ngIf="!loading">💾 Guardar Información</span>
-            <span *ngIf="loading">Guardando...</span>
+            <span class="material-icons">save</span>
+            Guardar información
           </button>
         </div>
+
       </form>
     </div>
   `,
   styles: [`
-    /* Estilos similares a evaluation-form */
-    .vinculation-container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
+/* ================= CONTENEDOR ================= */
+.vinculation-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px;
+}
 
-    .header {
-      margin-bottom: 32px;
+/* ================= HEADER ================= */
+.header {
+  margin-bottom: 32px;
+}
 
-      .header-content {
-        display: flex;
-        gap: 20px;
-        align-items: center;
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-        .icon {
-          font-size: 64px;
-        }
+.header-icon {
+  font-size: 56px;
+  color: #f59e0b;
+}
 
-        h1 {
-          font-size: 32px;
-          color: #1f2937;
-          font-weight: 700;
-          margin-bottom: 4px;
-        }
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+}
 
-        p {
-          color: #6b7280;
-          font-size: 16px;
-          margin: 0;
-        }
-      }
-    }
+.header p {
+  color: #64748b;
+}
 
-    .info-card {
-      background: #fffbeb;
-      border: 2px solid #fbbf24;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
+/* ================= INFO ================= */
+.info-card {
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
 
-      h2 {
-        font-size: 18px;
-        color: #92400e;
-        font-weight: 600;
-        margin-bottom: 16px;
-      }
+.info-card h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: #92400e;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
 
-      .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
 
-        .info-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+.label {
+  font-weight: 500;
+  color: #92400e;
+}
 
-          .label {
-            font-size: 14px;
-            color: #92400e;
-            font-weight: 500;
-          }
+.value {
+  font-weight: 700;
+  color: #78350f;
+}
 
-          .value {
-            font-size: 16px;
-            color: #78350f;
-            font-weight: 700;
-          }
+.badge.active {
+  background: rgba(245,158,11,0.2);
+  color: #92400e;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
 
-          .badge {
-            padding: 6px 12px;
-            background: #d1fae5;
-            color: #065f46;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 600;
-          }
-        }
-      }
-    }
+/* ================= FORM ================= */
+.form-card {
+  background: white;
+  border-radius: 14px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 
-    .form-card {
-      background: white;
-      border-radius: 12px;
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.form-card h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
 
-      h2 {
-        font-size: 18px;
-        color: #1f2937;
-        margin-bottom: 24px;
-        font-weight: 600;
-        padding-bottom: 16px;
-        border-bottom: 2px solid #f3f4f6;
-      }
-    }
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-bottom: 20px;
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
 
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
 
-      &.full-width {
-        grid-column: 1 / -1;
-      }
+.form-control {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+}
 
-      label {
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 8px;
-      }
+.form-control:focus {
+  outline: none;
+  border-color: #f59e0b;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+}
 
-      .form-control {
-        padding: 12px 16px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.2s;
-        background-color: #f9fafb;
+/* ================= BOTONES ================= */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
 
-        &:focus {
-          outline: none;
-          border-color: #fbbf24;
-          background-color: white;
-          box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
-        }
-      }
-    }
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-    }
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 
-    @media (max-width: 768px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
+  .form-actions {
+    flex-direction: column-reverse;
+  }
 
-      .form-actions {
-        flex-direction: column-reverse;
-        button {
-          width: 100%;
-        }
-      }
-    }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
   `]
 })
 export class VinculationComponent implements OnInit {
@@ -348,9 +337,7 @@ export class VinculationComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    // Cargar datos si existen
-  }
+  ngOnInit(): void {}
 
   onSubmit(): void {
     if (this.vinculationForm.invalid) return;
@@ -360,7 +347,7 @@ export class VinculationComponent implements OnInit {
 
     this.vinculationService.create(data).subscribe({
       next: () => {
-        alert('Información guardada exitosamente');
+        alert('Información guardada correctamente');
         this.loading = false;
       },
       error: () => {

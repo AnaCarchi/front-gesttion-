@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PeriodService } from '../../../../core/services/period.service';
-import { AcademicPeriod, Career } from '../../../../core/models';
+import { AcademicPeriod } from '../../../../core/models/academic-period.model';
+import { Career } from '../../../../core/models/career.model';
 
 @Component({
   selector: 'app-period-careers',
@@ -10,80 +11,108 @@ import { AcademicPeriod, Career } from '../../../../core/models';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="period-careers-container">
+      <!-- HEADER -->
       <div class="header">
-        <a routerLink="/admin/periods" class="back-link">← Volver a Periodos</a>
+        <a routerLink="/admin/periods" class="back-link">
+          <span class="material-icons">arrow_back</span> Volver a Periodos
+        </a>
         <div class="header-content" *ngIf="period">
           <div>
             <h1>{{ period.name }}</h1>
             <p>Carreras asociadas al periodo académico</p>
           </div>
           <span class="period-status" [class.active]="period.status === 'Activo'">
+            <span class="material-icons">
+              {{ period.status === 'Activo' ? 'check_circle' : 'cancel' }}
+            </span>
             {{ period.status }}
           </span>
         </div>
       </div>
 
-      <!-- Información del Periodo -->
+      <!-- INFORMACIÓN DEL PERIODO -->
       <div class="period-info-card" *ngIf="period">
         <div class="info-grid">
           <div class="info-item">
-            <span class="info-label">📅 Fecha de Inicio</span>
-            <span class="info-value">{{ period.startDate | date:'dd/MM/yyyy' }}</span>
+            <span class="material-icons info-icon">event_available</span>
+            <div>
+              <span class="info-label">Fecha de Inicio</span>
+              <span class="info-value">{{ period.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
           </div>
+
           <div class="info-item">
-            <span class="info-label">📅 Fecha de Fin</span>
-            <span class="info-value">{{ period.endDate | date:'dd/MM/yyyy' }}</span>
+            <span class="material-icons info-icon">event_busy</span>
+            <div>
+              <span class="info-label">Fecha de Fin</span>
+              <span class="info-value">{{ period.endDate | date:'dd/MM/yyyy' }}</span>
+            </div>
           </div>
+
           <div class="info-item">
-            <span class="info-label">🎓 Total Carreras</span>
-            <span class="info-value">{{ careers.length }}</span>
+            <span class="material-icons info-icon">school</span>
+            <div>
+              <span class="info-label">Total Carreras</span>
+              <span class="info-value">{{ careers.length }}</span>
+            </div>
           </div>
+
           <div class="info-item">
-            <span class="info-label">📊 Estado</span>
-            <span class="badge" [class.active]="period.status === 'Activo'">
-              {{ period.status }}
-            </span>
+            <span class="material-icons info-icon">fact_check</span>
+            <div>
+              <span class="info-label">Estado</span>
+              <span class="badge" [class.active]="period.status === 'Activo'">
+                {{ period.status }}
+              </span>
+            </div>
           </div>
         </div>
+
         <div class="period-description" *ngIf="period.description">
-          <h3>Descripción</h3>
+          <h3><span class="material-icons">description</span> Descripción</h3>
           <p>{{ period.description }}</p>
         </div>
       </div>
 
-      <!-- Loading -->
+      <!-- LOADING -->
       <div class="loading-spinner" *ngIf="loading">
         <div class="spinner"></div>
         <p>Cargando información...</p>
       </div>
 
-      <!-- Carreras del Periodo -->
+      <!-- CARRERAS -->
       <div class="careers-section" *ngIf="!loading">
         <div class="section-header">
-          <h2>🎓 Carreras Asociadas</h2>
+          <h2><span class="material-icons">school</span> Carreras Asociadas</h2>
           <div class="career-stats">
             <span class="stat-badge dual">
+              <span class="material-icons">sync_alt</span>
               {{ getDualCareersCount() }} Duales
             </span>
             <span class="stat-badge traditional">
+              <span class="material-icons">menu_book</span>
               {{ getTraditionalCareersCount() }} Tradicionales
             </span>
           </div>
         </div>
 
-        <div class="careers-grid" *ngIf="careers.length > 0">
+        <div class="careers-grid" *ngIf="careers.length > 0; else emptyState">
           <div class="career-card" *ngFor="let career of careers">
             <div class="career-header">
-              <div class="career-icon">
-                {{ career.isDual ? '🎓' : '📚' }}
-              </div>
+              <span class="material-icons career-icon">{{ career.isDual ? 'sync_alt' : 'menu_book' }}</span>
               <div class="career-info">
                 <h3>{{ career.name }}</h3>
                 <span class="career-type" [class.dual]="career.isDual">
+                  <span class="material-icons">
+                    {{ career.isDual ? 'sync_alt' : 'menu_book' }}
+                  </span>
                   {{ career.isDual ? 'Carrera Dual' : 'Carrera Tradicional' }}
                 </span>
               </div>
               <span class="status-badge" [class.active]="career.status === 'Activo'">
+                <span class="material-icons">
+                  {{ career.status === 'Activo' ? 'check_circle' : 'cancel' }}
+                </span>
                 {{ career.status }}
               </span>
             </div>
@@ -93,315 +122,278 @@ import { AcademicPeriod, Career } from '../../../../core/models';
             </div>
 
             <div class="career-details">
-              <h4>Tipos de Formación Disponibles:</h4>
+              <h4><span class="material-icons">assignment</span> Tipos de Formación:</h4>
               <div class="formation-types">
                 <div class="formation-badge vinculation">
-                  <span class="badge-icon">🤝</span>
-                  <span class="badge-text">Vinculación (160h)</span>
+                  <span class="material-icons">diversity_3</span>
+                  Vinculación (160h)
                 </div>
-                <div class="formation-badge" *ngIf="career.isDual" [class.dual]="career.isDual">
-                  <span class="badge-icon">🎓</span>
-                  <span class="badge-text">Prácticas Formación Dual</span>
+                <div class="formation-badge dual" *ngIf="career.isDual">
+                  <span class="material-icons">work_outline</span>
+                  Formación Dual
                 </div>
                 <div class="formation-badge prepro" *ngIf="!career.isDual">
-                  <span class="badge-icon">💼</span>
-                  <span class="badge-text">Prácticas Preprofesionales</span>
+                  <span class="material-icons">business_center</span>
+                  Prácticas Preprofesionales
                 </div>
               </div>
             </div>
 
             <div class="career-actions">
               <a [routerLink]="['/admin/careers', career.id, 'edit']" class="btn btn-sm btn-outline">
-                ✏️ Editar Carrera
+                <span class="material-icons">edit</span> Editar Carrera
               </a>
             </div>
           </div>
         </div>
 
-        <!-- Estado Vacío -->
-        <div class="empty-state" *ngIf="careers.length === 0">
-          <div class="empty-icon">🎓</div>
-          <h3>No hay carreras asociadas</h3>
-          <p>Este periodo académico no tiene carreras registradas</p>
-          <a routerLink="/admin/careers/new" class="btn btn-primary">
-            Crear Primera Carrera
-          </a>
-        </div>
+        <!-- EMPTY STATE -->
+        <ng-template #emptyState>
+          <div class="empty-state">
+            <span class="material-icons empty-icon">school</span>
+            <h3>No hay carreras asociadas</h3>
+            <p>Este periodo académico no tiene carreras registradas</p>
+            <a routerLink="/admin/careers/new" class="btn btn-primary">
+              <span class="material-icons">add_circle</span> Crear Primera Carrera
+            </a>
+          </div>
+        </ng-template>
       </div>
 
-      <!-- Estadísticas Adicionales -->
-      <div class="stats-section" *ngIf="!loading && careers.length > 0">
-        <h2>📊 Resumen del Periodo</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">🎓</div>
-            <div class="stat-content">
-              <div class="stat-label">Carreras Duales</div>
-              <div class="stat-value">{{ getDualCareersCount() }}</div>
-              <div class="stat-description">Prácticas formativas obligatorias</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">📚</div>
-            <div class="stat-content">
-              <div class="stat-label">Carreras Tradicionales</div>
-              <div class="stat-value">{{ getTraditionalCareersCount() }}</div>
-              <div class="stat-description">Vinculación + Preprofesionales</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-label">Carreras Activas</div>
-              <div class="stat-value">{{ getActiveCareersCount() }}</div>
-              <div class="stat-description">En funcionamiento actual</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-content">
-              <div class="stat-label">Total Carreras</div>
-              <div class="stat-value">{{ careers.length }}</div>
-              <div class="stat-description">Registradas en el periodo</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Error Message -->
+      <!-- ERROR -->
       <div class="error-message" *ngIf="errorMessage">
-        <span>⚠️</span>
-        <span>{{ errorMessage }}</span>
+        <span class="material-icons">error</span>
+        {{ errorMessage }}
       </div>
     </div>
   `,
   styles: [`
 /* ================= CONTENEDOR GENERAL ================= */
-.career-list {
+.period-careers-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 32px 24px;
   min-height: 100vh;
-  background: #f1f5f9; /* gris claro */
+  background-image:
+    linear-gradient(
+      rgba(15, 23, 42, 0.85),
+      rgba(15, 23, 42, 0.85)
+    ),
+    url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 /* ================= HEADER ================= */
-.list-header {
+.header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
+  align-items: center;
+  margin-bottom: 36px;
 }
 
-.list-header h1 {
-  font-size: 30px;
+.back-link {
+  color: #93c5fd;
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 6px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.3s ease;
 }
 
-.list-header p {
-  font-size: 15px;
-  color: #475569;
+.back-link:hover {
+  color: #fbbf24;
+}
+
+.header-content h1 {
+  font-size: 34px;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0;
 }
 
-/* ================= BOTONES ================= */
-.btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
+.period-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+}
+
+.period-status.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #bbf7d0;
+}
+
+/* ================= INFO GRID ================= */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
+  padding: 26px;
+  margin-bottom: 28px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-icon {
+  font-size: 32px;
+  color: #3b82f6;
+}
+
+.info-item span {
+  font-size: 15px;
   font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  transition: all 0.25s ease;
+  color: #0f172a;
 }
 
-.btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background: #1d4ed8;
-}
-
-.btn-outline {
-  background: #ffffff;
-  border: 1px solid #cbd5f5;
-  color: #1e40af;
-}
-
-.btn-outline:hover {
-  background: #eff6ff;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-}
-
-/* ================= LOADING ================= */
-.loading-spinner {
-  text-align: center;
-  padding: 80px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ================= GRID ================= */
+/* ================= CAREER GRID ================= */
 .careers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
 }
 
-/* ================= CARD ================= */
+/* ================= CAREER CARD ================= */
 .career-card {
-  background: #ffffff;
-  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 .career-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35);
 }
 
-/* ================= CARD HEADER ================= */
 .career-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-.career-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
+.career-icon {
+  font-size: 32px;
+  color: #2563eb;
 }
 
-/* ================= ESTADO ================= */
-.career-status {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.career-status.active {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= BODY ================= */
-.career-body p {
+.career-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
-  color: #475569;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.career-info {
-  display: flex;
-  gap: 8px;
-}
-
-.info-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
   font-weight: 600;
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-/* ================= ACTIONS ================= */
-.career-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-/* ================= EMPTY STATE ================= */
-.empty-state {
-  text-align: center;
-  padding: 100px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state h3 {
-  font-size: 20px;
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.empty-state p {
   color: #475569;
-  margin-bottom: 20px;
 }
 
-/* ================= ERROR ================= */
+.career-type.dual {
+  color: #1e40af;
+}
+
+/* ================= ACTION BUTTONS ================= */
+.career-actions {
+  margin-top: 18px;
+  text-align: right;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  transform: translateY(-3px);
+}
+
+.btn-outline {
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: #eff6ff;
+  transform: translateY(-3px);
+}
+
+/* ================= LOADING ================= */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px;
+  color: white;
+}
+
+.spinner {
+  width: 46px;
+  height: 46px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================= ERROR MESSAGE ================= */
 .error-message {
   margin-top: 24px;
   padding: 14px 18px;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fecaca;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
+  backdrop-filter: blur(6px);
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .list-header {
+  .header {
     flex-direction: column;
-    gap: 16px;
+    text-align: center;
+    gap: 12px;
   }
 
-  .career-actions {
-    flex-direction: column;
+  .info-grid, .careers-grid {
+    grid-template-columns: 1fr;
   }
 }
 `]
@@ -427,30 +419,29 @@ export class PeriodCareersComponent implements OnInit {
   }
 
   private loadData(): void {
+    if (!this.periodId) return;
+
     this.loading = true;
     this.errorMessage = '';
 
-    // Cargar periodo
-    this.periodService.getById(this.periodId!).subscribe({
-      next: (period) => {
-        this.period = period;
-      },
+    this.periodService.getById(this.periodId).subscribe({
+      next: (period) => (this.period = period),
       error: (error) => {
+        console.error('Error al cargar periodo:', error);
         this.errorMessage = 'Error al cargar el periodo';
-        console.error('Error:', error);
+        this.loading = false;
       }
     });
 
-    // Cargar carreras del periodo
-    this.periodService.getCareers(this.periodId!).subscribe({
+    this.periodService.getCareers(this.periodId).subscribe({
       next: (careers) => {
-        this.careers = careers;
+        this.careers = careers ?? [];
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error al cargar carreras:', error);
         this.errorMessage = 'Error al cargar las carreras';
         this.loading = false;
-        console.error('Error:', error);
       }
     });
   }
@@ -461,9 +452,5 @@ export class PeriodCareersComponent implements OnInit {
 
   getTraditionalCareersCount(): number {
     return this.careers.filter(c => !c.isDual).length;
-  }
-
-  getActiveCareersCount(): number {
-    return this.careers.filter(c => c.status === 'Activo').length;
   }
 }

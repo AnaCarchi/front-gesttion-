@@ -1,10 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { StudentService } from '../../../../core/services/student.service';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
-import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/models';
+import { Student, EvaluationTemplate } from '../../../../core/models';
 
 @Component({
   selector: 'app-evaluation-form',
@@ -12,29 +18,55 @@ import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/m
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="evaluation-form-container">
+
+      <!-- HEADER -->
       <div class="header">
-        <a routerLink="/tutor/my-students" class="back-link">← Volver</a>
-        <h1>📝 Evaluar Estudiante</h1>
+        <a routerLink="/tutor/my-students" class="back-link">
+          <span class="material-icons">arrow_back</span>
+          Volver
+        </a>
+        <h1>
+          <span class="material-icons">edit_note</span>
+          Evaluar Estudiante
+        </h1>
       </div>
 
-      <!-- Información del Estudiante -->
+      <!-- INFO ESTUDIANTE -->
       <div class="student-info-card" *ngIf="student">
         <div class="student-header">
           <div class="student-avatar">
             {{ getInitials(student.person?.name, student.person?.lastname) }}
           </div>
+
           <div class="student-details">
-            <h2>{{ student.person?.name }} {{ student.person?.lastname }}</h2>
+            <h2>
+              <span class="material-icons">person</span>
+              {{ student.person?.name }} {{ student.person?.lastname }}
+            </h2>
+
             <div class="student-meta">
-              <span>✉️ {{ student.email }}</span>
-              <span>🎓 {{ student.career?.name || 'Sin carrera' }}</span>
+              <span>
+                <span class="material-icons">mail</span>
+                {{ student.email }}
+              </span>
+              <span>
+                <span class="material-icons">school</span>
+                {{ student.career?.name || 'Sin carrera' }}
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- Selección de Asignatura -->
-        <div class="subject-selection" *ngIf="student?.enrolledSubjects && student.enrolledSubjects!.length > 1">
-          <label>Selecciona la asignatura a evaluar:</label>
+        <!-- SELECCIÓN ASIGNATURA -->
+        <div
+          class="subject-selection"
+          *ngIf="student.enrolledSubjects && student.enrolledSubjects.length > 1"
+        >
+          <label>
+            <span class="material-icons">library_books</span>
+            Selecciona la asignatura
+          </label>
+
           <div class="subjects-grid">
             <button
               *ngFor="let subject of student.enrolledSubjects"
@@ -43,171 +75,165 @@ import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/m
               [class.selected]="selectedSubjectType === subject.type"
               (click)="selectSubject(subject.type)"
             >
-              <span class="subject-icon">{{ getSubjectIcon(subject.type) }}</span>
-              <span class="subject-name">{{ getSubjectName(subject.type) }}</span>
+              <span class="material-icons">assignment</span>
+              {{ getSubjectName(subject.type) }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Formulario de Evaluación -->
-      <form [formGroup]="evaluationForm" (ngSubmit)="onSubmit()" *ngIf="template && selectedSubjectType">
+      <!-- FORMULARIO -->
+      <form
+        *ngIf="template && selectedSubjectType"
+        [formGroup]="evaluationForm"
+        (ngSubmit)="onSubmit()"
+      >
         <div class="form-card">
+
           <div class="form-header">
-            <h2>{{ template.name }}</h2>
-            <span class="template-type">{{ getSubjectName(selectedSubjectType) }}</span>
+            <h2>
+              <span class="material-icons">description</span>
+              {{ template.name }}
+            </h2>
+            <span class="template-type">
+              <span class="material-icons">bookmark</span>
+              {{ getSubjectName(selectedSubjectType) }}
+            </span>
           </div>
 
-          <!-- Campos Dinámicos -->
+          <!-- CAMPOS -->
           <div class="fields-container" formArrayName="fields">
-            <div 
-              *ngFor="let field of fieldsArray.controls; let i = index" 
+            <div
               class="field-group"
+              *ngFor="let field of fieldsArray.controls; let i = index"
               [formGroupName]="i"
             >
-              <label [for]="'field-' + i">
+              <label>
+                <span class="material-icons">edit</span>
                 {{ template.fields[i].name }}
                 <span class="required" *ngIf="template.fields[i].required">*</span>
               </label>
 
-              <!-- Campo de Texto -->
               <input
                 *ngIf="template.fields[i].type === 'text'"
-                type="text"
-                [id]="'field-' + i"
-                formControlName="value"
                 class="form-control"
+                formControlName="value"
                 [class.is-invalid]="isFieldInvalid(i)"
-              >
+              />
 
-              <!-- Campo Numérico -->
               <input
                 *ngIf="template.fields[i].type === 'number'"
                 type="number"
-                [id]="'field-' + i"
-                formControlName="value"
                 class="form-control"
-                [class.is-invalid]="isFieldInvalid(i)"
+                formControlName="value"
                 min="0"
                 max="10"
                 step="0.1"
-              >
+                [class.is-invalid]="isFieldInvalid(i)"
+              />
 
-              <!-- Campo Select -->
               <select
                 *ngIf="template.fields[i].type === 'select'"
-                [id]="'field-' + i"
-                formControlName="value"
                 class="form-control"
+                formControlName="value"
                 [class.is-invalid]="isFieldInvalid(i)"
               >
-                <option value="">Seleccione una opción</option>
-                <option *ngFor="let option of template.fields[i].options" [value]="option">
-                  {{ option }}
+                <option value="">Seleccione</option>
+                <option
+                  *ngFor="let opt of template.fields[i].options"
+                  [value]="opt"
+                >
+                  {{ opt }}
                 </option>
               </select>
 
-              <!-- Campo Textarea -->
               <textarea
                 *ngIf="template.fields[i].type === 'textarea'"
-                [id]="'field-' + i"
-                formControlName="value"
-                class="form-control"
                 rows="4"
+                class="form-control"
+                formControlName="value"
                 [class.is-invalid]="isFieldInvalid(i)"
               ></textarea>
 
               <div class="invalid-feedback" *ngIf="isFieldInvalid(i)">
-                Este campo es requerido
+                <span class="material-icons">error</span>
+                Campo obligatorio
               </div>
             </div>
           </div>
 
-          <!-- Calificación General -->
+          <!-- SCORE -->
           <div class="score-section">
-            <label for="score">Calificación General (0-10) *</label>
+            <label>
+              <span class="material-icons">star</span>
+              Calificación general
+            </label>
             <input
               type="number"
-              id="score"
-              formControlName="score"
               class="form-control score-input"
+              formControlName="score"
               min="0"
               max="10"
-              step="0.1"
-              [class.is-invalid]="evaluationForm.get('score')?.invalid && evaluationForm.get('score')?.touched"
-            >
-            <div class="score-indicator" *ngIf="evaluationForm.get('score')?.value">
-              <div class="score-bar">
-                <div 
-                  class="score-fill"
-                  [style.width.%]="(evaluationForm.get('score')?.value / 10) * 100"
-                  [class.excellent]="evaluationForm.get('score')?.value >= 9"
-                  [class.good]="evaluationForm.get('score')?.value >= 7 && evaluationForm.get('score')?.value < 9"
-                  [class.regular]="evaluationForm.get('score')?.value >= 5 && evaluationForm.get('score')?.value < 7"
-                  [class.poor]="evaluationForm.get('score')?.value < 5"
-                ></div>
-              </div>
-              <div class="score-label">{{ getScoreLabel(evaluationForm.get('score')?.value) }}</div>
-            </div>
+            />
           </div>
 
-          <!-- Comentarios -->
+          <!-- COMENTARIOS -->
           <div class="comments-section">
-            <label for="comments">Comentarios Adicionales</label>
+            <label>
+              <span class="material-icons">comment</span>
+              Comentarios
+            </label>
             <textarea
-              id="comments"
-              formControlName="comments"
               class="form-control"
               rows="5"
-              placeholder="Agrega observaciones, fortalezas o áreas de mejora..."
+              formControlName="comments"
             ></textarea>
           </div>
         </div>
 
-        <!-- Error Message -->
+        <!-- MENSAJES -->
         <div class="alert alert-danger" *ngIf="errorMessage">
+          <span class="material-icons">error_outline</span>
           {{ errorMessage }}
         </div>
 
-        <!-- Success Message -->
         <div class="alert alert-success" *ngIf="successMessage">
+          <span class="material-icons">check_circle</span>
           {{ successMessage }}
         </div>
 
-        <!-- Acciones -->
+        <!-- ACCIONES -->
         <div class="form-actions">
-          <button type="button" routerLink="/tutor/my-students" class="btn btn-secondary">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            routerLink="/tutor/my-students"
+          >
+            <span class="material-icons">close</span>
             Cancelar
           </button>
+
           <button
             type="submit"
             class="btn btn-primary"
             [disabled]="evaluationForm.invalid || submitting"
           >
-            <span *ngIf="!submitting">💾 Guardar Evaluación</span>
-            <span *ngIf="submitting" class="loading-content">
-              <span class="spinner-border spinner-border-sm"></span>
-              Guardando...
-            </span>
+            <span class="material-icons">save</span>
+            Guardar Evaluación
           </button>
         </div>
       </form>
 
-      <!-- Loading -->
+      <!-- LOADING -->
       <div class="loading-spinner" *ngIf="loading">
         <div class="spinner"></div>
-        <p>Cargando formulario...</p>
-      </div>
-
-      <!-- No Subject Selected -->
-      <div class="empty-state" *ngIf="student?.enrolledSubjects && (student?.enrolledSubjects?.length ?? 0) > 0 && !selectedSubjectType">
-        <h3>Selecciona una asignatura</h3>
-        <p>Elige la asignatura que deseas evaluar</p>
+        <span class="material-icons">hourglass_top</span>
+        Cargando...
       </div>
     </div>
   `,
   styles: [`
-:root {
+:host {
   --blue: #2563eb;
   --blue-dark: #1e40af;
   --blue-soft: #eff6ff;
@@ -217,268 +243,92 @@ import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/m
   --border: #e5e7eb;
 }
 
-/* ================= CONTAINER ================= */
+/* CONTAINER */
 .evaluation-form-container {
   max-width: 900px;
   margin: 0 auto;
 }
 
-/* ================= HEADER ================= */
-.header {
-  margin-bottom: 32px;
-}
-
-.back-link {
-  display: inline-block;
-  margin-bottom: 10px;
-  color: var(--blue);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.back-link:hover {
-  text-decoration: underline;
-}
-
+/* HEADER */
 .header h1 {
-  font-size: 30px;
-  font-weight: 700;
-  color: var(--black);
-  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* ================= STUDENT CARD ================= */
+/* STUDENT CARD */
 .student-info-card {
-  background: white;
+  background: #fff;
+  padding: 24px;
   border-radius: 16px;
-  padding: 28px;
   margin-bottom: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
 }
 
 .student-header {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  gap: 16px;
   border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
 }
 
 .student-avatar {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-  color: white;
-  font-size: 22px;
-  font-weight: 700;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.student-details h2 {
-  font-size: 22px;
   font-weight: 700;
-  color: var(--black);
-  margin: 0 0 6px;
 }
 
-.student-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.student-meta span {
-  font-size: 14px;
-  color: var(--gray);
-}
-
-/* ================= SUBJECT SELECTION ================= */
-.subject-selection label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--black);
-  margin-bottom: 12px;
-  display: block;
-}
-
+/* SUBJECTS */
 .subjects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
   gap: 12px;
 }
 
 .subject-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 14px;
   border-radius: 14px;
   border: 2px solid var(--border);
-  background: white;
+  background: #fff;
+  display: flex;
+  gap: 10px;
+  align-items: center;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.subject-btn:hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
 }
 
 .subject-btn.selected {
-  border-color: var(--orange);
-  background: rgba(249,115,22,0.12);
-  color: var(--orange);
-}
-
-.subject-icon {
-  font-size: 22px;
-}
-
-/* ================= FORM CARD ================= */
-.form-card {
-  background: white;
-  border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.form-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--black);
-}
-
-.template-type {
-  padding: 6px 14px;
   background: var(--blue-soft);
+  border-color: var(--blue);
   color: var(--blue);
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
 }
 
-/* ================= FIELDS ================= */
-.fields-container {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  margin-bottom: 28px;
+/* FORM */
+.form-card {
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
 }
 
-.field-group label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--black);
-  margin-bottom: 8px;
-}
-
-.required {
-  color: #ef4444;
-}
-
+/* CONTROLS */
 .form-control {
+  width: 100%;
   padding: 12px 16px;
   border-radius: 10px;
   border: 1.5px solid var(--border);
-  font-size: 14px;
-  background: #f9fafb;
-  transition: all 0.2s ease;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: var(--blue);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
 }
 
 .form-control.is-invalid {
   border-color: #ef4444;
-  background: #fef2f2;
 }
 
-.invalid-feedback {
-  font-size: 13px;
-  color: #ef4444;
-  margin-top: 6px;
-}
-
-/* ================= SCORE ================= */
-.score-section {
-  background: #f9fafb;
-  padding: 24px;
-  border-radius: 14px;
-  margin-bottom: 24px;
-}
-
-.score-section label {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--black);
-  margin-bottom: 12px;
-  display: block;
-}
-
-.score-input {
-  width: 140px;
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  padding: 12px;
-}
-
-.score-bar {
-  height: 10px;
-  background: var(--border);
-  border-radius: 999px;
-  overflow: hidden;
-  margin: 14px 0 6px;
-}
-
-.score-fill {
-  height: 100%;
-  transition: width 0.3s ease;
-}
-
-.score-fill.excellent { background: #22c55e; }
-.score-fill.good { background: var(--blue); }
-.score-fill.regular { background: var(--orange); }
-.score-fill.poor { background: #ef4444; }
-
-.score-label {
-  text-align: center;
-  font-size: 13px;
-  color: var(--gray);
-  font-weight: 600;
-}
-
-/* ================= COMMENTS ================= */
-.comments-section label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--black);
-  margin-bottom: 8px;
-  display: block;
-}
-
-/* ================= ACTIONS ================= */
+/* ACTIONS */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -486,99 +336,37 @@ import { Student, EvaluationTemplate, EvaluationField } from '../../../../core/m
 }
 
 .btn {
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 20px;
-  font-size: 14px;
+  border-radius: 12px;
   font-weight: 600;
-  cursor: pointer;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-  color: white;
+  color: #fff;
   border: none;
 }
 
-.btn-primary:hover {
-  box-shadow: 0 12px 25px rgba(37,99,235,0.4);
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  border: none;
-  color: var(--black);
-}
-
-/* ================= ALERTS ================= */
-.alert {
-  border-radius: 12px;
-  padding: 14px 18px;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
-.alert-danger {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.alert-success {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= EMPTY & LOADING ================= */
-.loading-spinner,
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
+/* LOADING */
 .spinner {
   width: 40px;
   height: 40px;
   border: 3px solid var(--border);
   border-top-color: var(--blue);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+  animation: spin .8s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .student-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .form-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .subjects-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions .btn {
-    width: 100%;
-  }
-}
 `]
 })
 export class EvaluationFormComponent implements OnInit {
+
   private fb = inject(FormBuilder);
   private studentService = inject(StudentService);
   private evaluationService = inject(EvaluationService);
@@ -589,6 +377,7 @@ export class EvaluationFormComponent implements OnInit {
   student?: Student;
   template?: EvaluationTemplate;
   selectedSubjectType?: string;
+
   loading = true;
   submitting = false;
   errorMessage = '';
@@ -608,139 +397,80 @@ export class EvaluationFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      if (params['studentId']) {
-        this.studentId = +params['studentId'];
-        this.loadStudent();
-      }
+    this.route.params.subscribe(p => {
+      this.studentId = +p['studentId'];
+      this.loadStudent();
     });
   }
 
-  private loadStudent(): void {
-    this.loading = true;
-    this.studentService.getById(this.studentId!).subscribe({
-      next: (student) => {
-        this.student = student;
-        
-        // Si solo tiene una asignatura, seleccionarla automáticamente
-        if (student.enrolledSubjects && student.enrolledSubjects.length === 1) {
-          this.selectSubject(student.enrolledSubjects[0].type);
-        }
-        
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Error al cargar el estudiante';
-        this.loading = false;
+  loadStudent(): void {
+    this.studentService.getById(this.studentId!).subscribe(s => {
+      this.student = s;
+      if (s.enrolledSubjects?.length === 1) {
+        this.selectSubject(s.enrolledSubjects[0].type);
       }
+      this.loading = false;
     });
   }
 
-  selectSubject(subjectType: string): void {
-    this.selectedSubjectType = subjectType;
-    this.loadTemplate(subjectType);
-  }
-
-  private loadTemplate(subjectType: string): void {
-    this.evaluationService.getTemplateByType(subjectType).subscribe({
-      next: (template) => {
-        this.template = template;
-        this.buildForm();
-      },
-      error: (error) => {
-        this.errorMessage = 'Error al cargar la plantilla de evaluación';
-      }
+  selectSubject(type: string): void {
+    this.selectedSubjectType = type;
+    this.evaluationService.getTemplateByType(type).subscribe(t => {
+      this.template = t;
+      this.buildForm();
     });
   }
 
-  private buildForm(): void {
+  buildForm(): void {
     this.fieldsArray.clear();
-    
-    this.template?.fields.forEach(field => {
-      const validators = field.required ? [Validators.required] : [];
-      this.fieldsArray.push(this.fb.group({
-        fieldId: [field.id],
-        value: ['', validators]
-      }));
+    this.template?.fields.forEach(f => {
+      this.fieldsArray.push(
+        this.fb.group({
+          fieldId: [f.id],
+          value: ['', f.required ? Validators.required : []]
+        })
+      );
     });
   }
 
   onSubmit(): void {
-    if (this.evaluationForm.invalid) {
-      this.markFormGroupTouched(this.evaluationForm);
-      return;
-    }
+    if (this.evaluationForm.invalid) return;
 
     this.submitting = true;
-    this.errorMessage = '';
 
-    const evaluationData = {
+    const data = {
       studentId: this.studentId,
       subjectType: this.selectedSubjectType,
       templateId: this.template?.id,
-      score: this.evaluationForm.get('score')?.value,
-      comments: this.evaluationForm.get('comments')?.value,
-      fields: this.fieldsArray.value
+      ...this.evaluationForm.value
     };
 
-    this.evaluationService.create(evaluationData).subscribe({
+    this.evaluationService.create(data).subscribe({
       next: () => {
-        this.successMessage = 'Evaluación guardada exitosamente';
-        setTimeout(() => {
-          this.router.navigate(['/tutor/my-students']);
-        }, 1500);
+        this.successMessage = 'Evaluación guardada correctamente';
+        setTimeout(() => this.router.navigate(['/tutor/my-students']), 1500);
       },
-      error: (error) => {
-        this.errorMessage = error.message || 'Error al guardar la evaluación';
+      error: () => {
+        this.errorMessage = 'Error al guardar evaluación';
         this.submitting = false;
       }
     });
   }
 
-  private markFormGroupTouched(formGroup: FormGroup | FormArray): void {
-    Object.keys(formGroup.controls).forEach(key => {
-      const control = formGroup.get(key);
-      if (control instanceof FormGroup || control instanceof FormArray) {
-        this.markFormGroupTouched(control);
-      } else {
-        control?.markAsTouched();
-      }
-    });
+  isFieldInvalid(i: number): boolean {
+    const c = this.fieldsArray.at(i).get('value');
+    return !!(c?.invalid && c?.touched);
   }
 
-  isFieldInvalid(index: number): boolean {
-    const field = this.fieldsArray.at(index);
-    return !!(field.get('value')?.invalid && field.get('value')?.touched);
-  }
-
-  getInitials(name?: string, lastname?: string): string {
-    const n = name?.charAt(0) || '';
-    const l = lastname?.charAt(0) || '';
-    return (n + l).toUpperCase() || 'E';
-  }
-
-  getSubjectIcon(type: string): string {
-    const icons: { [key: string]: string } = {
-      'VINCULATION': '🤝',
-      'DUAL_INTERNSHIP': '🎓',
-      'PREPROFESSIONAL_INTERNSHIP': '💼'
-    };
-    return icons[type] || '📚';
+  getInitials(n?: string, l?: string): string {
+    return ((n?.[0] || '') + (l?.[0] || '')).toUpperCase();
   }
 
   getSubjectName(type: string): string {
-    const names: { [key: string]: string } = {
-      'VINCULATION': 'Vinculación',
-      'DUAL_INTERNSHIP': 'Prácticas Dual',
-      'PREPROFESSIONAL_INTERNSHIP': 'Preprofesionales'
-    };
-    return names[type] || type;
-  }
-
-  getScoreLabel(score: number): string {
-    if (score >= 9) return '🌟 Excelente';
-    if (score >= 7) return '✅ Bueno';
-    if (score >= 5) return '⚠️ Regular';
-    return '❌ Insuficiente';
+    return {
+      VINCULATION: 'Vinculación',
+      DUAL_INTERNSHIP: 'Prácticas Dual',
+      PREPROFESSIONAL_INTERNSHIP: 'Preprofesionales'
+    }[type] || type;
   }
 }

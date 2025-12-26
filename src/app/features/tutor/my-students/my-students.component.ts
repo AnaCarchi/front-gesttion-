@@ -9,309 +9,302 @@ import { Student } from '../../../core/models';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="my-students">
-      <div class="header">
-        <h1>👥 Mis Estudiantes</h1>
-        <p>Estudiantes bajo tu supervisión</p>
-      </div>
+    <section class="page">
 
-      <div class="students-grid" *ngIf="!loading && students.length > 0">
-        <div class="student-card" *ngFor="let student of students">
-          <div class="student-header">
-            <div class="student-avatar">
+      <header class="page-header">
+        <h1>
+          <span class="material-icons">groups</span>
+          Mis Estudiantes
+        </h1>
+        <span>Listado de estudiantes asignados</span>
+      </header>
+
+      <div class="grid" *ngIf="!loading && students.length">
+
+        <article class="card" *ngFor="let student of students">
+
+          <div class="card-top">
+            <div class="avatar">
               {{ getInitials(student.person?.name, student.person?.lastname) }}
             </div>
-            <div class="student-info">
-              <div class="student-name">
+
+            <div class="info">
+              <strong>
+                <span class="material-icons">person</span>
                 {{ student.person?.name }} {{ student.person?.lastname }}
-              </div>
-              <div class="student-meta">
-                <span>✉️ {{ student.email }}</span>
-                <span>🆔 {{ student.person?.dni }}</span>
-              </div>
+              </strong>
+              <small>
+                <span class="material-icons">mail</span>
+                {{ student.email }}
+              </small>
+              <small>
+                <span class="material-icons">badge</span>
+                {{ student.person?.dni }}
+              </small>
             </div>
           </div>
 
-          <div class="student-details">
-            <div class="detail-row">
-              <span class="label">Carrera:</span>
-              <span class="value">{{ student.career?.name || '-' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">SIGA:</span>
-              <span class="badge" [class.active]="student.isMatriculatedInSIGA">
-                {{ student.isMatriculatedInSIGA ? 'Matriculado' : 'No matriculado' }}
-              </span>
-            </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <span>
+              <span class="material-icons">school</span>
+              Carrera
+            </span>
+            <b>{{ student.career?.name || 'No asignada' }}</b>
           </div>
 
-          <div class="student-subjects">
-            <span class="label">Asignaturas:</span>
-            <div class="subjects-list">
-              <span 
-                *ngFor="let subject of student.enrolledSubjects" 
-                class="subject-badge"
+          <div class="row">
+            <span>
+              <span class="material-icons">verified</span>
+              Estado SIGA
+            </span>
+            <span
+              class="chip"
+              [class.success]="student.isMatriculatedInSIGA"
+              [class.warning]="!student.isMatriculatedInSIGA"
+            >
+              {{ student.isMatriculatedInSIGA ? 'Matriculado' : 'No matriculado' }}
+            </span>
+          </div>
+
+          <div class="subjects">
+            <span class="label">
+              <span class="material-icons">menu_book</span>
+              Asignaturas
+            </span>
+
+            <div class="chips">
+              <span
+                class="chip outline"
+                *ngFor="let subject of student.enrolledSubjects"
               >
                 {{ getSubjectLabel(subject.type) }}
               </span>
             </div>
           </div>
 
-          <div class="student-actions">
-            <a 
-              [routerLink]="['/tutor/evaluate', student.id]" 
-              class="btn btn-primary btn-block"
-            >
-              📝 Evaluar Estudiante
-            </a>
-          </div>
-        </div>
+          <a
+            class="action"
+            [routerLink]="['/tutor/evaluate', student.id]"
+          >
+            <span class="material-icons">rate_review</span>
+            Evaluar estudiante
+          </a>
+
+        </article>
       </div>
 
-      <div class="empty-state" *ngIf="!loading && students.length === 0">
-        <div class="empty-icon">👥</div>
-        <h3>No tienes estudiantes asignados</h3>
-        <p>Contacta al coordinador de carrera</p>
+      <!-- EMPTY STATE -->
+      <div class="state" *ngIf="!loading && students.length === 0">
+        <span class="material-icons" style="font-size:48px;color:#9ca3af">
+          groups_off
+        </span>
+        <h3>No existen estudiantes asignados</h3>
+        <p>Comunícate con el coordinador académico</p>
       </div>
 
-      <div class="loading-spinner" *ngIf="loading">
-        <div class="spinner"></div>
-        <p>Cargando estudiantes...</p>
+      <!-- LOADING -->
+      <div class="state" *ngIf="loading">
+        <div class="loader"></div>
+        <p>
+          <span class="material-icons">hourglass_top</span>
+          Cargando información...
+        </p>
       </div>
-    </div>
+
+    </section>
   `,
-  styles: [`
-:root {
-  --blue: #2563eb;
-  --blue-soft: #eff6ff;
-  --orange: #f97316;
-  --black: #111827;
-  --gray: #6b7280;
-  --border: #e5e7eb;
-}
-
-/* ================= CONTAINER ================= */
-.my-students {
+ styles: [`
+/* CONTENEDOR */
+.page {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* ================= HEADER ================= */
-.header {
+/* HEADER */
+.page-header {
   margin-bottom: 32px;
 }
 
-.header h1 {
+.page-header h1 {
   font-size: 32px;
   font-weight: 700;
-  color: var(--black);
-  margin-bottom: 6px;
+  color: #1f2937;
 }
 
-.header p {
-  color: var(--gray);
-  font-size: 15px;
-  margin: 0;
+.page-header span {
+  color: #6b7280;
+  font-size: 14px;
 }
 
-/* ================= GRID ================= */
-.students-grid {
+/* GRID */
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
-/* ================= CARD ================= */
-.student-card {
+/* CARD */
+.card {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  border-top: 4px solid var(--blue);
-  transition: all 0.25s ease;
-}
-
-.student-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
-}
-
-/* ================= HEADER CARD ================= */
-.student-header {
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: 0.3s;
   display: flex;
-  gap: 16px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  flex-direction: column;
+  gap: 14px;
 }
 
-.student-avatar {
-  width: 56px;
-  height: 56px;
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(59,130,246,0.15);
+}
+
+/* HEADER CARD */
+.card-top {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue), #1e40af);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.student-info {
-  flex: 1;
-}
-
-.student-name {
-  font-size: 17px;
   font-weight: 600;
-  color: var(--black);
-  margin-bottom: 6px;
 }
 
-.student-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.info strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.student-meta span {
+.info small {
+  display: block;
   font-size: 13px;
-  color: var(--gray);
+  color: #6b7280;
 }
 
-/* ================= DETAILS ================= */
-.student-details {
-  margin-bottom: 16px;
-}
-
-.detail-row {
+/* ROWS */
+.row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-}
-
-.detail-row .label {
-  font-size: 13px;
-  color: var(--gray);
-  font-weight: 500;
-}
-
-.detail-row .value {
+  padding: 8px 0;
   font-size: 14px;
+}
+
+.row span {
+  color: #6b7280;
+}
+
+.row b {
   font-weight: 600;
-  color: var(--black);
+  color: #1f2937;
 }
 
-/* ================= BADGES ================= */
-.badge {
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: rgba(249, 115, 22, 0.15);
-  color: var(--orange);
-}
-
-.badge.active {
-  background: rgba(37, 99, 235, 0.15);
-  color: var(--blue);
-}
-
-/* ================= SUBJECTS ================= */
-.student-subjects {
-  margin-bottom: 20px;
-}
-
-.student-subjects .label {
+/* SUBJECTS */
+.subjects .label {
   font-size: 13px;
-  font-weight: 500;
-  color: var(--gray);
-  margin-bottom: 8px;
+  color: #6b7280;
+  margin-bottom: 6px;
   display: block;
 }
 
-.subjects-list {
+.chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.subject-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
+/* CHIP */
+.chip {
+  padding: 4px 10px;
+  border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-/* ================= ACTIONS ================= */
-.student-actions .btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--blue), #1e40af);
+.chip.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.chip.warning {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.chip.outline {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+/* ACTION */
+.action {
+  margin-top: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #3b82f6;
   color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  text-decoration: none;
-  display: block;
   text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
 }
 
-.student-actions .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.4);
+.action:hover {
+  background: #2563eb;
 }
 
-/* ================= EMPTY & LOADING ================= */
-.empty-state,
-.loading-spinner {
+/* STATES */
+.state {
   text-align: center;
   padding: 80px 20px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-}
-
-.empty-state h3,
-.loading-spinner p {
+.state h3 {
   font-size: 18px;
-  color: var(--black);
+  color: #1f2937;
 }
 
-.empty-state p {
-  color: var(--gray);
+.state p {
+  color: #6b7280;
 }
 
-.spinner {
+/* LOADER */
+.loader {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--blue);
+  border: 3px solid #e5e7eb;
+  border-top-color: #3b82f6;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
   margin: 0 auto 16px;
+  animation: spin .8s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* ================= RESPONSIVE ================= */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .students-grid {
+  .grid {
     grid-template-columns: 1fr;
   }
 }
@@ -319,41 +312,32 @@ import { Student } from '../../../core/models';
 
 })
 export class MyStudentsComponent implements OnInit {
+
   private studentService = inject(StudentService);
 
   students: Student[] = [];
   loading = true;
 
   ngOnInit(): void {
-    this.loadStudents();
-  }
-
-  private loadStudents(): void {
-    this.loading = true;
     this.studentService.getMyStudents().subscribe({
-      next: (students) => {
-        this.students = students;
+      next: res => {
+        this.students = res;
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading students:', error);
-        this.loading = false;
-      }
+      error: () => this.loading = false
     });
   }
 
   getInitials(name?: string, lastname?: string): string {
-    const n = name?.charAt(0) || '';
-    const l = lastname?.charAt(0) || '';
-    return (n + l).toUpperCase() || 'U';
+    return ((name?.[0] || '') + (lastname?.[0] || '')).toUpperCase();
   }
 
   getSubjectLabel(type: string): string {
-    const labels: { [key: string]: string } = {
-      'VINCULATION': 'Vinculación',
-      'DUAL_INTERNSHIP': 'Dual',
-      'PREPROFESSIONAL_INTERNSHIP': 'Preprofesional'
+    const map: any = {
+      VINCULATION: 'Vinculación',
+      DUAL_INTERNSHIP: 'Dual',
+      PREPROFESSIONAL_INTERNSHIP: 'Preprofesional'
     };
-    return labels[type] || type;
+    return map[type] || type;
   }
 }

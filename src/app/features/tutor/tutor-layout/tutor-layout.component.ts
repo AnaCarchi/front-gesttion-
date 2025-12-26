@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -9,212 +9,270 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
     <div class="tutor-layout">
-      <div class="enterprise-banner">
-        <div class="banner-content">
-          <div class="enterprise-logo"></div>
-          <div class="enterprise-info">
-            <h1>Empresa ABC S.A.</h1>
-            <p>Portal del Tutor Empresarial</p>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+
+        <!-- HEADER -->
+        <div class="sidebar-header">
+          <div class="logo">
+            <span class="material-icons">business</span>
+            <span>Tutor</span>
           </div>
         </div>
-      </div>
 
-      <div class="content-wrapper">
-        <aside class="sidebar">
-          <nav class="sidebar-nav">
-            <a routerLink="/tutor/dashboard" routerLinkActive="active" class="nav-item">
-              <span class="icon">📊</span>
-              <span>Dashboard</span>
-            </a>
-            <a routerLink="/tutor/my-students" routerLinkActive="active" class="nav-item">
-              <span class="icon">👥</span>
-              <span>Mis Estudiantes</span>
-            </a>
-            <a routerLink="/tutor/evaluations" routerLinkActive="active" class="nav-item">
-              <span class="icon">📝</span>
-              <span>Evaluaciones</span>
-            </a>
-          </nav>
+        <!-- NAV -->
+        <nav class="sidebar-nav">
 
-          <div class="sidebar-footer">
-            <button class="btn-logout" (click)="logout()">
-              <span class="icon">🚪</span>
-              <span>Cerrar Sesión</span>
-            </button>
+          <a routerLink="/tutor/dashboard" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a routerLink="/tutor/my-students" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">groups</span>
+            <span>Mis Estudiantes</span>
+          </a>
+
+          <a routerLink="/tutor/evaluations" routerLinkActive="active" class="nav-item">
+            <span class="material-icons">assignment</span>
+            <span>Evaluaciones</span>
+          </a>
+
+        </nav>
+
+        <!-- FOOTER -->
+        <div class="sidebar-footer">
+          <button class="btn-logout" (click)="logout()">
+            <span class="material-icons">logout</span>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+          <h2>Panel del Tutor Empresarial</h2>
+
+          <div class="user-info">
+            <span class="material-icons">account_circle</span>
+            <span>Tutor</span>
           </div>
-        </aside>
+        </div>
 
-        <main class="main-content">
+        <!-- CONTENT -->
+        <div class="content-area">
           <router-outlet></router-outlet>
-        </main>
+        </div>
+
       </div>
     </div>
   `,
- styles: [`
-:root {
-  --blue: #2563eb;
-  --blue-dark: #1e3a8a;
-  --blue-soft: #eff6ff;
-  --orange: #f97316;
-  --black: #111827;
-  --gray: #6b7280;
-  --border: #e5e7eb;
-}
-
-/* ================= LAYOUT ================= */
+  styles: [`
+/* ================= LAYOUT GENERAL ================= */
 .tutor-layout {
+  display: flex;
   min-height: 100vh;
-  background: #f9fafb;
-}
-
-/* ================= BANNER ================= */
-.enterprise-banner {
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-  padding: 28px 24px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.banner-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.enterprise-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 32px;
-}
-
-.enterprise-info h1 {
-  font-size: 26px;
-  color: white;
-  font-weight: 700;
-  margin: 0;
-}
-
-.enterprise-info p {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  margin: 4px 0 0;
-}
-
-/* ================= CONTENT ================= */
-.content-wrapper {
-  display: flex;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  gap: 32px;
-}
-
-@media (max-width: 768px) {
-  .content-wrapper {
-    flex-direction: column;
-  }
+  background: #f1f5f9;
+  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ================= SIDEBAR ================= */
 .sidebar {
   width: 260px;
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  position: sticky;
-  top: 24px;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.35);
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    position: static;
-  }
+/* ================= HEADER ================= */
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #60a5fa;
 }
 
 /* ================= NAV ================= */
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 24px;
+  flex: 1;
+  padding: 18px 14px;
+  overflow-y: auto;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: var(--gray);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  color: #cbd5f5;
   text-decoration: none;
   font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.nav-item .icon {
-  font-size: 20px;
-}
-
-/* Hover */
-.nav-item:hover {
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-/* Active */
-.nav-item.active {
-  background: var(--blue);
-  color: white;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  transition: all 0.25s ease;
+}
+
+.nav-item .material-icons {
+  font-size: 22px;
+  color: #94a3b8;
+}
+
+.nav-item:hover {
+  background: rgba(59,130,246,0.15);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.nav-item:hover .material-icons {
+  color: #ffffff;
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  box-shadow: 0 10px 25px rgba(37,99,235,0.45);
+}
+
+.nav-item.active .material-icons {
+  color: #ffffff;
 }
 
 /* ================= FOOTER ================= */
 .sidebar-footer {
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+  padding: 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-/* Logout */
 .btn-logout {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(249, 115, 22, 0.12);
-  color: var(--orange);
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(239,68,68,0.15);
+  color: #fecaca;
   border: none;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.25s ease;
 }
 
 .btn-logout:hover {
-  background: var(--orange);
-  color: white;
+  background: rgba(239,68,68,0.35);
+  color: #ffffff;
 }
 
 /* ================= MAIN ================= */
 .main-content {
   flex: 1;
-  min-width: 0;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
 }
-`]
+
+/* ================= TOP BAR ================= */
+.top-bar {
+  background: #ffffff;
+  padding: 22px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.top-bar h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* ================= USER INFO ================= */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.user-info .material-icons {
+  font-size: 20px;
+}
+
+/* ================= CONTENT ================= */
+.content-area {
+  flex: 1;
+  padding: 32px;
+}
+
+/* ================= SCROLL ================= */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 74px;
+  }
+
+  .logo span:not(.material-icons),
+  .nav-item span:not(.material-icons),
+  .btn-logout span:not(.material-icons) {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 74px;
+  }
+
+  .nav-item,
+  .btn-logout {
+    justify-content: center;
+  }
+
+  .top-bar {
+    padding: 18px 22px;
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+}
+  `]
 })
 export class TutorLayoutComponent {
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   logout(): void {
     this.authService.logout();

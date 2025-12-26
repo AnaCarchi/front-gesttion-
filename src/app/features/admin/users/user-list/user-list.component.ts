@@ -1,447 +1,493 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
-import { User } from '../../../../core/models';
+import { User } from '../../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   template: `
-    <div class="user-list">
-      <div class="list-header">
-        <div>
-          <h1>Gestión de Usuarios</h1>
-          <p>Administración de usuarios del sistema</p>
+    <div class="page-container">
+      <!-- HEADER -->
+      <div class="page-header">
+        <div class="header-left">
+          <span class="material-icons header-icon">groups</span>
+          <div>
+            <h1>Usuarios del Sistema</h1>
+            <p>Gestión de usuarios y roles</p>
+          </div>
         </div>
-        <a routerLink="/admin/users/new" class="btn btn-primary">
-          ➕ Nuevo Usuario
+        <a routerLink="/admin/users/new" class="btn-primary">
+          <span class="material-icons">person_add</span>
+          Nuevo Usuario
         </a>
       </div>
 
-      <!-- Filtros -->
-      <div class="filters-card">
-        <div class="filter-tabs">
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="material-icons">groups</span>
+          <div>
+            <div class="stat-value">{{ users.length }}</div>
+            <div class="stat-label">Total Usuarios</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <span class="material-icons">admin_panel_settings</span>
+          <div>
+            <div class="stat-value">{{ countByRole('Administrador') }}</div>
+            <div class="stat-label">Administradores</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <span class="material-icons">supervisor_account</span>
+          <div>
+            <div class="stat-value">{{ countByRole('Coordinador') }}</div>
+            <div class="stat-label">Coordinadores</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <span class="material-icons">corporate_fare</span>
+          <div>
+            <div class="stat-value">{{ countByRole('Tutor Empresarial') }}</div>
+            <div class="stat-label">Tutores</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filters-section">
+        <div class="search-box">
+          <span class="material-icons">search</span>
+          <input 
+            type="text" 
+            placeholder="Buscar por nombre o email..."
+            [(ngModel)]="searchTerm"
+            (input)="filterUsers()"
+          />
           <button 
-            class="tab-btn"
-            [class.active]="selectedRole === 'all'"
-            (click)="filterByRole('all')"
+            *ngIf="searchTerm" 
+            (click)="clearSearch()"
+            class="clear-btn"
           >
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="filter-tabs">
+          <button class="tab" [class.active]="filterRole === 'all'" (click)="setRoleFilter('all')">
+            <span class="material-icons">all_inclusive</span>
             Todos ({{ users.length }})
           </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedRole === 'admin'"
-            (click)="filterByRole('admin')"
-          >
-            Administradores
+          <button class="tab" [class.active]="filterRole === 'Administrador'" (click)="setRoleFilter('Administrador')">
+            <span class="material-icons">admin_panel_settings</span>
+            Admin ({{ countByRole('Administrador') }})
           </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedRole === 'coordinator'"
-            (click)="filterByRole('coordinator')"
-          >
-            Coordinadores
+          <button class="tab" [class.active]="filterRole === 'Coordinador'" (click)="setRoleFilter('Coordinador')">
+            <span class="material-icons">supervisor_account</span>
+            Coordinador ({{ countByRole('Coordinador') }})
           </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedRole === 'tutor'"
-            (click)="filterByRole('tutor')"
-          >
-            Tutores
+          <button class="tab" [class.active]="filterRole === 'Tutor Empresarial'" (click)="setRoleFilter('Tutor Empresarial')">
+            <span class="material-icons">corporate_fare</span>
+            Tutor ({{ countByRole('Tutor Empresarial') }})
           </button>
-          <button 
-            class="tab-btn"
-            [class.active]="selectedRole === 'student'"
-            (click)="filterByRole('student')"
-          >
-            Estudiantes
+          <button class="tab" [class.active]="filterRole === 'Estudiante'" (click)="setRoleFilter('Estudiante')">
+            <span class="material-icons">school</span>
+            Estudiante ({{ countByRole('Estudiante') }})
           </button>
         </div>
       </div>
 
-      <div class="loading-spinner" *ngIf="loading">
+      <!-- USERS GRID -->
+      <div class="users-grid" *ngIf="!loading && filteredUsers.length > 0">
+        <div class="user-card" *ngFor="let user of filteredUsers">
+          <div class="card-header">
+            <div class="user-avatar">
+              <span class="material-icons">{{ getRoleIcon(getPrimaryRole(user)) }}</span>
+            </div>
+            <div class="user-info">
+              <h3>{{ getUserFullName(user) }}</h3>
+              <div class="user-email">
+                <span class="material-icons">email</span>
+                {{ user.email }}
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="info-row">
+              <span class="material-icons">badge</span>
+              <span>{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+              <span class="material-icons">verified_user</span>
+              <span>{{ getUserRoles(user) }}</span>
+            </div>
+            <div class="role-badge" [class]="getPrimaryRole(user).toLowerCase().replace(' ', '-')">
+              <span class="material-icons">{{ getRoleIcon(getPrimaryRole(user)) }}</span>
+              {{ getPrimaryRole(user) }}
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <a [routerLink]="['/admin/users', user.id]" class="btn-action view">
+              <span class="material-icons">visibility</span>
+              Ver
+            </a>
+            <a [routerLink]="['/admin/users', user.id, 'edit']" class="btn-action edit">
+              <span class="material-icons">edit</span>
+              Editar
+            </a>
+            <button (click)="deleteUser(user.id)" class="btn-action delete">
+              <span class="material-icons">delete</span>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state" *ngIf="!loading && filteredUsers.length === 0">
+        <span class="material-icons">{{ searchTerm ? 'person_search' : 'group_add' }}</span>
+        <h3>{{ searchTerm ? 'No se encontraron usuarios' : 'No hay usuarios registrados' }}</h3>
+        <p>{{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando el primer usuario' }}</p>
+        <button (click)="clearSearch()" class="btn-secondary" *ngIf="searchTerm">
+          <span class="material-icons">clear</span>
+          Limpiar Búsqueda
+        </button>
+        <a routerLink="/admin/users/new" class="btn-primary" *ngIf="!searchTerm">
+          <span class="material-icons">person_add</span>
+          Crear Primer Usuario
+        </a>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading-state" *ngIf="loading">
         <div class="spinner"></div>
         <p>Cargando usuarios...</p>
       </div>
-
-      <div class="users-table-container" *ngIf="!loading && filteredUsers.length > 0">
-        <table class="users-table">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Email</th>
-              <th>Roles</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of filteredUsers">
-              <td>
-                <div class="user-info">
-                  <div class="user-avatar">
-                    {{ getInitials(user.person?.name, user.person?.lastname) }}
-                  </div>
-                  <div class="user-details">
-                    <div class="user-name">
-                      {{ user.person?.name }} {{ user.person?.lastname }}
-                    </div>
-                    <div class="user-dni">{{ user.person?.dni || 'Sin DNI' }}</div>
-                  </div>
-                </div>
-              </td>
-              <td>{{ user.email }}</td>
-              <td>
-                <div class="roles-badges">
-                  <span 
-                    *ngFor="let role of user.roles" 
-                    class="role-badge"
-                    [class.admin]="role.name.toLowerCase().includes('admin')"
-                    [class.coordinator]="role.name.toLowerCase().includes('coordinator')"
-                    [class.tutor]="role.name.toLowerCase().includes('tutor')"
-                    [class.student]="role.name.toLowerCase().includes('student')"
-                  >
-                    {{ getRoleName(role.name) }}
-                  </span>
-                </div>
-              </td>
-              <td>
-                <span class="status-badge" [class.active]="user.status === 'Activo'">
-                  {{ user.status }}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <a [routerLink]="['/admin/users', user.id, 'edit']" class="btn btn-sm btn-outline">
-                    ✏️ Editar
-                  </a>
-                  <a [routerLink]="['/admin/users', user.id, 'roles']" class="btn btn-sm btn-outline">
-                    🔑 Roles
-                  </a>
-                  <button class="btn btn-sm btn-danger" (click)="deleteUser(user)">
-                    🗑️
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="empty-state" *ngIf="!loading && filteredUsers.length === 0">
-        <div class="empty-icon">👥</div>
-        <h3>No hay usuarios</h3>
-        <p>{{ selectedRole === 'all' ? 'No hay usuarios registrados' : 'No hay usuarios con este rol' }}</p>
-      </div>
     </div>
   `,
-  styles: [`
-   /* ================= CONTENEDOR GENERAL ================= */
-.user-list {
-  max-width: 1200px;
+styles: [`
+/* ================= CONTENEDOR GENERAL ================= */
+.page-container {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
-  background: #f3f4f6;
+  padding: 40px 24px;
   min-height: 100vh;
+  background-image:
+    linear-gradient(rgba(15,23,42,.85), rgba(15,23,42,.85)),
+    url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
 }
 
 /* ================= HEADER ================= */
-.list-header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 36px;
+  border-bottom: 2px solid rgba(255,255,255,.15);
+  padding-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
   gap: 16px;
+  align-items: center;
 }
 
-.list-header h1 {
-  font-size: 30px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 6px;
+.header-icon {
+  font-size: 48px;
+  color: #fbbf24;
 }
 
-.list-header p {
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.page-header p {
   font-size: 15px;
-  color: #6b7280;
+  color: #e2e8f0;
+  margin: 4px 0 0;
 }
 
 /* ================= BOTONES ================= */
-.btn {
+.btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg,#2563eb,#1e40af);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.btn-primary {
-  background: #4f46e5;
-  color: white;
+  border: none;
+  cursor: pointer;
+  transition: .3s;
+  box-shadow: 0 12px 24px rgba(37,99,235,.35);
 }
 
 .btn-primary:hover {
-  background: #4338ca;
+  background: linear-gradient(135deg,#f97316,#ea580c);
+  transform: translateY(-3px);
 }
 
-.btn-outline {
-  background: white;
-  border: 1.5px solid #e5e7eb;
-  color: #374151;
+/* ================= STATS ================= */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
-.btn-outline:hover {
-  background: #f9fafb;
-  border-color: #4f46e5;
+.stat-box {
+  background: rgba(255,255,255,.95);
+  color: #0f172a;
+  border-left: 5px solid #2563eb;
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,.25);
+  transition: .3s;
 }
 
-.btn-danger {
-  background: #ef4444;
-  color: white;
+.stat-box:hover {
+  transform: translateY(-6px);
 }
 
-.btn-danger:hover {
-  background: #dc2626;
+.stat-box .material-icons {
+  font-size: 42px;
+  color: #2563eb;
 }
 
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 13px;
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #475569;
 }
 
 /* ================= FILTROS ================= */
-.filters-card {
-  background: white;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-  margin-bottom: 24px;
+.filters-section {
+  margin-bottom: 32px;
 }
 
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(6px);
+  padding: 12px 14px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 15px;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: #fbbf24;
+  cursor: pointer;
+}
+
+/* ================= TABS ================= */
 .filter-tabs {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
-.tab-btn {
-  padding: 10px 20px;
-  border: 1.5px solid #e5e7eb;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b7280;
-  transition: all 0.2s ease;
-}
-
-.tab-btn:hover {
-  background: #f9fafb;
-  border-color: #4f46e5;
-}
-
-.tab-btn.active {
-  background: #4f46e5;
+.tab {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
   color: white;
-  border-color: #4f46e5;
-}
-
-/* ================= LOADING ================= */
-.loading-spinner {
-  text-align: center;
-  padding: 60px 0;
-  color: #6b7280;
-}
-
-.spinner {
-  width: 42px;
-  height: 42px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #4f46e5;
-  border-radius: 50%;
-  margin: 0 auto 16px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ================= TABLA ================= */
-.users-table-container {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-  overflow-x: auto;
-}
-
-.users-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.users-table thead {
-  background: #f9fafb;
-}
-
-.users-table th {
-  text-align: left;
-  padding: 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #374151;
-  text-transform: uppercase;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.users-table td {
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 14px;
+  border-radius: 10px;
   font-size: 14px;
-  color: #374151;
-}
-
-.users-table tr:hover {
-  background: #f9fafb;
-}
-
-/* ================= USUARIO ================= */
-.user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.tab.active,
+.tab:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* ================= GRID USUARIOS ================= */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(320px,1fr));
+  gap: 24px;
+}
+
+/* ================= TARJETA ================= */
+.user-card {
+  background: rgba(255,255,255,.95);
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(0,0,0,.3);
+  overflow: hidden;
+  transition: .3s;
+}
+
+.user-card:hover {
+  transform: translateY(-6px);
+}
+
+/* HEADER CARD */
+.card-header {
+  display: flex;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .user-avatar {
-  width: 42px;
-  height: 42px;
-  background: #4f46e5;
-  color: white;
-  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg,#2563eb,#1e40af);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 16px;
   font-weight: 700;
 }
 
-.user-details {
+.user-email {
+  font-size: 13px;
+  color: #64748b;
   display: flex;
-  flex-direction: column;
+  gap: 4px;
 }
 
-.user-name {
-  font-weight: 600;
-  color: #111827;
+/* BODY */
+.card-body {
+  padding: 18px 20px;
 }
 
-.user-dni {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-/* ================= ROLES ================= */
-.roles-badges {
+.info-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 8px;
 }
 
+/* ROLE BADGE */
 .role-badge {
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.role-badge.admin {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.role-badge.coordinator {
-  background: #dbeafe;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #e0f2fe;
   color: #1e40af;
 }
 
-.role-badge.tutor {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.role-badge.student {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= ESTADO ================= */
-.status-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.status-badge.active {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= ACCIONES ================= */
-.action-buttons {
+/* FOOTER */
+.card-footer {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #f8fafc;
 }
+
+.btn-action {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.view { background: #e0f2fe; color: #1e40af; }
+.edit { background: #fef3c7; color: #92400e; }
+.delete { background: #fee2e2; color: #991b1b; }
 
 /* ================= EMPTY ================= */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: #6b7280;
 }
 
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+.empty-state .material-icons {
+  font-size: 64px;
+  color: #fbbf24;
 }
 
-.empty-state h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 8px;
+/* ================= LOADING ================= */
+.loading-state {
+  text-align: center;
+  padding: 80px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .list-header {
+@media (max-width:768px) {
+  .page-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .action-buttons .btn {
-    width: 100%;
+  .users-grid {
+    grid-template-columns: 1fr;
   }
 }
-  `]
+`]
+
 })
 export class UserListComponent implements OnInit {
   private userService = inject(UserService);
@@ -449,62 +495,98 @@ export class UserListComponent implements OnInit {
   users: User[] = [];
   filteredUsers: User[] = [];
   loading = true;
-  selectedRole = 'all';
+  searchTerm = '';
+  filterRole: string = 'all';
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  private loadUsers(): void {
+  loadUsers(): void {
     this.loading = true;
     this.userService.getAll().subscribe({
       next: (users) => {
-        this.users = users;
-        this.filteredUsers = users;
+        this.users = users ?? [];
+        this.filterUsers();
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading users:', error);
+        console.error('Error al cargar usuarios:', error);
         this.loading = false;
       }
     });
   }
 
-  filterByRole(role: string): void {
-    this.selectedRole = role;
-    if (role === 'all') {
-      this.filteredUsers = this.users;
-    } else {
-      this.filteredUsers = this.users.filter(user => 
-        user.roles?.some(r => r.name.toLowerCase().includes(role))
+  getUserFullName(user: User): string {
+  if (!user.person) return 'Sin nombre';
+  const first = user.person.name || '';
+  const last = user.person.lastname || '';
+  return `${first} ${last}`.trim() || 'Sin nombre';
+}
+
+
+  filterUsers(): void {
+    let result = [...this.users];
+    if (this.filterRole !== 'all') {
+      result = result.filter(u => this.hasRole(u, this.filterRole));
+    }
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      result = result.filter(u =>
+        this.getUserFullName(u).toLowerCase().includes(term) ||
+        (u.email?.toLowerCase() || '').includes(term)
       );
     }
+    this.filteredUsers = result;
   }
 
-  deleteUser(user: User): void {
-    if (confirm(`¿Eliminar a ${user.person?.name || user.email}?`)) {
-      this.userService.delete(user.id).subscribe({
-        next: () => {
-          this.users = this.users.filter(u => u.id !== user.id);
-          this.filterByRole(this.selectedRole);
+  setRoleFilter(role: string): void {
+    this.filterRole = role;
+    this.filterUsers();
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterUsers();
+  }
+
+  countByRole(role: string): number {
+    return this.users.filter(u => this.hasRole(u, role)).length;
+  }
+
+  hasRole(user: User, role: string): boolean {
+    return !!user.roles?.some(r => r.name === role);
+  }
+
+  getPrimaryRole(user: User): string {
+    if (!user.roles?.length) return 'Sin rol';
+    return user.roles[0].name;
+  }
+
+  getUserRoles(user: User): string {
+    if (!user.roles?.length) return 'Sin roles';
+    return user.roles.map(r => r.name).join(', ');
+  }
+
+  getRoleIcon(role: string): string {
+    const icons: Record<string, string> = {
+      'Administrador': 'admin_panel_settings',
+      'Coordinador': 'supervisor_account',
+      'Tutor Empresarial': 'corporate_fare',
+      'Estudiante': 'school'
+    };
+    return icons[role] || 'person';
+  }
+
+  deleteUser(id: number): void {
+    if (confirm('¿Está seguro de eliminar este usuario? Esta acción no se puede deshacer.')) {
+      this.userService.delete(id).subscribe({
+        next: () => this.loadUsers(),
+        error: (error) => {
+          console.error('Error al eliminar usuario:', error);
+          alert('Error al eliminar el usuario.');
         }
       });
     }
-  }
-
-  getInitials(name?: string, lastname?: string): string {
-    const n = name?.charAt(0) || '';
-    const l = lastname?.charAt(0) || '';
-    return (n + l).toUpperCase() || 'U';
-  }
-
-  getRoleName(role: string): string {
-    const names: { [key: string]: string } = {
-      'ROLE_ADMIN': 'Admin',
-      'ROLE_COORDINATOR': 'Coordinador',
-      'ROLE_TUTOR': 'Tutor',
-      'ROLE_STUDENT': 'Estudiante'
-    };
-    return names[role] || role;
   }
 }
