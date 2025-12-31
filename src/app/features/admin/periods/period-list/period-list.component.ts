@@ -22,11 +22,13 @@ import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
         </a>
       </div>
 
+      <!-- Loading -->
       <div class="loading-spinner" *ngIf="loading">
         <div class="spinner"></div>
         <p>Cargando periodos...</p>
       </div>
 
+      <!-- Periods Grid -->
       <div class="periods-grid" *ngIf="!loading && periods.length > 0">
         <div class="period-card" *ngFor="let period of periods">
           <div class="period-header">
@@ -53,9 +55,7 @@ import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
             </div>
 
             <div class="period-stats" *ngIf="period.careers">
-              <span class="stat-item">
-                🎓 {{ period.careers.length }} carreras
-              </span>
+              <span class="stat-item">🎓 {{ period.careers.length }} carreras</span>
             </div>
           </div>
 
@@ -73,6 +73,7 @@ import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
         </div>
       </div>
 
+      <!-- Empty State -->
       <div class="empty-state" *ngIf="!loading && periods.length === 0">
         <div class="empty-icon">📅</div>
         <h3>No hay periodos académicos</h3>
@@ -82,6 +83,7 @@ import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
         </a>
       </div>
 
+      <!-- Error Message -->
       <div class="error-message" *ngIf="errorMessage">
         <span>⚠️</span>
         <span>{{ errorMessage }}</span>
@@ -326,8 +328,7 @@ import { DateFormatPipe } from '../../../../shared/pipes/date-format.pipe';
     grid-template-columns: 1fr;
   }
 }
-`]
-
+  `]
 })
 export class PeriodListComponent implements OnInit {
   private periodService = inject(PeriodService);
@@ -337,13 +338,7 @@ export class PeriodListComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit(): void {
-    this.loadPeriods();
-  }
-
-  private loadPeriods(): void {
-    this.loading = true;
-    this.errorMessage = '';
-
+    // Suscripción al BehaviorSubject del servicio para cambios automáticos
     this.periodService.getAll().subscribe({
       next: (periods) => {
         this.periods = periods;
@@ -361,7 +356,7 @@ export class PeriodListComponent implements OnInit {
     if (confirm(`¿Está seguro de eliminar el periodo "${period.name}"?`)) {
       this.periodService.delete(period.id).subscribe({
         next: () => {
-          this.periods = this.periods.filter(p => p.id !== period.id);
+          // La lista se actualiza automáticamente gracias al BehaviorSubject
         },
         error: (error) => {
           this.errorMessage = 'Error al eliminar el periodo';

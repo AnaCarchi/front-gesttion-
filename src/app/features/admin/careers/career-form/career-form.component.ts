@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CareerService } from '../../../../core/services/career.service';
-import { Career } from '../../../../core/models';
+import { Career, AcademicPeriod } from '../../../../core/models';
 
 @Component({
   selector: 'app-career-form',
@@ -21,45 +21,34 @@ import { Career } from '../../../../core/models';
         <div class="form-card">
           <h2>Información de la Carrera</h2>
 
+          <!-- Nombre -->
           <div class="form-row">
             <div class="form-group full-width">
               <label for="name">Nombre de la Carrera *</label>
-              <input
-                type="text"
-                id="name"
-                formControlName="name"
-                class="form-control"
-                placeholder="Ej: Desarrollo de Software"
-                [class.is-invalid]="name?.invalid && name?.touched"
-              >
+              <input type="text" id="name" formControlName="name" class="form-control"
+                     placeholder="Ej: Desarrollo de Software"
+                     [class.is-invalid]="name?.invalid && name?.touched">
               <div class="invalid-feedback" *ngIf="name?.invalid && name?.touched">
                 <span *ngIf="name?.errors?.['required']">El nombre es requerido</span>
               </div>
             </div>
           </div>
 
+          <!-- Descripción -->
           <div class="form-row">
             <div class="form-group full-width">
               <label for="description">Descripción</label>
-              <textarea
-                id="description"
-                formControlName="description"
-                class="form-control"
-                rows="3"
-                placeholder="Descripción de la carrera"
-              ></textarea>
+              <textarea id="description" formControlName="description" class="form-control" rows="3"
+                        placeholder="Descripción de la carrera"></textarea>
             </div>
           </div>
 
+          <!-- Tipo y Estado -->
           <div class="form-row">
             <div class="form-group">
               <label for="isDual">Tipo de Carrera *</label>
-              <select
-                id="isDual"
-                formControlName="isDual"
-                class="form-control"
-                [class.is-invalid]="isDual?.invalid && isDual?.touched"
-              >
+              <select id="isDual" formControlName="isDual" class="form-control"
+                      [class.is-invalid]="isDual?.invalid && isDual?.touched">
                 <option value="">Seleccione el tipo</option>
                 <option [value]="true">Carrera Dual</option>
                 <option [value]="false">Carrera Tradicional</option>
@@ -71,12 +60,8 @@ import { Career } from '../../../../core/models';
 
             <div class="form-group">
               <label for="status">Estado *</label>
-              <select
-                id="status"
-                formControlName="status"
-                class="form-control"
-                [class.is-invalid]="status?.invalid && status?.touched"
-              >
+              <select id="status" formControlName="status" class="form-control"
+                      [class.is-invalid]="status?.invalid && status?.touched">
                 <option value="">Seleccione un estado</option>
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
@@ -87,8 +72,26 @@ import { Career } from '../../../../core/models';
             </div>
           </div>
 
+          <!-- Periodo Académico -->
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="period">Periodo Académico *</label>
+              <select id="period" formControlName="periodId" class="form-control"
+                      [class.is-invalid]="periodId?.invalid && periodId?.touched">
+                <option value="">Seleccione un periodo</option>
+                <option *ngFor="let p of periods" [value]="p.id">
+                  {{ p.name }} ({{ p.startDate | date:'dd/MM/yyyy' }} - {{ p.endDate | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="periodId?.invalid && periodId?.touched">
+                El periodo es requerido
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Box -->
           <div class="info-box">
-            <h3>ℹ️ Tipos de Carrera</h3>
+            <h3>ℹ Tipos de Carrera</h3>
             <ul>
               <li><strong>Dual:</strong> Incluye prácticas de formación dual (obligatorias/curriculares)</li>
               <li><strong>Tradicional:</strong> Incluye vinculación + prácticas preprofesionales (complementarias)</li>
@@ -96,19 +99,15 @@ import { Career } from '../../../../core/models';
           </div>
         </div>
 
+        <!-- Error -->
         <div class="alert alert-danger" *ngIf="errorMessage">
           {{ errorMessage }}
         </div>
 
+        <!-- Actions -->
         <div class="form-actions">
-          <button type="button" routerLink="/admin/careers" class="btn btn-secondary">
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="careerForm.invalid || loading"
-          >
+          <button type="button" routerLink="/admin/careers" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="careerForm.invalid || loading">
             <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear Carrera' }}</span>
             <span *ngIf="loading">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
           </button>
@@ -322,24 +321,33 @@ export class CareerFormComponent implements OnInit {
   isEditMode = false;
   careerId?: number;
 
+  periods: AcademicPeriod[] = [];
+
   constructor() {
     this.careerForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
       isDual: ['', Validators.required],
-      status: ['Activo', Validators.required]
+      status: ['Activo', Validators.required],
+      periodId: [null, Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.isEditMode = true;
-        this.careerId = +params['id'];
-        this.loadCareer(this.careerId);
-      }
-    });
-  }
+  // Obtener periodos académicos
+  this.careerService.getPeriods().subscribe((periods: AcademicPeriod[]) => {
+    this.periods = periods;
+  });
+
+  // Cargar carrera si es edición
+  this.route.params.subscribe(params => {
+    if (params['id']) {
+      this.isEditMode = true;
+      this.careerId = +params['id'];
+      this.loadCareer(this.careerId);
+    }
+  });
+}
 
   private loadCareer(id: number): void {
     this.loading = true;
@@ -349,11 +357,12 @@ export class CareerFormComponent implements OnInit {
           name: career.name,
           description: career.description,
           isDual: career.isDual,
-          status: career.status
+          status: career.status,
+          periodId: career.periodId
         });
         this.loading = false;
       },
-      error: (error) => {
+      error: () => {
         this.errorMessage = 'Error al cargar la carrera';
         this.loading = false;
       }
@@ -379,9 +388,7 @@ export class CareerFormComponent implements OnInit {
       : this.careerService.create(careerData);
 
     request.subscribe({
-      next: () => {
-        this.router.navigate(['/admin/careers']);
-      },
+      next: () => this.router.navigate(['/admin/careers']),
       error: (error) => {
         this.errorMessage = error.message || 'Error al guardar la carrera';
         this.loading = false;
@@ -396,7 +403,9 @@ export class CareerFormComponent implements OnInit {
     });
   }
 
+  // Getters
   get name() { return this.careerForm.get('name'); }
   get isDual() { return this.careerForm.get('isDual'); }
   get status() { return this.careerForm.get('status'); }
+  get periodId() { return this.careerForm.get('periodId'); }
 }

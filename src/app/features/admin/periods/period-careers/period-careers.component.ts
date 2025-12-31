@@ -10,6 +10,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="period-careers-container">
+      <!-- Header -->
       <div class="header">
         <a routerLink="/admin/periods" class="back-link">← Volver a Periodos</a>
         <div class="header-content" *ngIf="period">
@@ -27,19 +28,19 @@ import { AcademicPeriod, Career } from '../../../../core/models';
       <div class="period-info-card" *ngIf="period">
         <div class="info-grid">
           <div class="info-item">
-            <span class="info-label">📅 Fecha de Inicio</span>
+            <span class="info-label"><i class="icon icon-calendar"></i> Fecha de Inicio</span>
             <span class="info-value">{{ period.startDate | date:'dd/MM/yyyy' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">📅 Fecha de Fin</span>
+            <span class="info-label"><i class="icon icon-calendar"></i> Fecha de Fin</span>
             <span class="info-value">{{ period.endDate | date:'dd/MM/yyyy' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">🎓 Total Carreras</span>
+            <span class="info-label"><i class="icon icon-graduation"></i> Total Carreras</span>
             <span class="info-value">{{ careers.length }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">📊 Estado</span>
+            <span class="info-label"><i class="icon icon-chart"></i> Estado</span>
             <span class="badge" [class.active]="period.status === 'Activo'">
               {{ period.status }}
             </span>
@@ -60,7 +61,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
       <!-- Carreras del Periodo -->
       <div class="careers-section" *ngIf="!loading">
         <div class="section-header">
-          <h2>🎓 Carreras Asociadas</h2>
+          <h2><i class="icon icon-graduation"></i> Carreras Asociadas</h2>
           <div class="career-stats">
             <span class="stat-badge dual">
               {{ getDualCareersCount() }} Duales
@@ -75,7 +76,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
           <div class="career-card" *ngFor="let career of careers">
             <div class="career-header">
               <div class="career-icon">
-                {{ career.isDual ? '🎓' : '📚' }}
+                <i class="icon" [class.icon-graduation]="career.isDual" [class.icon-book]="!career.isDual"></i>
               </div>
               <div class="career-info">
                 <h3>{{ career.name }}</h3>
@@ -96,15 +97,15 @@ import { AcademicPeriod, Career } from '../../../../core/models';
               <h4>Tipos de Formación Disponibles:</h4>
               <div class="formation-types">
                 <div class="formation-badge vinculation">
-                  <span class="badge-icon">🤝</span>
+                  <span class="badge-icon"><i class="icon icon-handshake"></i></span>
                   <span class="badge-text">Vinculación (160h)</span>
                 </div>
                 <div class="formation-badge" *ngIf="career.isDual" [class.dual]="career.isDual">
-                  <span class="badge-icon">🎓</span>
+                  <span class="badge-icon"><i class="icon icon-graduation"></i></span>
                   <span class="badge-text">Prácticas Formación Dual</span>
                 </div>
                 <div class="formation-badge prepro" *ngIf="!career.isDual">
-                  <span class="badge-icon">💼</span>
+                  <span class="badge-icon"><i class="icon icon-briefcase"></i></span>
                   <span class="badge-text">Prácticas Preprofesionales</span>
                 </div>
               </div>
@@ -112,7 +113,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
 
             <div class="career-actions">
               <a [routerLink]="['/admin/careers', career.id, 'edit']" class="btn btn-sm btn-outline">
-                ✏️ Editar Carrera
+                <i class="icon icon-edit"></i> Editar Carrera
               </a>
             </div>
           </div>
@@ -120,7 +121,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
 
         <!-- Estado Vacío -->
         <div class="empty-state" *ngIf="careers.length === 0">
-          <div class="empty-icon">🎓</div>
+          <div class="empty-icon"><i class="icon icon-graduation"></i></div>
           <h3>No hay carreras asociadas</h3>
           <p>Este periodo académico no tiene carreras registradas</p>
           <a routerLink="/admin/careers/new" class="btn btn-primary">
@@ -131,10 +132,10 @@ import { AcademicPeriod, Career } from '../../../../core/models';
 
       <!-- Estadísticas Adicionales -->
       <div class="stats-section" *ngIf="!loading && careers.length > 0">
-        <h2>📊 Resumen del Periodo</h2>
+        <h2><i class="icon icon-chart"></i> Resumen del Periodo</h2>
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">🎓</div>
+            <div class="stat-icon"><i class="icon icon-graduation"></i></div>
             <div class="stat-content">
               <div class="stat-label">Carreras Duales</div>
               <div class="stat-value">{{ getDualCareersCount() }}</div>
@@ -143,7 +144,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon"><i class="icon icon-book"></i></div>
             <div class="stat-content">
               <div class="stat-label">Carreras Tradicionales</div>
               <div class="stat-value">{{ getTraditionalCareersCount() }}</div>
@@ -152,7 +153,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"><i class="icon icon-check"></i></div>
             <div class="stat-content">
               <div class="stat-label">Carreras Activas</div>
               <div class="stat-value">{{ getActiveCareersCount() }}</div>
@@ -161,7 +162,7 @@ import { AcademicPeriod, Career } from '../../../../core/models';
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon"><i class="icon icon-chart"></i></div>
             <div class="stat-content">
               <div class="stat-label">Total Carreras</div>
               <div class="stat-value">{{ careers.length }}</div>
@@ -173,239 +174,60 @@ import { AcademicPeriod, Career } from '../../../../core/models';
 
       <!-- Error Message -->
       <div class="error-message" *ngIf="errorMessage">
-        <span>⚠️</span>
+        <i class="icon icon-warning"></i>
         <span>{{ errorMessage }}</span>
       </div>
     </div>
   `,
   styles: [`
-/* ================= CONTENEDOR GENERAL ================= */
-.career-list {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 32px 24px;
-  min-height: 100vh;
-  background: #f1f5f9; /* gris claro */
-}
+/* Contenedor general */
+.period-careers-container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; min-height: 100vh; background: #f1f5f9; }
+.back-link { color: #2563eb; text-decoration: none; font-size: 14px; font-weight: 600; margin-bottom: 12px; display: inline-block; }
+.back-link:hover { text-decoration: underline; }
+.header-content { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.period-status { padding: 6px 12px; border-radius: 999px; font-weight: 600; background: #d1fae5; color: #065f46; }
+.period-status.active { background: #d1fae5; color: #065f46; }
+.period-info-card { background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 12px 24px rgba(0,0,0,0.08); margin-bottom: 24px; }
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+.info-item { display: flex; flex-direction: column; }
+.info-label { font-weight: 600; color: #374151; margin-bottom: 4px; }
+.info-value { color: #111827; font-weight: 500; }
+.loading-spinner { text-align: center; padding: 80px 20px; }
+.spinner { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.careers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+.career-card { background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 12px 24px rgba(0,0,0,0.08); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s ease; }
+.career-card:hover { transform: translateY(-6px); box-shadow: 0 18px 32px rgba(0,0,0,0.12); }
+.career-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.career-header h3 { font-size: 18px; font-weight: 700; margin: 0; color: #0f172a; }
+.career-info { display: flex; flex-direction: column; gap: 4px; }
+.career-type.dual { color: #2563eb; font-weight: 600; }
+.career-body p { font-size: 14px; color: #475569; margin-bottom: 12px; }
+.career-actions { display: flex; justify-content: flex-end; margin-top: 12px; gap: 8px; }
+.btn { padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.25s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-outline { background: #fff; border: 1px solid #cbd5f5; color: #1e40af; }
+.btn-outline:hover { background: #eff6ff; }
+.empty-state { text-align: center; padding: 80px 20px; }
+.empty-icon { font-size: 64px; margin-bottom: 16px; }
+.empty-icon .icon { font-size: 64px; }
+.error-message { margin-top: 24px; padding: 14px 18px; background: #fee2e2; color: #991b1b; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 
-/* ================= HEADER ================= */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-}
+/* Icon styles */
+.icon { display: inline-block; width: 1em; height: 1em; vertical-align: middle; }
+.icon-calendar::before { content: '📅'; }
+.icon-graduation::before { content: '🎓'; }
+.icon-chart::before { content: '📊'; }
+.icon-book::before { content: '📚'; }
+.icon-handshake::before { content: '🤝'; }
+.icon-briefcase::before { content: '💼'; }
+.icon-edit::before { content: '✏️'; }
+.icon-check::before { content: '✅'; }
+.icon-warning::before { content: '⚠️'; }
 
-.list-header h1 {
-  font-size: 30px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 6px;
-}
-
-.list-header p {
-  font-size: 15px;
-  color: #475569;
-  margin: 0;
-}
-
-/* ================= BOTONES ================= */
-.btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  transition: all 0.25s ease;
-}
-
-.btn-primary {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background: #1d4ed8;
-}
-
-.btn-outline {
-  background: #ffffff;
-  border: 1px solid #cbd5f5;
-  color: #1e40af;
-}
-
-.btn-outline:hover {
-  background: #eff6ff;
-}
-
-.btn-danger {
-  background: #dc2626;
-  color: #ffffff;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 13px;
-}
-
-/* ================= LOADING ================= */
-.loading-spinner {
-  text-align: center;
-  padding: 80px 20px;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ================= GRID ================= */
-.careers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px;
-}
-
-/* ================= CARD ================= */
-.career-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.career-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 32px rgba(0,0,0,0.12);
-}
-
-/* ================= CARD HEADER ================= */
-.career-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.career-header h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-/* ================= ESTADO ================= */
-.career-status {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.career-status.active {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= BODY ================= */
-.career-body p {
-  font-size: 14px;
-  color: #475569;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.career-info {
-  display: flex;
-  gap: 8px;
-}
-
-.info-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-/* ================= ACTIONS ================= */
-.career-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-/* ================= EMPTY STATE ================= */
-.empty-state {
-  text-align: center;
-  padding: 100px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state h3 {
-  font-size: 20px;
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.empty-state p {
-  color: #475569;
-  margin-bottom: 20px;
-}
-
-/* ================= ERROR ================= */
-.error-message {
-  margin-top: 24px;
-  padding: 14px 18px;
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .list-header {
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .career-actions {
-    flex-direction: column;
-  }
-}
-`]
-
+@media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } .career-actions { flex-direction: column; } }
+  `]
 })
 export class PeriodCareersComponent implements OnInit {
   private periodService = inject(PeriodService);
@@ -432,12 +254,10 @@ export class PeriodCareersComponent implements OnInit {
 
     // Cargar periodo
     this.periodService.getById(this.periodId!).subscribe({
-      next: (period) => {
-        this.period = period;
-      },
+      next: (period) => this.period = period,
       error: (error) => {
         this.errorMessage = 'Error al cargar el periodo';
-        console.error('Error:', error);
+        console.error(error);
       }
     });
 
@@ -450,7 +270,7 @@ export class PeriodCareersComponent implements OnInit {
       error: (error) => {
         this.errorMessage = 'Error al cargar las carreras';
         this.loading = false;
-        console.error('Error:', error);
+        console.error(error);
       }
     });
   }
