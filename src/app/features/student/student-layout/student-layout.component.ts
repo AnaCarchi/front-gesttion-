@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -8,284 +8,260 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-    <div class="student-layout">
+<div class="student-layout" [class.collapsed]="isCollapsed">
 
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
 
-        <!-- HEADER -->
-        <div class="sidebar-header">
-          <div class="logo">
-            <span class="material-icons">school</span>
-            <span>Estudiante</span>
-          </div>
-        </div>
+    <!-- HEADER -->
+    <div class="sidebar-header">
+      <img
+        src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
+        class="logo-img"
+        alt="Yavirac Logo"
+      />
+      <span class="logo-text">Yavirac</span>
 
-        <!-- NAV -->
-        <nav class="sidebar-nav">
-
-          <a routerLink="/student/dashboard" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">dashboard</span>
-            <span>Dashboard</span>
-          </a>
-
-          <a routerLink="/student/subjects/vinculation" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">handshake</span>
-            <span>Vinculación</span>
-          </a>
-
-          <a routerLink="/student/subjects/dual-internship" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">school</span>
-            <span>Prácticas Dual</span>
-          </a>
-
-          <a routerLink="/student/subjects/preprofessional-internship" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">work</span>
-            <span>Prácticas Preprofesionales</span>
-          </a>
-
-          <a routerLink="/student/documents" routerLinkActive="active" class="nav-item">
-            <span class="material-icons">description</span>
-            <span>Documentos</span>
-          </a>
-
-        </nav>
-
-        <!-- FOOTER -->
-        <div class="sidebar-footer">
-          <button class="btn-logout" (click)="logout()">
-            <span class="material-icons">logout</span>
-            <span>Cerrar Sesión</span>
-          </button>
-        </div>
-      </aside>
-
-      <!-- MAIN -->
-      <div class="main-content">
-
-        <!-- TOP BAR -->
-        <div class="top-bar">
-          <h2>Panel del Estudiante</h2>
-
-          <div class="user-info">
-            <span class="material-icons">account_circle</span>
-            <span>Estudiante</span>
-          </div>
-        </div>
-
-        <!-- CONTENT -->
-        <div class="content-area">
-          <router-outlet></router-outlet>
-        </div>
-
-      </div>
+      <button class="btn-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span class="material-icons">
+          {{ isCollapsed ? 'menu_open' : 'menu' }}
+        </span>
+      </button>
     </div>
-  `,
+
+    <!-- NAV -->
+    <nav class="sidebar-nav">
+
+      <a routerLink="/student/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">home</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+
+      <div class="nav-section">
+        <div class="section-title">Mis Asignaturas</div>
+
+        <a
+          routerLink="/student/subjects/vinculation"
+          routerLinkActive="active"
+          class="nav-item sub-item">
+          <span class="material-icons">handshake</span>
+          <span class="nav-text">Vinculación</span>
+        </a>
+
+        <a
+          routerLink="/student/subjects/dual-internship"
+          routerLinkActive="active"
+          class="nav-item sub-item">
+          <span class="material-icons">school</span>
+          <span class="nav-text">Prácticas Dual</span>
+        </a>
+
+        <a
+          routerLink="/student/subjects/preprofessional-internship"
+          routerLinkActive="active"
+          class="nav-item sub-item">
+          <span class="material-icons">work</span>
+          <span class="nav-text">Prácticas Preprofesionales</span>
+        </a>
+      </div>
+
+      <a routerLink="/student/documents" routerLinkActive="active" class="nav-item">
+        <span class="material-icons">description</span>
+        <span class="nav-text">Mis Documentos</span>
+      </a>
+
+    </nav>
+
+    <!-- FOOTER -->
+    <div class="sidebar-footer">
+      <button class="btn-logout" (click)="logout()">
+        <span class="material-icons">logout</span>
+        <span class="nav-text">Cerrar sesión</span>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>
+`,
   styles: [`
-/* ================= LAYOUT GENERAL ================= */
+/* ================= GENERAL ================= */
 .student-layout {
   display: flex;
   min-height: 100vh;
-  background: #f1f5f9;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #f5f7fb;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 /* ================= SIDEBAR ================= */
 .sidebar {
   width: 260px;
-  background: linear-gradient(180deg, #0f172a, #020617);
+  background: #0f172a;
   color: white;
   display: flex;
   flex-direction: column;
   position: fixed;
-  inset: 0 auto 0 0;
-  z-index: 100;
-  box-shadow: 4px 0 20px rgba(0,0,0,0.35);
+  height: 100vh;
+  transition: width 0.3s ease;
 }
 
-/* ================= SIDEBAR HEADER ================= */
+/* ================= HEADER ================= */
 .sidebar-header {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.logo {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 20px;
-  font-weight: 800;
-  color: #60a5fa;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* ================= NAVEGACIÓN ================= */
+.logo-img {
+  width: 40px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: bold;
+  color: #f97316;
+  white-space: nowrap;
+}
+
+.btn-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #cbd5f5;
+  cursor: pointer;
+}
+
+/* ================= NAV ================= */
 .sidebar-nav {
   flex: 1;
-  padding: 18px 14px;
-  overflow-y: auto;
+  padding: 16px;
+}
+
+.nav-section {
+  margin: 16px 0 8px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  padding: 8px 16px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  border-radius: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
   color: #cbd5f5;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
+  margin-bottom: 6px;
   transition: all 0.25s ease;
 }
 
 .nav-item .material-icons {
   font-size: 22px;
-  color: #94a3b8;
 }
 
 .nav-item:hover {
   background: rgba(59,130,246,0.15);
-  color: #ffffff;
+  color: #fff;
   transform: translateX(4px);
 }
 
-.nav-item:hover .material-icons {
-  color: #ffffff;
-}
-
 .nav-item.active {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
+  background: #2563eb;
   color: white;
-  box-shadow: 0 10px 25px rgba(37,99,235,0.45);
 }
 
-.nav-item.active .material-icons {
-  color: #ffffff;
+.sub-item {
+  padding-left: 36px;
 }
 
 /* ================= FOOTER ================= */
 .sidebar-footer {
-  padding: 18px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
 .btn-logout {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: rgba(239,68,68,0.15);
-  color: #fecaca;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(249,115,22,0.15);
+  color: #f97316;
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 700;
   transition: all 0.25s ease;
 }
 
 .btn-logout:hover {
-  background: rgba(239,68,68,0.35);
-  color: #ffffff;
+  background: rgba(249,115,22,0.3);
 }
 
 /* ================= MAIN ================= */
 .main-content {
   flex: 1;
   margin-left: 260px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ================= TOP BAR ================= */
-.top-bar {
-  background: #ffffff;
-  padding: 22px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.top-bar h2 {
-  font-size: 24px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0;
-}
-
-/* ================= USER INFO ================= */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #eff6ff;
-  padding: 10px 14px;
-  border-radius: 12px;
-  color: #2563eb;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.user-info .material-icons {
-  font-size: 20px;
-}
-
-/* ================= CONTENT ================= */
-.content-area {
-  flex: 1;
   padding: 32px;
+  transition: margin-left 0.3s ease;
 }
 
-/* ================= SCROLL ================= */
-.sidebar-nav::-webkit-scrollbar {
-  width: 6px;
+/* ================= COLLAPSED ================= */
+.student-layout.collapsed .sidebar {
+  width: 80px;
 }
 
-.sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.25);
-  border-radius: 10px;
+.student-layout.collapsed .main-content {
+  margin-left: 80px;
+}
+
+.student-layout.collapsed .logo-text,
+.student-layout.collapsed .nav-text,
+.student-layout.collapsed .section-title {
+  display: none;
+}
+
+.student-layout.collapsed .nav-item,
+.student-layout.collapsed .btn-logout {
+  justify-content: center;
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 74px;
-  }
-
-  .logo span:not(.material-icons),
-  .nav-item span:not(.material-icons),
-  .btn-logout span:not(.material-icons) {
-    display: none;
+  .student-layout.collapsed .sidebar {
+    width: 70px;
   }
 
   .main-content {
-    margin-left: 74px;
-  }
-
-  .nav-item,
-  .btn-logout {
-    justify-content: center;
-  }
-
-  .top-bar {
-    padding: 18px 22px;
-  }
-
-  .content-area {
     padding: 20px;
   }
 }
   `]
 })
 export class StudentLayoutComponent {
+
   private authService = inject(AuthService);
-  private router = inject(Router);
+
+  isCollapsed = false;
+
+  toggleSidebar(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
 
   logout(): void {
     this.authService.logout();
-    
   }
 }

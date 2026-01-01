@@ -1,494 +1,411 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CareerService } from '../../../../core/services/career.service';
-import { Career } from '../../../../core/models/career.model';
+import { Career, AcademicPeriod } from '../../../../core/models';
 
 @Component({
   selector: 'app-career-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="page-container">
-      <!-- HEADER -->
-      <div class="page-header">
-        <div class="header-left">
-          <button (click)="goBack()" class="btn-back">
-            <span class="material-icons">arrow_back</span>
-          </button>
-          <span class="material-icons header-icon">{{ isEditMode ? 'edit' : 'add_box' }}</span>
-          <div>
-            <h1>{{ isEditMode ? 'Editar' : 'Nueva' }} Carrera</h1>
-            <p>{{ isEditMode ? 'Actualiza los datos de la carrera' : 'Completa la información de la carrera' }}</p>
+    <div class="career-form-container">
+      <div class="form-header">
+        <a routerLink="/admin/careers" class="back-link">← Volver</a>
+        <h1>{{ isEditMode ? 'Editar Carrera' : 'Nueva Carrera' }}</h1>
+        <p>{{ isEditMode ? 'Modificar información de la carrera' : 'Crear una nueva carrera académica' }}</p>
+      </div>
+
+      <form [formGroup]="careerForm" (ngSubmit)="onSubmit()" class="career-form">
+        <div class="form-card">
+          <h2>Información de la Carrera</h2>
+
+          <!-- Nombre -->
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="name">Nombre de la Carrera *</label>
+              <input type="text" id="name" formControlName="name" class="form-control"
+                     placeholder="Ej: Desarrollo de Software"
+                     [class.is-invalid]="name?.invalid && name?.touched">
+              <div class="invalid-feedback" *ngIf="name?.invalid && name?.touched">
+                <span *ngIf="name?.errors?.['required']">El nombre es requerido</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="description">Descripción</label>
+              <textarea id="description" formControlName="description" class="form-control" rows="3"
+                        placeholder="Descripción de la carrera"></textarea>
+            </div>
+          </div>
+
+          <!-- Tipo y Estado -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="isDual">Tipo de Carrera *</label>
+              <select id="isDual" formControlName="isDual" class="form-control"
+                      [class.is-invalid]="isDual?.invalid && isDual?.touched">
+                <option value="">Seleccione el tipo</option>
+                <option [value]="true">Carrera Dual</option>
+                <option [value]="false">Carrera Tradicional</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="isDual?.invalid && isDual?.touched">
+                <span *ngIf="isDual?.errors?.['required']">El tipo es requerido</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Estado *</label>
+              <select id="status" formControlName="status" class="form-control"
+                      [class.is-invalid]="status?.invalid && status?.touched">
+                <option value="">Seleccione un estado</option>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="status?.invalid && status?.touched">
+                <span *ngIf="status?.errors?.['required']">El estado es requerido</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Periodo Académico -->
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="period">Periodo Académico *</label>
+              <select id="period" formControlName="periodId" class="form-control"
+                      [class.is-invalid]="periodId?.invalid && periodId?.touched">
+                <option value="">Seleccione un periodo</option>
+                <option *ngFor="let p of periods" [value]="p.id">
+                  {{ p.name }} ({{ p.startDate | date:'dd/MM/yyyy' }} - {{ p.endDate | date:'dd/MM/yyyy' }})
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="periodId?.invalid && periodId?.touched">
+                El periodo es requerido
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Box -->
+          <div class="info-box">
+            <h3>ℹ Tipos de Carrera</h3>
+            <ul>
+              <li><strong>Dual:</strong> Incluye prácticas de formación dual (obligatorias/curriculares)</li>
+              <li><strong>Tradicional:</strong> Incluye vinculación + prácticas preprofesionales (complementarias)</li>
+            </ul>
           </div>
         </div>
-      </div>
 
-      <!-- FORM CARD -->
-      <div class="form-card">
-        <form (ngSubmit)="onSubmit()" #careerForm="ngForm">
-          <!-- BASIC INFO -->
-          <div class="form-section">
-            <div class="section-header">
-              <span class="material-icons">info</span>
-              <h2>Información Básica</h2>
-            </div>
+        <!-- Error -->
+        <div class="alert alert-danger" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
 
-            <div class="form-row">
-              <!-- CODE -->
-              <div class="form-group">
-                <label for="code">
-                  <span class="material-icons">tag</span>
-                  Código *
-                </label>
-                <input
-                  type="text"
-                  id="code"
-                  name="code"
-                  [(ngModel)]="career.code"
-                  placeholder="Ej: DS-2024"
-                  required
-                  #codeField="ngModel"
-                  maxlength="20"
-                />
-                <div class="help-text">
-                  <span class="material-icons">info</span>
-                  Código único de la carrera
-                </div>
-                <div class="error-message" *ngIf="codeField.invalid && codeField.touched">
-                  <span class="material-icons">error</span>
-                  El código es requerido
-                </div>
-              </div>
-
-              <!-- NAME -->
-              <div class="form-group">
-                <label for="name">
-                  <span class="material-icons">school</span>
-                  Nombre de la Carrera *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  [(ngModel)]="career.name"
-                  placeholder="Ej: Desarrollo de Software"
-                  required
-                  #nameField="ngModel"
-                />
-                <div class="error-message" *ngIf="nameField.invalid && nameField.touched">
-                  <span class="material-icons">error</span>
-                  El nombre es requerido
-                </div>
-              </div>
-            </div>
-
-            <!-- DESCRIPTION -->
-            <div class="form-group">
-              <label for="description">
-                <span class="material-icons">description</span>
-                Descripción
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                [(ngModel)]="career.description"
-                placeholder="Descripción detallada de la carrera..."
-                rows="4"
-              ></textarea>
-              <div class="help-text">
-                <span class="material-icons">info</span>
-                Describe los objetivos y perfil de la carrera
-              </div>
-            </div>
-          </div>
-
-          <!-- ADDITIONAL INFO -->
-          <div class="form-section">
-            <div class="section-header">
-              <span class="material-icons">more_horiz</span>
-              <h2>Información Adicional</h2>
-            </div>
-
-            <div class="info-card">
-              <span class="material-icons">lightbulb</span>
-              <div>
-                <strong>Nota:</strong> Una vez creada la carrera, podrás asignarla a periodos académicos
-                desde la gestión de periodos.
-              </div>
-            </div>
-          </div>
-
-          <!-- ACTIONS -->
-          <div class="form-actions">
-            <button type="button" (click)="goBack()" class="btn-secondary">
-              <span class="material-icons">cancel</span>
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              class="btn-primary" 
-              [disabled]="!careerForm.valid || loading"
-            >
-              <span class="material-icons" *ngIf="!loading">{{ isEditMode ? 'save' : 'add_circle' }}</span>
-              <div class="spinner-small" *ngIf="loading"></div>
-              {{ loading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }} Carrera
-            </button>
-          </div>
-
-          <!-- ERROR -->
-          <div class="error-box" *ngIf="error">
-            <span class="material-icons">error</span>
-            <span>{{ error }}</span>
-          </div>
-
-          <!-- SUCCESS -->
-          <div class="success-box" *ngIf="success">
-            <span class="material-icons">check_circle</span>
-            <span>{{ success }}</span>
-          </div>
-        </form>
-      </div>
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" routerLink="/admin/careers" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="careerForm.invalid || loading">
+            <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear Carrera' }}</span>
+            <span *ngIf="loading">{{ isEditMode ? 'Actualizando...' : 'Creando...' }}</span>
+          </button>
+        </div>
+      </form>
     </div>
   `,
-styles: [`
-/* ================= CONTENEDOR ================= */
-.page-container {
-  max-width: 1000px;
+  styles: [`
+/* CONTENEDOR */
+.career-form-container {
+  max-width: 900px;
   margin: 0 auto;
-  padding: 40px 28px;
-  min-height: 100vh;
-  background-image:
-    linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)),
-    url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  color: #fff;
-  font-family: 'Poppins', sans-serif;
+  padding: 24px;
 }
 
-/* ================= HEADER ================= */
-.page-header {
-  margin-bottom: 40px;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 18px;
+/* HEADER */
+.form-header {
+  margin-bottom: 24px;
 }
 
-.btn-back {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+.back-link {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
 }
-.btn-back:hover {
-  background: white;
-  transform: translateX(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+.back-link:hover {
+  text-decoration: underline;
 }
-.btn-back .material-icons {
+
+.form-header h1 {
+  margin: 0;
   font-size: 26px;
-  color: #e78709ff;
+  color: #0f172a;
 }
 
-.header-icon {
-  font-size: 52px;
-  color: #e78709ff;
+.form-header p {
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
-.page-header h1 {
-  font-size: 36px;
-  font-weight: 800;
-  color: #ffffff;
+/* FORM CARD */
+.form-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  margin-bottom: 24px;
+}
+
+.form-card h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #1e3a8a;
+}
+
+/* FORM GRID */
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  flex: 100%;
+}
+
+/* LABELS */
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
   margin-bottom: 6px;
 }
 
-.page-header p {
-  font-size: 15px;
-  color: #e2e8f0;
-  margin: 0;
-}
-
-/* ================= FORM CARD ================= */
-.form-card {
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ================= SECCIONES ================= */
-.form-section {
-  margin-bottom: 40px;
-  padding-bottom: 32px;
-  border-bottom: 2px solid #e2e8f0;
-}
-.form-section:last-of-type {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.section-header .material-icons {
-  font-size: 28px;
-  color: #e78709ff;
-}
-.section-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-/* ================= FORM GROUPS ================= */
-.form-group {
-  margin-bottom: 24px;
-}
-.form-group label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* INPUTS */
+.form-control {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 8px;
+  transition: all 0.25s ease;
 }
-.form-group label .material-icons {
-  font-size: 20px;
-  color: #e78709ff;
-}
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 15px;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.3s;
+
+.form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
   outline: none;
 }
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  border-color: #e78709ff;
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-}
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+
+/* INVALID */
+.is-invalid {
+  border-color: #dc2626;
 }
 
-/* ================= MESSAGES ================= */
-.help-text,
-.error-message,
-.error-box,
-.success-box,
-.info-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+.invalid-feedback {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+/* INFO BOX */
+.info-box {
+  background: #eff6ff;
+  border-left: 4px solid #2563eb;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 8px;
-}
-.help-text {
-  background: #f0f9ff;
-  border: 2px solid #bae6fd;
-  color: #0369a1;
-}
-.error-message,
-.error-box {
-  background: #fef2f2;
-  border: 2px solid #ef4444;
-  color: #b91c1c;
-}
-.success-box {
-  background: #f0fdf4;
-  border: 2px solid #e78709ff;
-  color: #e78709ff;
-}
-.info-card {
-  background: #fffbeb;
-  border: 2px solid #fbbf24;
-  color: #92400e;
   padding: 16px;
+  margin-top: 20px;
 }
 
-/* ================= ACTIONS ================= */
+.info-box h3 {
+  font-size: 14px;
+  color: #1e40af;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.info-box ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.info-box li {
+  font-size: 13px;
+  color: #1e40af;
+  margin-bottom: 8px;
+}
+
+/* ALERT ERROR */
+.alert-danger {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* ACTIONS */
 .form-actions {
   display: flex;
-  gap: 16px;
   justify-content: flex-end;
-  margin-top: 40px;
+  gap: 12px;
 }
-.btn-primary,
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 28px;
+
+/* BUTTONS */
+.btn {
+  padding: 10px 20px;
+  border-radius: 10px;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
+  transition: all 0.25s ease;
 }
-.btn-primary {
-  background: linear-gradient(135deg, #e78709ff, #e78709ff);
-  color: white;
-  box-shadow: 0 10px 20px rgba(230, 145, 18, 0.35);
-}
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e78709ff, #e78709ff);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(185, 112, 16, 0.45);
-}
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
+
 .btn-secondary {
-  background: #f1f5f9;
-  color: #475569;
-  border: 2px solid #e2e8f0;
+  background: #e5e7eb;
+  color: #374151;
 }
+
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #d1d5db;
 }
 
-/* ================= SPINNER ================= */
-.spinner-small {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.btn-primary {
+  background: #2563eb;
+  color: white;
 }
 
-/* ================= RESPONSIVE ================= */
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.btn-primary:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .form-card { padding: 28px; }
-  .form-row { grid-template-columns: 1fr; }
-  .form-actions { flex-direction: column-reverse; }
-  .btn-primary, .btn-secondary { width: 100%; }
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 `]
-
 })
 export class CareerFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
   private careerService = inject(CareerService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  isEditMode = false;
+  careerForm: FormGroup;
   loading = false;
-  error = '';
-  success = '';
+  errorMessage = '';
+  isEditMode = false;
   careerId?: number;
 
-  career: Career = {
-  id: 0,
-  code: '',
-  name: '',
-  description: '',
-  isDual: false,
-  status: 'Activo',
-  students: []
-};
-  ngOnInit(): void {
-    this.careerId = Number(this.route.snapshot.params['id']);
-    if (this.careerId) {
-      this.isEditMode = true;
-      this.loadCareer();
-    }
+  periods: AcademicPeriod[] = [];
+
+  constructor() {
+    this.careerForm = this.fb.group({
+      name: ['', Validators.required],
+      description: [''],
+      isDual: ['', Validators.required],
+      status: ['Activo', Validators.required],
+      periodId: [null, Validators.required]
+    });
   }
 
-  loadCareer(): void {
-    if (!this.careerId) return;
-    this.loading = true;
+  ngOnInit(): void {
+  // Obtener periodos académicos
+  this.careerService.getPeriods().subscribe((periods: AcademicPeriod[]) => {
+    this.periods = periods;
+  });
 
-    this.careerService.getById(this.careerId).subscribe({
+  // Cargar carrera si es edición
+  this.route.params.subscribe(params => {
+    if (params['id']) {
+      this.isEditMode = true;
+      this.careerId = +params['id'];
+      this.loadCareer(this.careerId);
+    }
+  });
+}
+
+  private loadCareer(id: number): void {
+    this.loading = true;
+    this.careerService.getById(id).subscribe({
       next: (career) => {
-        this.career = career;
+        this.careerForm.patchValue({
+          name: career.name,
+          description: career.description,
+          isDual: career.isDual,
+          status: career.status,
+          periodId: career.periodId
+        });
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error loading career:', error);
-        this.error = 'Error al cargar la carrera';
+      error: () => {
+        this.errorMessage = 'Error al cargar la carrera';
         this.loading = false;
       }
     });
   }
 
   onSubmit(): void {
+    if (this.careerForm.invalid) {
+      this.markFormGroupTouched(this.careerForm);
+      return;
+    }
+
     this.loading = true;
-    this.error = '';
-    this.success = '';
+    this.errorMessage = '';
 
-    const operation = this.isEditMode
-      ? this.careerService.update(this.career.id, this.career)
-      : this.careerService.create(this.career);
+    const careerData: Career = {
+      ...this.careerForm.value,
+      id: this.careerId || 0
+    };
 
-    operation.subscribe({
-      next: () => {
-        this.success = this.isEditMode
-          ? 'Carrera actualizada exitosamente'
-          : 'Carrera creada exitosamente';
-        setTimeout(() => {
-          this.router.navigate(['/admin/careers']);
-        }, 1500);
-      },
+    const request = this.isEditMode && this.careerId
+      ? this.careerService.update(this.careerId, careerData)
+      : this.careerService.create(careerData);
+
+    request.subscribe({
+      next: () => this.router.navigate(['/admin/careers']),
       error: (error) => {
-        console.error('Error saving career:', error);
-        this.error = 'Error al guardar la carrera. Intente nuevamente.';
+        this.errorMessage = error.message || 'Error al guardar la carrera';
         this.loading = false;
       }
     });
   }
 
-  goBack(): void {
-    this.router.navigate(['/admin/careers']);
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+    });
   }
+
+  // Getters
+  get name() { return this.careerForm.get('name'); }
+  get isDual() { return this.careerForm.get('isDual'); }
+  get status() { return this.careerForm.get('status'); }
+  get periodId() { return this.careerForm.get('periodId'); }
 }

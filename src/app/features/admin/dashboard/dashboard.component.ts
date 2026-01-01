@@ -19,19 +19,17 @@ interface DashboardStats {
   template: `
     <div class="dashboard">
       <div class="dashboard-header">
-        <div class="header-content">
-          <span class="material-icons header-icon">dashboard</span>
-          <div>
-            <h1>Panel de Administración</h1>
-            <p>Gestión del sistema Yavirac</p>
-          </div>
-        </div>
+        <h1>Panel de Administración</h1>
+        <p>Gestión del sistema Yavirac</p>
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card primary">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">event_note</span>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <rect x="5" y="6" width="24" height="24" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M5 12h24M10 4v4M24 4v4" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-label">Periodos Académicos</div>
@@ -40,9 +38,12 @@ interface DashboardStats {
           </div>
         </div>
 
-        <div class="stat-card success">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">school</span>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <path d="M17 4l-10 8v14h8v-8h4v8h8V12l-10-8z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="17" cy="10" r="2" fill="currentColor"/>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-label">Carreras</div>
@@ -50,9 +51,13 @@ interface DashboardStats {
           </div>
         </div>
 
-        <div class="stat-card warning">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">groups</span>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <circle cx="12" cy="10" r="4" stroke="currentColor" stroke-width="2"/>
+              <circle cx="22" cy="10" r="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 26v-3a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v3M19 26v-3a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v3" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-label">Usuarios</div>
@@ -62,63 +67,71 @@ interface DashboardStats {
 
         <div class="stat-card action-card">
           <div class="stat-icon">
-            <span class="material-icons">settings</span>
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <circle cx="17" cy="17" r="5" stroke="currentColor" stroke-width="2"/>
+              <path d="M17 3v3M17 28v3M6 6l2 2M26 26l2 2M3 17h3M28 17h3M6 28l2-2M26 8l2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-label">Configuración</div>
-            <a routerLink="/admin/users" class="stat-link">
-              Gestionar
-              <span class="material-icons">arrow_forward</span>
-            </a>
+            <a routerLink="/admin/users" class="stat-link">Gestionar →</a>
           </div>
         </div>
       </div>
 
       <div class="quick-actions">
-        <div class="section-header">
-          <h2>
-            <span class="material-icons">flash_on</span>
-            Acciones Rápidas
-          </h2>
-        </div>
+        <h2>Acciones Rápidas</h2>
         <div class="actions-grid">
           <a routerLink="/admin/periods/new" class="action-btn">
-            <span class="material-icons action-icon">add_circle</span>
-            <span class="action-text">Nuevo Periodo</span>
+            <span class="action-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 8v16M8 16h16" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Nuevo Periodo</span>
           </a>
           <a routerLink="/admin/careers/new" class="action-btn">
-            <span class="material-icons action-icon">school</span>
-            <span class="action-text">Nueva Carrera</span>
+            <span class="action-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M8 8h16v16H8V8z" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 14h8M12 18h8" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <span>Nueva Carrera</span>
           </a>
           <a routerLink="/admin/users/new" class="action-btn">
-            <span class="material-icons action-icon">person_add</span>
-            <span class="action-text">Nuevo Usuario</span>
+            <span class="action-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <circle cx="16" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 26v-3a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </span>
+            <span>Nuevo Usuario</span>
           </a>
           <a routerLink="/admin/periods" class="action-btn">
-            <span class="material-icons action-icon">list_alt</span>
-            <span class="action-text">Ver Periodos</span>
+            <span class="action-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M10 8h16M10 14h16M10 20h16M4 8h.01M4 14h.01M4 20h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Ver Periodos</span>
           </a>
         </div>
       </div>
 
       <div class="recent-activity" *ngIf="!loading">
-        <div class="section-header">
-          <h2>
-            <span class="material-icons">history</span>
-            Actividad Reciente
-          </h2>
-        </div>
+        <h2>Actividad Reciente</h2>
         <div class="activity-list">
           <div class="activity-item">
             <div class="activity-icon">
-              <span class="material-icons">check_circle</span>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 9h16M8 3v3M14 3v3" stroke="currentColor" stroke-width="2"/>
+              </svg>
             </div>
             <div class="activity-content">
-              <div class="activity-title">Sistema iniciado correctamente</div>
-              <div class="activity-time">
-                <span class="material-icons">schedule</span>
-                Hoy
-              </div>
+              <div class="activity-title">Sistema iniciado</div>
+              <div class="activity-time">Hoy</div>
             </div>
           </div>
         </div>
@@ -137,12 +150,15 @@ interface DashboardStats {
   margin: 0 auto;
   padding: 32px 24px;
   min-height: 100vh;
+
+  /* Imagen de fondo */
   background-image:
     linear-gradient(
       rgba(15, 23, 42, 0.75),
       rgba(15, 23, 42, 0.75)
     ),
     url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
+
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -153,28 +169,15 @@ interface DashboardStats {
   margin-bottom: 36px;
 }
 
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.header-icon {
-  font-size: 48px;
-  color: #3b82f6;
-}
-
 .dashboard-header h1 {
   font-size: 34px;
   font-weight: 800;
   color: #ffffff;
-  margin-bottom: 4px;
 }
 
 .dashboard-header p {
   font-size: 15px;
   color: #e5e7eb;
-  margin: 0;
 }
 
 /* ================= STATS ================= */
@@ -204,14 +207,10 @@ interface DashboardStats {
   box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35);
 }
 
-.stat-card.primary { border-left: 5px solid #3b82f6; }
-.stat-card.success { border-left: 5px solid #10b981; }
-.stat-card.warning { border-left: 5px solid #f59e0b; }
-
+/* Card especial */
 .stat-card.action-card {
   background: linear-gradient(135deg, #2563eb, #1e40af);
   color: white;
-  border-left: none;
 }
 
 .stat-card.action-card .stat-label,
@@ -229,12 +228,8 @@ interface DashboardStats {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #f97316, #ea580c);
-  flex-shrink: 0;
-}
-
-.stat-icon .material-icons {
-  font-size: 36px;
   color: white;
+  flex-shrink: 0;
 }
 
 .stat-card.action-card .stat-icon {
@@ -251,8 +246,6 @@ interface DashboardStats {
   font-weight: 600;
   color: #475569;
   margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .stat-value {
@@ -265,7 +258,6 @@ interface DashboardStats {
 .stat-sublabel {
   font-size: 13px;
   color: #64748b;
-  margin-top: 4px;
 }
 
 /* ================= LINK ================= */
@@ -273,42 +265,22 @@ interface DashboardStats {
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-}
-
-.stat-link .material-icons {
-  font-size: 18px;
 }
 
 .stat-link:hover {
   text-decoration: underline;
 }
 
-/* ================= SECTION HEADERS ================= */
-.section-header {
-  margin-bottom: 24px;
-}
-
-.section-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.section-header h2 .material-icons {
-  font-size: 28px;
-  color: #fbbf24;
-}
-
 /* ================= ACCIONES RÁPIDAS ================= */
 .quick-actions {
   margin-bottom: 44px;
+}
+
+.quick-actions h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 22px;
 }
 
 .actions-grid {
@@ -339,6 +311,7 @@ interface DashboardStats {
   transform: translateY(-6px);
 }
 
+/* Iconos */
 .action-icon {
   width: 64px;
   height: 64px;
@@ -350,17 +323,8 @@ interface DashboardStats {
   justify-content: center;
 }
 
-.action-icon .material-icons {
-  font-size: 32px;
-}
-
 .action-btn:hover .action-icon {
   background: linear-gradient(135deg, #f97316, #ea580c);
-}
-
-.action-text {
-  text-align: center;
-  font-size: 14px;
 }
 
 /* ================= ACTIVIDAD ================= */
@@ -370,6 +334,13 @@ interface DashboardStats {
   border-radius: 18px;
   padding: 26px;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.recent-activity h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 20px;
 }
 
 .activity-list {
@@ -383,7 +354,6 @@ interface DashboardStats {
   gap: 16px;
   padding: 16px;
   border-radius: 14px;
-  transition: background 0.2s;
 }
 
 .activity-item:hover {
@@ -391,37 +361,26 @@ interface DashboardStats {
 }
 
 .activity-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #f97316, #ea580c);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.activity-icon .material-icons {
-  font-size: 24px;
+  flex-shrink: 0;
 }
 
 .activity-title {
   font-size: 14px;
   font-weight: 600;
   color: #0f172a;
-  margin-bottom: 4px;
 }
 
 .activity-time {
   font-size: 13px;
   color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.activity-time .material-icons {
-  font-size: 16px;
 }
 
 /* ================= LOADING ================= */
@@ -442,22 +401,20 @@ interface DashboardStats {
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .stats-grid,
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .header-content {
-    flex-direction: column;
-    text-align: center;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 `]
@@ -482,6 +439,7 @@ export class AdminDashboardComponent implements OnInit {
   private loadDashboardData(): void {
     this.loading = true;
 
+    // Cargar periodos
     this.periodService.getAll().subscribe({
       next: (periods) => {
         this.stats.totalPeriods = periods.length;
@@ -490,6 +448,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (error) => console.error('Error loading periods:', error)
     });
 
+    // Cargar carreras
     this.careerService.getAll().subscribe({
       next: (careers) => {
         this.stats.totalCareers = careers.length;
@@ -497,6 +456,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (error) => console.error('Error loading careers:', error)
     });
 
+    // Cargar usuarios
     this.userService.getAll().subscribe({
       next: (users) => {
         this.stats.totalUsers = users.length;

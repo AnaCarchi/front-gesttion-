@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { TutorAssignmentComponent } from './tutor-assignment/tutor-assignment.component';
+import { TutorListComponent } from './tutor-list/tutor-list.component';
 
 export const COORDINATOR_ROUTES: Routes = [
   {
@@ -35,7 +37,12 @@ export const COORDINATOR_ROUTES: Routes = [
         path: 'reports',
         loadComponent: () => import('./reports/reports.component')
           .then(m => m.ReportsComponent)
-      }
+      },
+      {
+        path: 'tutor-assignments',
+        component: TutorAssignmentComponent
+      },
+      { path: 'tutors', component: TutorListComponent },
     ]
   }
 ];

@@ -2,609 +2,455 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { StudentService } from '../../../core/services/student.service';
-
-interface TutorStats {
-  totalStudents: number;
-  pendingEvaluations: number;
-  completedEvaluations: number;
-  averageProgress: number;
-  companyName: string;
-}
+import { EvaluationService } from '../../../core/services/evaluation.service';
+import { Student, Evaluation } from '../../../core/models';
 
 @Component({
   selector: 'app-tutor-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="dashboard">
-
-      <!-- HEADER -->
+    <div class="tutor-dashboard">
       <div class="dashboard-header">
-        <div class="header-content">
-          <span class="material-icons header-icon">corporate_fare</span>
-          <div>
-            <h1>Panel del Tutor Empresarial</h1>
-            <p>{{ stats.companyName }}</p>
-          </div>
+        <div>
+          <h1>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+              <rect x="6" y="10" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M10 8h12v2H10z" fill="currentColor"/>
+            </svg>
+            Dashboard del Tutor
+          </h1>
+          <p>Gestión de estudiantes y evaluaciones</p>
         </div>
       </div>
 
-      <!-- WELCOME -->
-      <div class="welcome-card">
-        <div class="welcome-icon">
-          <span class="material-icons">waving_hand</span>
-        </div>
-        <div class="welcome-content">
-          <h2>¡Bienvenido de nuevo!</h2>
-          <p>Gestiona y evalúa a tus estudiantes asignados</p>
-        </div>
-      </div>
-
-      <!-- STATS -->
+      <!-- Estadísticas -->
       <div class="stats-grid">
-        <div class="stat-card primary">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">supervised_user_circle</span>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="10" cy="9" r="4" stroke="currentColor" stroke-width="2"/>
+              <circle cx="18" cy="9" r="4" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 22v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M12 22v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
             <div class="stat-label">Mis Estudiantes</div>
-            <div class="stat-value">{{ stats.totalStudents }}</div>
-            <div class="stat-sublabel">Asignados actualmente</div>
+            <div class="stat-value">{{ students.length }}</div>
           </div>
         </div>
 
-        <div class="stat-card warning">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">pending_actions</span>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="2"/>
+              <path d="M9 14l3 3 7-7" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
-            <div class="stat-label">Evaluaciones Pendientes</div>
-            <div class="stat-value">{{ stats.pendingEvaluations }}</div>
-            <div class="stat-sublabel">Por completar</div>
+            <div class="stat-label">Evaluados</div>
+            <div class="stat-value">{{ evaluatedCount }}</div>
           </div>
         </div>
 
-        <div class="stat-card success">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">task_alt</span>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="2"/>
+              <path d="M14 8v6l4 2" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
-            <div class="stat-label">Evaluaciones Completadas</div>
-            <div class="stat-value">{{ stats.completedEvaluations }}</div>
-            <div class="stat-sublabel">Este periodo</div>
+            <div class="stat-label">Pendientes</div>
+            <div class="stat-value">{{ students.length - evaluatedCount }}</div>
           </div>
         </div>
 
-        <div class="stat-card info">
+        <div class="stat-card">
           <div class="stat-icon">
-            <span class="material-icons">trending_up</span>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="4" y="4" width="20" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M10 16l3 3 6-6" stroke="currentColor" stroke-width="2"/>
+            </svg>
           </div>
           <div class="stat-content">
-            <div class="stat-label">Progreso Promedio</div>
-            <div class="stat-value">{{ stats.averageProgress }}%</div>
-            <div class="stat-sublabel">General</div>
+            <div class="stat-label">Total Evaluaciones</div>
+            <div class="stat-value">{{ evaluations.length }}</div>
           </div>
         </div>
       </div>
 
-      <!-- QUICK ACTIONS -->
-      <div class="quick-actions">
+      <!-- Estudiantes Asignados -->
+      <div class="section-card">
         <div class="section-header">
           <h2>
-            <span class="material-icons">flash_on</span>
-            Acciones Rápidas
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+              <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+              <circle cx="16" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 17v-1a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1M12 17v-1a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Mis Estudiantes
           </h2>
-        </div>
-
-        <div class="actions-grid">
-          <a routerLink="/tutor/my-students" class="action-btn">
-            <span class="material-icons action-icon">group</span>
-            <span class="action-text">Ver Estudiantes</span>
-          </a>
-
-          <a routerLink="/tutor/my-students" class="action-btn">
-            <span class="material-icons action-icon">rate_review</span>
-            <span class="action-text">Evaluar Estudiante</span>
-            <span class="badge" *ngIf="stats.pendingEvaluations > 0">
-              {{ stats.pendingEvaluations }}
-            </span>
-          </a>
-
-          <a routerLink="/tutor/evaluations" class="action-btn">
-            <span class="material-icons action-icon">fact_check</span>
-            <span class="action-text">Historial</span>
+          <a routerLink="/tutor/my-students" class="btn btn-outline btn-sm">
+            Ver Todos →
           </a>
         </div>
-      </div>
 
-      <!-- ALERT -->
-      <div class="alert-section" *ngIf="stats.pendingEvaluations > 0">
-        <div class="alert-box warning">
-          <span class="material-icons">warning</span>
-          <div>
-            <strong>{{ stats.pendingEvaluations }} evaluaciones pendientes</strong>
-            <p>Hay evaluaciones que requieren tu atención</p>
+        <div class="students-grid" *ngIf="students.length > 0">
+          <div class="student-card" *ngFor="let student of students.slice(0, 4)">
+            <div class="student-header">
+              <div class="student-avatar">
+                {{ getInitials(student.person?.name, student.person?.lastname) }}
+              </div>
+              <div class="student-info">
+                <div class="student-name">
+                  {{ student.person?.name }} {{ student.person?.lastname }}
+                </div>
+                <div class="student-email">{{ student.email }}</div>
+              </div>
+            </div>
+            
+            <div class="student-subjects">
+              <span 
+                *ngFor="let subject of student.enrolledSubjects" 
+                class="subject-badge"
+              >
+                {{ getSubjectLabel(subject.type) }}
+              </span>
+            </div>
+
+            <a 
+              [routerLink]="['/tutor/evaluate', student.id]" 
+              class="btn btn-primary btn-sm btn-block"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display: inline; vertical-align: middle; margin-right: 4px;">
+                <path d="M3 2h6l2 2v6H3V2z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M5 6h4M5 8h3" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              Evaluar
+            </a>
           </div>
-          <a routerLink="/tutor/my-students" class="alert-link">
-            Evaluar ahora
-            <span class="material-icons">arrow_forward</span>
-          </a>
+        </div>
+
+        <div class="empty-state" *ngIf="students.length === 0">
+          <p>No tienes estudiantes asignados</p>
         </div>
       </div>
 
-      <!-- LOADING -->
+      <!-- Evaluaciones Recientes -->
+      <div class="section-card">
+        <div class="section-header">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+              <path d="M8 6h10M8 10h10M8 14h10M4 6h.01M4 10h.01M4 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Evaluaciones Recientes
+          </h2>
+          <a routerLink="/tutor/evaluations" class="btn btn-outline btn-sm">
+            Ver Todas →
+          </a>
+        </div>
+
+        <div class="evaluations-list" *ngIf="evaluations.length > 0">
+          <div class="evaluation-item" *ngFor="let eval of evaluations.slice(0, 5)">
+            <div class="eval-icon">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M5 3h10l3 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+                <path d="M7 9h8M7 13h5" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="eval-content">
+              <div class="eval-student">
+                {{ eval.student.person?.name }} {{ eval.student.person?.lastname }}
+              </div>
+              <div class="eval-date">{{ eval.evaluationDate | date:'dd/MM/yyyy' }}</div>
+            </div>
+            <div class="eval-score" *ngIf="eval.score">
+              <span class="score-value">{{ eval.score }}/10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="evaluations.length === 0">
+          <p>No hay evaluaciones registradas</p>
+        </div>
+      </div>
+
       <div class="loading-spinner" *ngIf="loading">
         <div class="spinner"></div>
-        <p>Cargando datos del tutor...</p>
+        <p>Cargando datos...</p>
       </div>
-
     </div>
   `,
-    styles: [`
-/* ================= CONTENEDOR ================= */
-.dashboard {
+  styles: [`
+:root {
+  --blue: #2563eb;
+  --blue-dark: #1e40af;
+  --blue-soft: #eff6ff;
+  --orange: #f97316;
+  --black: #111827;
+  --gray: #6b7280;
+  --border: #e5e7eb;
+}
+
+/* ================= CONTAINER ================= */
+.tutor-dashboard {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 24px;
-  min-height: 100vh;
-  background-image:
-    linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)),
-    url('https://yavirac.edu.ec/wp-content/uploads/2024/05/vision.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
 }
 
 /* ================= HEADER ================= */
 .dashboard-header {
-  margin-bottom: 24px;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.header-icon {
-  font-size: 48px;
-  color: #0ea5e9;
+  margin-bottom: 28px;
 }
 
 .dashboard-header h1 {
-  font-size: 34px;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 4px;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.dashboard-header h1 svg {
+  color: var(--blue);
 }
 
 .dashboard-header p {
   font-size: 15px;
-  color: #e5e7eb;
-  margin: 0;
-}
-
-/* ================= WELCOME CARD ================= */
-.welcome-card {
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  border-radius: 20px;
-  padding: 32px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 36px;
-  box-shadow: 0 20px 40px rgba(14, 165, 233, 0.3);
-}
-
-.welcome-icon .material-icons {
-  font-size: 64px;
-  color: #fef3c7;
-}
-
-.welcome-content h2 {
-  font-size: 28px;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 8px;
-}
-
-.welcome-content p {
-  font-size: 16px;
-  color: #e0f2fe;
+  color: var(--gray);
   margin: 0;
 }
 
 /* ================= STATS ================= */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-  margin-bottom: 44px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border-radius: 18px;
-  padding: 26px;
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
 }
 
 .stat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(37,99,235,0.15);
 }
 
-.stat-card.primary { border-left: 5px solid #0ea5e9; }
-.stat-card.warning { border-left: 5px solid #f59e0b; }
-.stat-card.success { border-left: 5px solid #10b981; }
-.stat-card.info { border-left: 5px solid #8b5cf6; }
-
 .stat-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--blue-soft);
+  color: var(--blue);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  flex-shrink: 0;
 }
 
-.stat-icon .material-icons {
-  font-size: 36px;
-  color: white;
-}
-
-.stat-card.warning .stat-icon {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.stat-card.success .stat-icon {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.stat-card.info .stat-icon {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stat-value {
-  font-size: 38px;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1;
-}
-
-.stat-sublabel {
+.stat-content .stat-label {
   font-size: 13px;
-  color: #64748b;
-  margin-top: 4px;
+  font-weight: 600;
+  color: var(--gray);
+  margin-bottom: 6px;
 }
 
-/* ================= SECTION HEADERS ================= */
-.section-header {
+.stat-content .stat-value {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--black);
+}
+
+/* ================= SECTIONS ================= */
+.section-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
   margin-bottom: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.section-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
 }
 
 .section-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.section-header h2 .material-icons {
-  font-size: 28px;
-  color: #fbbf24;
-}
-
-.view-all-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #fbbf24;
+  font-size: 20px;
   font-weight: 600;
-  text-decoration: none;
-  font-size: 14px;
+  color: var(--black);
 }
 
-.view-all-link:hover {
-  text-decoration: underline;
+.section-header h2 svg {
+  color: var(--blue);
 }
 
-/* ================= QUICK ACTIONS ================= */
-.quick-actions {
-  margin-bottom: 44px;
-}
-
-.actions-grid {
+/* ================= STUDENTS ================= */
+.students-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 18px;
 }
 
-.action-btn {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(6px);
-  border-radius: 18px;
-  padding: 24px;
-  border: 2px solid transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-decoration: none;
-  color: #0f172a;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.action-btn:hover {
-  border-color: #0ea5e9;
-  background: #e0f2fe;
-  transform: translateY(-6px);
-}
-
-.action-icon {
-  font-size: 32px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-btn:hover .action-icon {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-}
-
-.action-text {
-  text-align: center;
-  font-size: 14px;
-}
-
-.badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #ef4444;
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* ================= ALERT ================= */
-.alert-section {
-  margin-bottom: 44px;
-}
-
-.alert-box {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(6px);
-  border-radius: 18px;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.alert-box.warning {
-  border-left: 5px solid #f59e0b;
-}
-
-.alert-box .material-icons {
-  font-size: 40px;
-  color: #f59e0b;
-}
-
-.alert-box strong {
-  color: #0f172a;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.alert-box p {
-  color: #64748b;
-  margin: 0;
-  font-size: 14px;
-}
-
-.alert-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #0ea5e9;
-  font-weight: 700;
-  text-decoration: none;
-  margin-left: auto;
-}
-
-.alert-link:hover {
-  text-decoration: underline;
-}
-
-/* ================= STUDENTS SECTION ================= */
-.students-section {
-  margin-bottom: 44px;
-}
-
-.students-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
 .student-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(6px);
-  border-radius: 18px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  transition: all 0.2s ease;
+  background: white;
 }
 
 .student-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: var(--blue);
+  box-shadow: 0 8px 24px rgba(37,99,235,0.15);
+}
+
+.student-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .student-avatar {
-  width: 56px;
-  height: 56px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.student-info .student-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 4px;
+}
+
+.student-info .student-email {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* Subjects */
+.student-subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.subject-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(249,115,22,0.15);
+  color: var(--orange);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================= EVALUATIONS ================= */
+.evaluations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.evaluation-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.evaluation-item:hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.eval-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--blue-soft);
+  color: var(--blue);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.student-avatar .material-icons {
-  font-size: 32px;
-  color: white;
+.eval-content {
+  flex: 1;
 }
 
-.student-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
+.eval-student {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--black);
   margin-bottom: 4px;
 }
 
-.student-type {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.student-type .material-icons {
-  font-size: 16px;
-}
-
-.student-progress {
-  margin-top: 8px;
-}
-
-.progress-label {
+.eval-date {
   font-size: 12px;
-  font-weight: 700;
-  color: #0ea5e9;
-  margin-bottom: 6px;
+  color: var(--gray);
 }
 
-.progress-bar {
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0ea5e9, #0284c7);
-  transition: width 0.3s;
-}
-
-/* ================= TIPS SECTION ================= */
-.tips-section {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border-radius: 18px;
-  padding: 26px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-  margin-bottom: 44px;
-}
-
-.tips-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.tip-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 14px;
-  background: #f8fafc;
-  transition: all 0.3s;
-}
-
-.tip-card:hover {
-  background: #e0f2fe;
-  transform: translateY(-4px);
-}
-
-.tip-icon {
-  font-size: 40px;
-  color: #0ea5e9;
-  flex-shrink: 0;
-}
-
-.tip-content h3 {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 6px;
-}
-
-.tip-content p {
+.eval-score .score-value {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(249,115,22,0.15);
+  color: var(--orange);
   font-size: 13px;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.5;
+  font-weight: 700;
 }
 
-/* ================= LOADING ================= */
+/* ================= STATES ================= */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray);
+}
+
 .loading-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 80px;
-  color: white;
 }
 
 .spinner {
-  width: 46px;
-  height: 46px;
-  border: 4px solid rgba(255,255,255,0.3);
-  border-top-color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
 }
 
 @keyframes spin {
@@ -613,66 +459,69 @@ interface TutorStats {
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .stats-grid,
-  .actions-grid,
-  .students-grid,
-  .tips-grid {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
-  
-  .header-content {
+
+  .section-header {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  .welcome-card {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .alert-box {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .alert-link {
-    margin-left: 0;
+
+  .students-grid {
+    grid-template-columns: 1fr;
   }
 }
 `]
+
 })
 export class TutorDashboardComponent implements OnInit {
-
   private studentService = inject(StudentService);
+  private evaluationService = inject(EvaluationService);
 
+  students: Student[] = [];
+  evaluations: Evaluation[] = [];
   loading = true;
-
-  stats: TutorStats = {
-    totalStudents: 0,
-    pendingEvaluations: 0,
-    completedEvaluations: 0,
-    averageProgress: 0,
-    companyName: 'Empresa ABC S.A.'
-  };
+  evaluatedCount = 0;
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    this.loadData();
   }
 
-  private loadDashboardData(): void {
+  private loadData(): void {
     this.loading = true;
 
-    // Simulación (reemplazar por API real)
-    setTimeout(() => {
-      this.stats = {
-        totalStudents: 12,
-        pendingEvaluations: 3,
-        completedEvaluations: 15,
-        averageProgress: 68,
-        companyName: 'Empresa ABC S.A.'
-      };
-      this.loading = false;
-    }, 800);
+    this.studentService.getMyStudents().subscribe({
+      next: (students) => {
+        this.students = students;
+      }
+    });
+
+    this.evaluationService.getByTutor().subscribe({
+      next: (evaluations) => {
+        this.evaluations = evaluations;
+        this.evaluatedCount = new Set(evaluations.map(e => e.student.id)).size;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  getInitials(name?: string, lastname?: string): string {
+    const n = name?.charAt(0) || '';
+    const l = lastname?.charAt(0) || '';
+    return (n + l).toUpperCase() || 'U';
+  }
+
+  getSubjectLabel(type: string): string {
+    const labels: { [key: string]: string } = {
+      'VINCULATION': 'Vinculación',
+      'DUAL_INTERNSHIP': 'Dual',
+      'PREPROFESSIONAL_INTERNSHIP': 'Preprofesional'
+    };
+    return labels[type] || type;
   }
 }
-

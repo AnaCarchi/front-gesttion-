@@ -1,13 +1,11 @@
 import { AcademicPeriod } from './academic-period.model';
-import { Student } from './student.model'; 
 
 export interface Career {
   id: number;
-  code: string;
+  periodId: number;
   name: string;
   description?: string;
-  isDual: boolean;
+  academicPeriod?: AcademicPeriod; // singular
   status: string;
-  students?: Student[];               
-  academicPeriod?: AcademicPeriod;
+  isDual?: boolean;
 }

@@ -8,11 +8,14 @@ import { RouterLink } from '@angular/router';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="internship-container">
-
-      <!-- HEADER -->
       <div class="header">
         <div class="header-content">
-          <span class="material-icons header-icon">school</span>
+          <div class="icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+              <path d="M32 8L16 20v24h12v-12h8v12h12V20L32 8z" stroke="currentColor" stroke-width="3"/>
+              <circle cx="32" cy="16" r="4" fill="currentColor"/>
+            </svg>
+          </div>
           <div>
             <h1>Prácticas de Formación Dual</h1>
             <p>Prácticas obligatorias curriculares</p>
@@ -20,41 +23,45 @@ import { RouterLink } from '@angular/router';
         </div>
       </div>
 
-      <!-- INFORMACIÓN -->
-      <div class="info-card">
+      <!-- Información -->
+      <div class="info-card dual">
         <h2>
-          <span class="material-icons">info</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+            <path d="M8 6h10M8 10h10M8 14h10M4 6h.01M4 10h.01M4 14h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
           Información de las Prácticas
         </h2>
-
-        <p>
-          Las prácticas de formación dual son obligatorias y forman parte integral
-          de tu programa académico.
-        </p>
-
+        <p>Las prácticas de formación dual son obligatorias y forman parte integral de tu programa académico.</p>
+        
         <div class="info-grid">
           <div class="info-item">
-            <span class="label">Estado</span>
-            <span class="badge active">En curso</span>
+            <span class="label">Estado:</span>
+            <span class="badge active">En Curso</span>
           </div>
-
           <div class="info-item">
-            <span class="label">Tipo</span>
-            <span class="value">Obligatorias / Curriculares</span>
+            <span class="label">Tipo:</span>
+            <span class="value">Obligatorias/Curriculares</span>
           </div>
         </div>
       </div>
 
-      <!-- DOCUMENTOS -->
+      <!-- Documentos Requeridos -->
       <div class="documents-section">
         <h2>
-          <span class="material-icons">description</span>
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+            <path d="M7 3h8l4 4v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M15 3v4h4" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
           Documentos Requeridos
         </h2>
-
+        
         <div class="documents-grid">
           <div class="document-card">
-            <span class="material-icons doc-icon">assignment</span>
+            <div class="doc-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <path d="M12 10h20M12 16h20M12 22h20M6 10h.01M6 16h.01M6 22h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
             <div class="doc-info">
               <h3>Ficha de Registro</h3>
               <p>Datos básicos del estudiante y empresa</p>
@@ -63,7 +70,12 @@ import { RouterLink } from '@angular/router';
           </div>
 
           <div class="document-card">
-            <span class="material-icons doc-icon">edit_document</span>
+            <div class="doc-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <path d="M10 8h20l4 4v16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+                <path d="M14 16h12M14 22h8" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
             <div class="doc-info">
               <h3>Plan de Trabajo</h3>
               <p>Actividades programadas</p>
@@ -72,7 +84,12 @@ import { RouterLink } from '@angular/router';
           </div>
 
           <div class="document-card">
-            <span class="material-icons doc-icon">bar_chart</span>
+            <div class="doc-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="8" y="8" width="24" height="24" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 20l3 3 6-6" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
             <div class="doc-info">
               <h3>Informes de Progreso</h3>
               <p>Reportes mensuales</p>
@@ -80,8 +97,13 @@ import { RouterLink } from '@angular/router';
             <button class="btn btn-primary btn-sm">Generar</button>
           </div>
 
-          <div class="document-card disabled">
-            <span class="material-icons doc-icon">task_alt</span>
+          <div class="document-card">
+            <div class="doc-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="2"/>
+                <path d="M14 20l4 4 8-8" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
             <div class="doc-info">
               <h3>Informe Final</h3>
               <p>Documento de cierre</p>
@@ -91,277 +113,228 @@ import { RouterLink } from '@angular/router';
         </div>
       </div>
 
-      <!-- PROGRESO -->
+      <!-- Progreso -->
       <div class="progress-section">
         <h2>
-          <span class="material-icons">trending_up</span>
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+            <path d="M11 3v8l5 3M11 21c5.523 0 10-4.477 10-10S16.523 1 11 1 1 5.477 1 11s4.477 10 10 10z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
           Progreso General
         </h2>
-
         <div class="progress-bar">
           <div class="progress-fill" style="width: 45%"></div>
         </div>
-
         <p class="progress-text">45% completado</p>
       </div>
-
     </div>
   `,
   styles: [`
-/* ================= CONTENEDOR ================= */
-.internship-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px;
-}
+    .internship-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-/* ================= HEADER ================= */
-.header {
-  margin-bottom: 32px;
-}
+    .header {
+      margin-bottom: 32px;
 
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+      .header-content {
+        display: flex;
+        gap: 20px;
+        align-items: center;
 
-.header-icon {
-  font-size: 56px;
-  color: #2563eb;
-}
+        .icon {
+          color: #3b82f6;
+        }
 
-.header h1 {
-  font-size: 28px;
-  color: #0f172a;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
+        h1 {
+          font-size: 32px;
+          color: #1f2937;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
 
-.header p {
-  color: #64748b;
-  font-size: 15px;
-  margin: 0;
-}
+        p {
+          color: #6b7280;
+          font-size: 16px;
+          margin: 0;
+        }
+      }
+    }
 
-/* ================= INFO CARD ================= */
-.info-card {
-  background: #f8fafc;
-  border: 1.5px solid #2563eb;
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 32px;
-}
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-.info-card h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
+      &.dual {
+        background: #eff6ff;
+        border: 2px solid #3b82f6;
+      }
 
-.info-card h2 .material-icons {
-  color: #2563eb;
-}
+      h2 {
+        font-size: 18px;
+        color: #1e40af;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
 
-.info-card p {
-  color: #334155;
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
+      h2 svg {
+        color: #1e40af;
+      }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
+      p {
+        color: #1e40af;
+        margin-bottom: 16px;
+        line-height: 1.6;
+      }
 
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
 
-.label {
-  font-size: 14px;
-  color: #475569;
-  font-weight: 500;
-}
+        .info-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
 
-.value {
-  font-size: 14px;
-  color: #0f172a;
-  font-weight: 600;
-}
+          .label {
+            font-size: 14px;
+            color: #1e40af;
+            font-weight: 500;
+          }
 
-.badge {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
+          .value {
+            font-size: 14px;
+            color: #1e3a8a;
+            font-weight: 700;
+          }
 
-.badge.active {
-  background: rgba(37,99,235,0.15);
-  color: #2563eb;
-}
+          .badge {
+            padding: 6px 12px;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+        }
+      }
+    }
 
-/* ================= DOCUMENTOS ================= */
-.documents-section {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 32px;
-  margin-bottom: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+    .documents-section {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-.documents-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
+      h2 {
+        font-size: 20px;
+        color: #1f2937;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
 
-.documents-section h2 .material-icons {
-  color: #2563eb;
-}
+      h2 svg {
+        color: #1f2937;
+      }
 
-.documents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
+      .documents-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+      }
 
-.document-card {
-  border: 1.5px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: all 0.25s ease;
-}
+      .document-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: all 0.2s;
 
-.document-card:hover {
-  border-color: #2563eb;
-  background: #f8fafc;
-}
+        &:hover {
+          border-color: #3b82f6;
+          background: #f9fafb;
+        }
 
-.document-card.disabled {
-  opacity: 0.6;
-}
+        .doc-icon {
+          color: #3b82f6;
+        }
 
-.doc-icon {
-  font-size: 36px;
-  color: #2563eb;
-}
+        .doc-info {
+          flex: 1;
 
-.doc-info h3 {
-  font-size: 15px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
+          h3 {
+            font-size: 16px;
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 6px;
+          }
 
-.doc-info p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
+          p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+          }
+        }
+      }
+    }
 
-/* ================= BOTONES ================= */
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
+    .progress-section {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-.btn-sm {
-  font-size: 13px;
-}
+      h2 {
+        font-size: 20px;
+        color: #1f2937;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
 
-.btn-primary {
-  background: rgba(249,115,22,0.15);
-  color: #f97316;
-}
+      h2 svg {
+        color: #1f2937;
+      }
 
-.btn-primary:hover {
-  background: rgba(249,115,22,0.3);
-}
+      .progress-bar {
+        height: 24px;
+        background: #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 12px;
 
-.btn-outline {
-  background: transparent;
-  border: 1.5px dashed #cbd5f5;
-  color: #64748b;
-  cursor: not-allowed;
-}
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #3b82f6, #2563eb);
+          transition: width 0.3s;
+        }
+      }
 
-/* ================= PROGRESO ================= */
-.progress-section {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+      .progress-text {
+        text-align: center;
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+        margin: 0;
+      }
+    }
 
-.progress-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
+    @media (max-width: 768px) {
+      .documents-grid {
+        grid-template-columns: 1fr !important;
+      }
 
-.progress-section h2 .material-icons {
-  color: #2563eb;
-}
-
-.progress-bar {
-  height: 22px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  text-align: center;
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
-  margin: 0;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .internship-container {
-    padding: 16px;
-  }
-
-  .documents-grid {
-    grid-template-columns: 1fr;
-  }
-}
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
   `]
 })
 export class InternshipDualComponent {}

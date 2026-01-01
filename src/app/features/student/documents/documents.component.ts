@@ -7,187 +7,161 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="documents-container">
-
-      <!-- HEADER -->
       <div class="header">
-        <h1>Mis Documentos</h1>
-        <p>Documentos generados y disponibles para descarga</p>
+        <h1>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="display: inline; vertical-align: middle;">
+            <path d="M10 4h8l6 6v14a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+            <path d="M18 4v6h6" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 16h8M12 20h8" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Mis Documentos
+        </h1>
+        <p>Documentos generados y descargables</p>
       </div>
 
-      <!-- VINCULACIÓN -->
-      <div class="category-section">
-        <h2>
-          <span class="material-icons">handshake</span>
-          Vinculación
-        </h2>
-
-        <div class="docs-list">
-          <div class="doc-item">
-            <div class="doc-info">
-              <span class="material-icons doc-icon">description</span>
-              <span class="doc-name">Ficha de Registro - Vinculación.pdf</span>
+      <div class="documents-categories">
+        <div class="category-section">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+              <path d="M10 6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v-2h-1v-1h1v-1h-1v-1h1v-1h-1z" fill="currentColor"/>
+              <path d="M14 6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h1v-2h-1v-1h1v-1h-1v-1h1v-1h-1z" fill="currentColor"/>
+            </svg>
+            Vinculación
+          </h2>
+          <div class="docs-list">
+            <div class="doc-item">
+              <div class="doc-info">
+                <span class="doc-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="doc-name">Ficha de Registro - Vinculación.pdf</span>
+              </div>
+              <button class="btn btn-sm btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v8M8 10l-3-3M8 10l3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Descargar
+              </button>
             </div>
-            <button class="btn btn-primary">
-              <span class="material-icons">download</span>
-              Descargar
-            </button>
+          </div>
+        </div>
+
+        <div class="category-section">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display: inline; vertical-align: middle; margin-right: 8px;">
+              <path d="M10 2L4 6v6l6 4 6-4V6l-6-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M10 10V14" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            Prácticas Duales
+          </h2>
+          <div class="docs-list">
+            <div class="doc-item">
+              <div class="doc-info">
+                <span class="doc-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="currentColor" stroke-width="2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </span>
+                <span class="doc-name">Plan de Trabajo.pdf</span>
+              </div>
+              <button class="btn btn-sm btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v8M8 10l-3-3M8 10l3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Descargar
+              </button>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- PRÁCTICAS -->
-      <div class="category-section">
-        <h2>
-          <span class="material-icons">school</span>
-          Prácticas Duales
-        </h2>
-
-        <div class="docs-list">
-          <div class="doc-item">
-            <div class="doc-info">
-              <span class="material-icons doc-icon">description</span>
-              <span class="doc-name">Plan de Trabajo.pdf</span>
-            </div>
-            <button class="btn btn-primary">
-              <span class="material-icons">download</span>
-              Descargar
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>
   `,
   styles: [`
-/* ================= CONTENEDOR ================= */
-.documents-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px;
-}
+    .documents-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-/* ================= HEADER ================= */
-.header {
-  margin-bottom: 32px;
-}
+    .header {
+      margin-bottom: 32px;
 
-.header h1 {
-  font-size: 28px;
-  color: #0f172a;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
+      h1 {
+        font-size: 32px;
+        color: #1f2937;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
 
-.header p {
-  color: #64748b;
-  font-size: 15px;
-  margin: 0;
-}
+      p {
+        color: #6b7280;
+        font-size: 16px;
+        margin: 0;
+      }
+    }
 
-/* ================= SECCIÓN ================= */
-.category-section {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+    .category-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
-.category-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  color: #0f172a;
-  font-weight: 600;
-  margin-bottom: 18px;
-}
+      h2 {
+        font-size: 18px;
+        color: #1f2937;
+        margin-bottom: 16px;
+        font-weight: 600;
+      }
 
-.category-section h2 .material-icons {
-  color: #2563eb;
-  font-size: 22px;
-}
+      .docs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-/* ================= LISTA ================= */
-.docs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+      .doc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        transition: all 0.2s;
 
-/* ================= ITEM ================= */
-.doc-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 18px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 10px;
-  transition: all 0.25s ease;
-}
+        &:hover {
+          background: #f9fafb;
+          border-color: #10b981;
+        }
 
-.doc-item:hover {
-  background: #f8fafc;
-  border-color: #2563eb;
-}
+        .doc-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
 
-/* ================= INFO ================= */
-.doc-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+          .doc-icon {
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+          }
 
-.doc-icon {
-  font-size: 26px;
-  color: #2563eb;
-}
+          .doc-name {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+          }
+        }
 
-.doc-name {
-  font-size: 14px;
-  color: #0f172a;
-  font-weight: 500;
-}
-
-/* ================= BOTÓN ================= */
-.btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.btn-primary {
-  background: rgba(249,115,22,0.15);
-  color: #f97316;
-}
-
-.btn-primary:hover {
-  background: rgba(249,115,22,0.3);
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .documents-container {
-    padding: 16px;
-  }
-
-  .doc-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
+    }
   `]
 })
 export class DocumentsComponent {}

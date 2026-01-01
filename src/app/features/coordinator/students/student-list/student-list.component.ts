@@ -6,6 +6,7 @@ import { StudentService } from '../../../../core/services/student.service';
 import { CareerService } from '../../../../core/services/career.service';
 import { PeriodService } from '../../../../core/services/period.service';
 import { Student, Career, AcademicPeriod } from '../../../../core/models';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-student-list',
@@ -13,17 +14,28 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div class="student-list-container">
-
-      <!-- HEADER -->
       <div class="header">
-        <h1>Gestión de Estudiantes</h1>
+        <h1>👥 Gestión de Estudiantes</h1>
         <p>Administración de estudiantes de tus carreras</p>
       </div>
 
-      <!-- FILTROS -->
+      <!-- Filtros + Carga masiva -->
       <div class="filters-card">
-        <div class="filters-row">
+        <div class="bulk-upload">
+          <button class="btn btn-primary" (click)="fileInput.click()">
+            📥 Carga masiva de estudiantes
+          </button>
 
+          <input
+  #fileInput
+  type="file"
+  accept=".xlsx,.xls"
+  hidden
+  (change)="onFileSelected($event)"
+/>
+        </div>
+
+        <div class="filters-row">
           <select [(ngModel)]="selectedCareer" (change)="applyFilters()" class="filter-select">
             <option value="">Todas las Carreras</option>
             <option *ngFor="let career of careers" [value]="career.id">
@@ -46,20 +58,18 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
           </select>
 
           <button class="btn btn-outline" (click)="clearFilters()">
-            Limpiar filtros
+            Limpiar Filtros
           </button>
         </div>
       </div>
 
-      <!-- LISTA -->
+      <!-- Lista -->
       <div class="students-grid" *ngIf="!loading && filteredStudents.length > 0">
         <div class="student-card" *ngFor="let student of filteredStudents">
-
           <div class="student-header">
             <div class="student-avatar">
               {{ getInitials(student.person?.name, student.person?.lastname) }}
             </div>
-
             <div class="student-info">
               <h3>{{ student.person?.name }} {{ student.person?.lastname }}</h3>
               <p class="student-email">{{ student.email }}</p>
@@ -71,18 +81,16 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
               <span class="label">Carrera:</span>
               <span class="value">{{ student.career?.name || '-' }}</span>
             </div>
-
             <div class="detail-row">
               <span class="label">SIGA:</span>
               <span class="badge" [class.active]="student.isMatriculatedInSIGA">
-                {{ student.isMatriculatedInSIGA ? 'Matriculado' : 'No matriculado' }}
+                {{ student.isMatriculatedInSIGA ? '✓ Matriculado' : '✗ No matriculado' }}
               </span>
             </div>
-
             <div class="detail-row">
               <span class="label">Tutor:</span>
               <span class="badge" [class.active]="student.tutor">
-                {{ student.tutor ? 'Asignado' : 'Sin asignar' }}
+                {{ student.tutor ? '✓ Asignado' : '⏳ Sin asignar' }}
               </span>
             </div>
           </div>
@@ -92,52 +100,71 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
               [routerLink]="['/coordinator/students', student.id, 'assign-tutor']"
               class="btn btn-primary btn-sm btn-block"
             >
-              <span class="material-icons">school</span>
-              Asignar Tutor
+              👔 Asignar Tutor
             </a>
           </div>
-
         </div>
       </div>
 
-      <!-- EMPTY -->
+      <!-- Estados -->
       <div class="empty-state" *ngIf="!loading && filteredStudents.length === 0">
-        <span class="material-icons empty-icon">people_outline</span>
+        <div class="empty-icon">👥</div>
         <h3>No se encontraron estudiantes</h3>
         <p>No hay estudiantes que coincidan con los filtros seleccionados</p>
       </div>
 
-      <!-- LOADING -->
       <div class="loading-spinner" *ngIf="loading">
         <div class="spinner"></div>
         <p>Cargando estudiantes...</p>
       </div>
-
     </div>
   `,
   styles: [`
-/* CONTENEDOR */
+/* ================= CONTENEDOR ================= */
 .student-list-container {
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* HEADER */
+.bulk-upload {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+/* ================= HEADER ================= */
 .header {
   margin-bottom: 32px;
 }
 
 .header h1 {
   font-size: 32px;
-  font-weight: 700;
   color: #1f2937;
+  margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .header p {
   color: #6b7280;
+  font-size: 16px;
+  margin: 0;
 }
 
-/* FILTROS */
+/* ================= FILTROS ================= */
 .filters-card {
   background: white;
   border-radius: 12px;
@@ -157,6 +184,8 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   border: 1.5px solid #e5e7eb;
   border-radius: 8px;
   font-size: 14px;
+  cursor: pointer;
+  background: white;
   min-width: 200px;
 }
 
@@ -166,20 +195,20 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
 
-/* GRID */
+/* ================= GRID ================= */
 .students-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
 }
 
-/* CARD */
+/* ================= CARD ESTUDIANTE ================= */
 .student-card {
   background: white;
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 
 .student-card:hover {
@@ -187,7 +216,7 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   box-shadow: 0 8px 24px rgba(59,130,246,0.15);
 }
 
-/* HEADER CARD */
+/* ================= HEADER CARD ================= */
 .student-header {
   display: flex;
   gap: 12px;
@@ -206,35 +235,48 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   align-items: center;
   justify-content: center;
   font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .student-info h3 {
   font-size: 16px;
   font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
 }
 
 .student-email {
   font-size: 13px;
   color: #6b7280;
+  margin: 0;
 }
 
-/* DETALLES */
+/* ================= DETALLES ================= */
+.student-details {
+  margin-bottom: 16px;
+}
+
 .detail-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 8px 0;
 }
 
-.label {
+.detail-row .label {
   font-size: 13px;
   color: #6b7280;
+  font-weight: 500;
 }
 
-.value {
+.detail-row .value {
+  font-size: 14px;
+  color: #1f2937;
   font-weight: 600;
 }
 
-/* BADGES */
+/* ================= BADGES ================= */
 .badge {
   padding: 4px 10px;
   background: #fee2e2;
@@ -249,17 +291,12 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   color: #065f46;
 }
 
-/* ACTIONS */
+/* ================= ACCIONES ================= */
 .student-actions {
   margin-top: 12px;
 }
 
-.btn-sm {
-  font-size: 13px;
-  padding: 8px 12px;
-}
-
-/* EMPTY & LOADING */
+/* ================= EMPTY & LOADING ================= */
 .empty-state,
 .loading-spinner {
   text-align: center;
@@ -271,11 +308,22 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
 
 .empty-icon {
   font-size: 64px;
-  color: #9ca3af;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
-/* SPINNER */
+.empty-state h3 {
+  font-size: 20px;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.empty-state p,
+.loading-spinner p {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ================= SPINNER ================= */
 .spinner {
   width: 40px;
   height: 40px;
@@ -290,7 +338,7 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
   to { transform: rotate(360deg); }
 }
 
-/* RESPONSIVE */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
   .students-grid {
     grid-template-columns: 1fr;
@@ -304,7 +352,8 @@ import { Student, Career, AcademicPeriod } from '../../../../core/models';
     width: 100%;
   }
 }
-  `]
+`]
+
 })
 export class StudentListComponent implements OnInit {
 
@@ -321,14 +370,28 @@ export class StudentListComponent implements OnInit {
   selectedCareer = '';
   selectedPeriod = '';
   selectedSubjectType = '';
-
   loading = true;
 
   ngOnInit(): void {
-    this.loadData();
-  }
+  this.loading = false;
 
+  // Datos mock SOLO FRONT
+  this.careers = [
+    { id: 1, name: 'Desarrollo de Software' },
+  { id: 2, name: 'Redes' }
+  ] as Career[];
+
+  this.periods = [
+    { id: 1, name: '2025-1' },
+    { id: 2, name: '2025-2' }
+  ] as AcademicPeriod[];
+
+  this.students = [];
+  this.filteredStudents = [];
+}
   private loadData(): void {
+    this.loading = true;
+
     this.careerService.getByCoordinator().subscribe(c => this.careers = c);
     this.periodService.getAll().subscribe(p => this.periods = p);
 
@@ -344,10 +407,14 @@ export class StudentListComponent implements OnInit {
 
   applyFilters(): void {
     this.filteredStudents = this.students.filter(student => {
-      if (this.selectedCareer && student.career?.id !== +this.selectedCareer) return false;
+      if (this.selectedCareer && student.career?.id !== +this.selectedCareer) {
+        return false;
+      }
+
       if (this.selectedSubjectType) {
         return student.enrolledSubjects?.some(s => s.type === this.selectedSubjectType);
       }
+
       return true;
     });
   }
@@ -359,7 +426,60 @@ export class StudentListComponent implements OnInit {
     this.applyFilters();
   }
 
+  onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e: any) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const jsonData = XLSX.utils.sheet_to_json<any>(worksheet);
+    this.processBulkStudents(jsonData);
+
+    input.value = ''; // ✅ ahora sí
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+  processBulkStudents(data: any[]): void {
+  const newStudents: Student[] = data.map((row, index) => {
+    if (!row.identificacion || !row.nombre_estudiante) return null;
+
+    const parts = row.nombre_estudiante.trim().split(' ');
+    const lastname = parts.slice(-2).join(' ');
+    const name = parts.slice(0, -2).join(' ');
+
+    return {
+      id: Date.now() + index, // ID temporal
+      email: `${row.identificacion}@estudiante.test`,
+      isMatriculatedInSIGA: true,
+      person: {
+        name,
+        lastname
+      },
+     career: this.careers.find(c => c.id === Number(row.codigo_carrera)) || null,
+    } as Student;
+  }).filter(Boolean) as Student[];
+
+  if (newStudents.length === 0) {
+    alert('⚠️ No se encontraron estudiantes válidos');
+    return;
+  }
+
+  // 🔥 INSERTAR EN FRONT
+  this.students = [...this.students, ...newStudents];
+  this.applyFilters();
+
+  alert(`✅ ${newStudents.length} estudiantes cargados en el frontend`);
+}
+
   getInitials(name?: string, lastname?: string): string {
-    return ((name?.[0] || '') + (lastname?.[0] || '')).toUpperCase();
+    return `${name?.[0] || ''}${lastname?.[0] || ''}`.toUpperCase() || 'U';
   }
 }
