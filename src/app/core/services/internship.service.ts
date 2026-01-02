@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { Internship } from '../models';
 
 export type InternshipStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
@@ -10,36 +8,115 @@ export type InternshipStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECT
   providedIn: 'root'
 })
 export class InternshipService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/internships`;
 
+  private internshipsKey = 'internships';
+
+  constructor() {
+    this.initMockData();
+  }
+
+  // ================= OBTENER TODOS =================
   getAll(): Observable<Internship[]> {
-    return this.http.get<Internship[]>(this.apiUrl);
+    return of(this.read());
   }
 
+  // ================= OBTENER POR ID =================
   getById(id: number): Observable<Internship> {
-    return this.http.get<Internship>(`${this.apiUrl}/${id}`);
+    const internship = this.read().find((i: any) => i.id === id);
+    return of(internship);
   }
 
+  // ================= CREAR =================
   create(internship: Internship): Observable<Internship> {
-    return this.http.post<Internship>(this.apiUrl, internship);
+    const internships = this.read();
+
+    const newInternship: Internship = {
+      ...internship,
+      id: Date.now(),
+      status: internship.status || 'PENDING'
+    };
+
+    internships.push(newInternship);
+    this.save(internships);
+
+    return of(newInternship);
   }
 
+  // ================= ACTUALIZAR =================
   update(id: number, internship: Internship): Observable<Internship> {
-    return this.http.put<Internship>(`${this.apiUrl}/${id}`, internship);
+    const internships = this.read();
+    const index = internships.findIndex((i: any) => i.id === id);
+
+    if (index !== -1) {
+      internships[index] = { ...internships[index], ...internship };
+      this.save(internships);
+    }
+
+    return of(internships[index]);
   }
 
-  updateStatus(id: number, status: string): Observable<Internship> {
-    return this.http.patch<Internship>(`${this.apiUrl}/${id}/status`, { status });
+  // ================= ACTUALIZAR ESTADO =================
+  updateStatus(id: number, status: InternshipStatus): Observable<Internship> {
+    const internships = this.read();
+    const index = internships.findIndex((i: any) => i.id === id);
+
+    if (index !== -1) {
+      internships[index].status = status;
+      this.save(internships);
+    }
+
+    return of(internships[index]);
   }
 
+  // ================= ELIMINAR =================
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const internships = this.read().filter((i: any) => i.id !== id);
+    this.save(internships);
+    return of(void 0);
   }
 
+  // ================= GENERAR DOCUMENTOS (SIMULADO) =================
   generateDocuments(id: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${id}/documents`, {
-      responseType: 'blob'
-    });
+    const internship = this.read().find((i: any) => i.id === id);
+
+    const content = `
+      DOCUMENTOS DE PRÁCTICAS
+      Práctica ID: ${id}
+      Estudiante: ${internship?.studentName || 'N/A'}
+      Estado: ${internship?.status}
+      Fecha: ${new Date().toLocaleString()}
+    `;
+
+    const blob = new Blob([content], { type: 'application/pdf' });
+    return of(blob);
+  }
+
+  // ================= UTILIDADES =================
+  private read(): any[] {
+    return JSON.parse(localStorage.getItem(this.internshipsKey) || '[]');
+  }
+
+  private save(data: any[]): void {
+    localStorage.setItem(this.internshipsKey, JSON.stringify(data));
+  }
+
+  // ================= DATOS INICIALES =================
+  private initMockData(): void {
+    if (!localStorage.getItem(this.internshipsKey)) {
+      this.save([
+        {
+          id: 1,
+          studentName: 'Juan Pérez',
+          companyName: 'Empresa Alpha',
+          status: 'IN_PROGRESS'
+        },
+        {
+          id: 2,
+          studentName: 'Ana López',
+          companyName: 'Empresa Beta',
+          status: 'PENDING'
+        }
+      ]);
+    }
   }
 }

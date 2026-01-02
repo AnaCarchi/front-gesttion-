@@ -7,61 +7,45 @@ import { AcademicPeriod, Career, GenericResponse } from '../models';
   providedIn: 'root'
 })
 export class PeriodService {
-  private periods: AcademicPeriod[] = [];
-  private careers: Career[] = [];
-  private nextPeriodId = 1;
-  private nextCareerId = 1;
+
+  private periodsKey = 'periods';
+  private careersKey = 'careers';
 
   private periods$ = new BehaviorSubject<AcademicPeriod[]>([]);
 
   constructor() {
-    // Datos iniciales de ejemplo
-    this.create({ 
-      name: '2025-1', 
-      description: 'Periodo 2025-1', 
-      startDate: new Date(), 
-      endDate: new Date(), 
-      status: 'Activo' 
-    }).subscribe();
-
-    this.createCareer(1, { 
-      name: 'Ingeniería Informática', 
-      description: 'Carrera dual', 
-      isDual: true, 
-      status: 'Activo' 
-    }).subscribe();
-
-    this.createCareer(1, { 
-      name: 'Administración', 
-      description: 'Carrera tradicional', 
-      isDual: false, 
-      status: 'Activo' 
-    }).subscribe();
+    this.loadFromStorage();
+    this.initMockData();
   }
 
   // ================= PERIODOS =================
+
   getAll(): Observable<AcademicPeriod[]> {
-    return this.periods$.asObservable().pipe(delay(500));
+    return this.periods$.asObservable().pipe(delay(300));
   }
 
   getById(id: number): Observable<AcademicPeriod> {
-    const period = this.periods.find(p => p.id === id);
+    const period = this.readPeriods().find(p => p.id === id);
     return of(period!).pipe(delay(300));
   }
 
   create(period: Partial<AcademicPeriod>): Observable<GenericResponse<AcademicPeriod>> {
+    const periods = this.readPeriods();
+
     const newPeriod: AcademicPeriod = {
-      id: this.nextPeriodId++,
+      id: Date.now(),
       name: period.name || 'Nuevo Periodo',
       description: period.description,
       startDate: period.startDate || new Date(),
       endDate: period.endDate || new Date(),
       status: period.status || 'Activo',
-      careers: period.careers || []
+      careers: []
     };
 
-    this.periods.push(newPeriod);
-    this.periods$.next(this.periods);
+    periods.push(newPeriod);
+    this.savePeriods(periods);
+
+    this.periods$.next(periods);
 
     return of({
       data: newPeriod,
@@ -71,35 +55,47 @@ export class PeriodService {
   }
 
   update(id: number, period: AcademicPeriod): Observable<GenericResponse<AcademicPeriod>> {
-    const index = this.periods.findIndex(p => p.id === id);
+    const periods = this.readPeriods();
+    const index = periods.findIndex(p => p.id === id);
+
     if (index !== -1) {
-      this.periods[index] = { ...period, id };
-      this.periods$.next(this.periods);
+      periods[index] = { ...period, id };
+      this.savePeriods(periods);
+      this.periods$.next(periods);
+
       return of({
-        data: this.periods[index],
+        data: periods[index],
         message: 'Periodo actualizado',
         status: 200
       }).pipe(delay(300));
     }
+
     throw new Error('Periodo no encontrado');
   }
 
   delete(id: number): Observable<void> {
-    this.periods = this.periods.filter(p => p.id !== id);
-    this.periods$.next(this.periods);
-    this.careers = this.careers.filter(c => c.periodId !== id);
+    const periods = this.readPeriods().filter(p => p.id !== id);
+    this.savePeriods(periods);
+    this.periods$.next(periods);
+
+    const careers = this.readCareers().filter(c => c.periodId !== id);
+    this.saveCareers(careers);
+
     return of(void 0).pipe(delay(200));
   }
 
   // ================= CARRERAS =================
+
   getCareers(periodId: number): Observable<Career[]> {
-    const careers = this.careers.filter(c => c.periodId === periodId);
+    const careers = this.readCareers().filter(c => c.periodId === periodId);
     return of(careers).pipe(delay(300));
   }
 
   createCareer(periodId: number, career: Partial<Career>): Observable<GenericResponse<Career>> {
+    const careers = this.readCareers();
+
     const newCareer: Career = {
-      id: this.nextCareerId++,
+      id: Date.now(),
       periodId,
       name: career.name || 'Nueva Carrera',
       description: career.description || '',
@@ -107,7 +103,8 @@ export class PeriodService {
       status: career.status || 'Activo'
     };
 
-    this.careers.push(newCareer);
+    careers.push(newCareer);
+    this.saveCareers(careers);
 
     return of({
       data: newCareer,
@@ -117,20 +114,69 @@ export class PeriodService {
   }
 
   updateCareer(id: number, career: Career): Observable<GenericResponse<Career>> {
-    const index = this.careers.findIndex(c => c.id === id);
+    const careers = this.readCareers();
+    const index = careers.findIndex(c => c.id === id);
+
     if (index !== -1) {
-      this.careers[index] = career;
+      careers[index] = career;
+      this.saveCareers(careers);
+
       return of({
-        data: this.careers[index],
+        data: careers[index],
         message: 'Carrera actualizada',
         status: 200
       }).pipe(delay(300));
     }
+
     throw new Error('Carrera no encontrada');
   }
 
   deleteCareer(id: number): Observable<void> {
-    this.careers = this.careers.filter(c => c.id !== id);
+    const careers = this.readCareers().filter(c => c.id !== id);
+    this.saveCareers(careers);
     return of(void 0).pipe(delay(200));
+  }
+
+  // ================= STORAGE =================
+
+  private readPeriods(): AcademicPeriod[] {
+    return JSON.parse(localStorage.getItem(this.periodsKey) || '[]');
+  }
+
+  private savePeriods(data: AcademicPeriod[]): void {
+    localStorage.setItem(this.periodsKey, JSON.stringify(data));
+  }
+
+  private readCareers(): Career[] {
+    return JSON.parse(localStorage.getItem(this.careersKey) || '[]');
+  }
+
+  private saveCareers(data: Career[]): void {
+    localStorage.setItem(this.careersKey, JSON.stringify(data));
+  }
+
+  private loadFromStorage(): void {
+    this.periods$.next(this.readPeriods());
+  }
+
+  // ================= DATOS INICIALES =================
+
+  private initMockData(): void {
+    if (this.readPeriods().length === 0) {
+      this.create({
+        name: '2025-1',
+        description: 'Periodo 2025-1',
+        startDate: new Date(),
+        endDate: new Date(),
+        status: 'Activo'
+      }).subscribe();
+
+      this.createCareer(Date.now(), {
+        name: 'Ingeniería Informática',
+        description: 'Carrera dual',
+        isDual: true,
+        status: 'Activo'
+      }).subscribe();
+    }
   }
 }

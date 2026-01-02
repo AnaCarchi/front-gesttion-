@@ -1,69 +1,104 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { AuthRequest, AuthResponse, GenericResponse, GenericOnlyTextResponse, User } from '../models';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import {
+  AuthRequest,
+  AuthResponse,
+  GenericResponse,
+  GenericOnlyTextResponse,
+  User
+} from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private http = inject(HttpClient);
+
   private router = inject(Router);
-  
-  private apiUrl = `${environment.apiUrl}/auth`;
+
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    const token = this.getToken();
-    if (token) {
-      // Aquí podrías decodificar el token y cargar el usuario
+    const user = this.getStoredUser();
+    if (user) {
+      this.currentUserSubject.next(user);
     }
   }
 
+  // ================= LOGIN =================
   login(credentials: AuthRequest): Observable<GenericResponse<AuthResponse>> {
-    return this.http.post<GenericResponse<AuthResponse>>(`${this.apiUrl}/login`, credentials)
-      .pipe(
-        tap(response => {
-          if (response.data?.token) {
-            this.setToken(response.data.token);
-          }
-        })
-      );
+
+    const user: User = {
+      id: 1,
+      email: credentials.email,
+      status: 'Activo',
+      roles: [
+        {
+          id: 1,
+          name: credentials.email.includes('admin') ? 'ADMIN' : 'USER',
+          status: 'Activo',
+          permissions: []
+        }
+      ]
+    };
+
+    const token = 'fake-jwt-token';
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+
+    return of({
+      status: 200,
+      message: 'Login exitoso',
+      data: {
+        token
+      }
+    });
   }
 
+  // ================= REGISTER =================
   register(credentials: AuthRequest): Observable<GenericOnlyTextResponse> {
-    return this.http.post<GenericOnlyTextResponse>(`${this.apiUrl}/register`, credentials);
+    return of({
+      status: 201,
+      message: 'Usuario registrado correctamente'
+    });
   }
 
+  // ================= LOGOUT =================
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.currentUserSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
+  // ================= TOKEN =================
   getToken(): string | null {
     return localStorage.getItem('token');
-  }
-
-  setToken(token: string): void {
-    localStorage.setItem('token', token);
   }
 
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
+  // ================= USER =================
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
   setCurrentUser(user: User): void {
     this.currentUserSubject.next(user);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
+  private getStoredUser(): User | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
+
+  // ================= ROLES =================
   hasRole(roleName: string): boolean {
     const user = this.getCurrentUser();
     return user?.roles?.some(role => role.name === roleName) || false;
@@ -71,8 +106,10 @@ export class AuthService {
 
   hasPermission(permissionName: string): boolean {
     const user = this.getCurrentUser();
-    return user?.roles?.some(role => 
-      role.permissions?.some(p => p.name === permissionName)
-    ) || false;
+    return (
+      user?.roles?.some(role =>
+        role.permissions?.some(p => p.name === permissionName)
+      ) || false
+    );
   }
 }

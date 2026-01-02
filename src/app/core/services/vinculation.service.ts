@@ -1,33 +1,68 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { Vinculation } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VinculationService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/vinculation`;
+
+  private storageKey = 'vinculations';
+
+  constructor() {}
+
+  // ================= CRUD =================
 
   getAll(): Observable<Vinculation[]> {
-    return this.http.get<Vinculation[]>(this.apiUrl);
+    return of(this.read()).pipe(delay(300));
   }
 
   getById(id: number): Observable<Vinculation> {
-    return this.http.get<Vinculation>(`${this.apiUrl}/${id}`);
+    const vinculation = this.read().find(v => v.id === id);
+    return of(vinculation!).pipe(delay(300));
   }
 
   create(vinculation: Vinculation): Observable<Vinculation> {
-    return this.http.post<Vinculation>(this.apiUrl, vinculation);
+    const data = this.read();
+    const newVinculation: Vinculation = {
+      ...vinculation,
+      id: Date.now()
+    };
+
+    data.push(newVinculation);
+    this.save(data);
+
+    return of(newVinculation).pipe(delay(300));
   }
 
   update(vinculation: Vinculation): Observable<Vinculation> {
-    return this.http.put<Vinculation>(this.apiUrl, vinculation);
+    const data = this.read();
+    const index = data.findIndex(v => v.id === vinculation.id);
+
+    if (index === -1) {
+      throw new Error('Vinculación no encontrada');
+    }
+
+    data[index] = vinculation;
+    this.save(data);
+
+    return of(vinculation).pipe(delay(300));
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const data = this.read().filter(v => v.id !== id);
+    this.save(data);
+    return of(void 0).pipe(delay(200));
+  }
+
+  // ================= STORAGE =================
+
+  private read(): Vinculation[] {
+    return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+  }
+
+  private save(data: Vinculation[]): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(data));
   }
 }

@@ -1,7 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
 import { Enterprise } from '../models';
 
 export interface CompanyWithStudents extends Enterprise {
@@ -13,78 +11,148 @@ export interface CompanyWithStudents extends Enterprise {
   providedIn: 'root'
 })
 export class CompanyService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/companies`;
 
-  /**
-   * Obtener todas las empresas donde el tutor supervisa estudiantes
-   */
+  private companiesKey = 'companies';
+  private studentsKey = 'students';
+  private evaluationsKey = 'evaluations';
+
+  constructor() {
+    this.initMockData();
+  }
+
+  // ================= EMPRESAS =================
+
   getMyCompanies(): Observable<CompanyWithStudents[]> {
-    return this.http.get<CompanyWithStudents[]>(`${this.apiUrl}/my-companies`);
+    const companies = this.read(this.companiesKey);
+
+    const result = companies.map((c: any) => ({
+      ...c,
+      studentCount: this.read(this.studentsKey).filter((s: any) => s.companyId === c.id).length,
+      internshipTypes: c.internshipTypes || ['PREPROFESIONAL']
+    }));
+
+    return of(result);
   }
 
-  /**
-   * Obtener una empresa específica con detalles
-   */
   getCompanyById(companyId: number): Observable<CompanyWithStudents> {
-    return this.http.get<CompanyWithStudents>(`${this.apiUrl}/${companyId}`);
+    const company = this.read(this.companiesKey)
+      .find((c: any) => c.id === companyId);
+
+    const students = this.read(this.studentsKey)
+      .filter((s: any) => s.companyId === companyId);
+
+    return of({
+      ...company,
+      studentCount: students.length,
+      internshipTypes: company?.internshipTypes || []
+    });
   }
 
-  /**
-   * Obtener estudiantes de una empresa específica
-   */
+  // ================= ESTUDIANTES =================
+
   getCompanyStudents(companyId: number, filters?: any): Observable<any[]> {
-    let params = new HttpParams();
-    
+    let students = this.read(this.studentsKey)
+      .filter((s: any) => s.companyId === companyId);
+
     if (filters) {
       Object.keys(filters).forEach(key => {
         if (filters[key] !== null && filters[key] !== undefined) {
-          params = params.set(key, filters[key]);
+          students = students.filter((s: any) => s[key] === filters[key]);
         }
       });
     }
 
-    return this.http.get<any[]>(
-      `${this.apiUrl}/${companyId}/students`,
-      { params }
-    );
+    return of(students);
   }
 
-  /**
-   * Obtener evaluaciones de una empresa específica
-   */
+  // ================= EVALUACIONES =================
+
   getCompanyEvaluations(companyId: number, filters?: any): Observable<any[]> {
-    let params = new HttpParams();
-    
+    let evaluations = this.read(this.evaluationsKey)
+      .filter((e: any) => e.companyId === companyId);
+
     if (filters) {
       Object.keys(filters).forEach(key => {
         if (filters[key] !== null && filters[key] !== undefined) {
-          params = params.set(key, filters[key]);
+          evaluations = evaluations.filter((e: any) => e[key] === filters[key]);
         }
       });
     }
 
-    return this.http.get<any[]>(
-      `${this.apiUrl}/${companyId}/evaluations`,
-      { params }
-    );
+    return of(evaluations);
   }
 
-  /**
-   * Obtener estadísticas de una empresa
-   */
+  // ================= ESTADÍSTICAS =================
+
   getCompanyStatistics(companyId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${companyId}/statistics`);
+    const students = this.read(this.studentsKey)
+      .filter((s: any) => s.companyId === companyId);
+
+    const evaluations = this.read(this.evaluationsKey)
+      .filter((e: any) => e.companyId === companyId);
+
+    return of({
+      totalStudents: students.length,
+      totalEvaluations: evaluations.length,
+      approved: evaluations.filter((e: any) => e.score >= 7).length,
+      failed: evaluations.filter((e: any) => e.score < 7).length
+    });
   }
 
-  /**
-   * Generar reporte de una empresa
-   */
+  // ================= REPORTE (SIMULADO) =================
+
   generateCompanyReport(companyId: number, params: any): Observable<Blob> {
-    return this.http.post(
-      `${this.apiUrl}/${companyId}/report`,
-      params,
-      { responseType: 'blob' }
-    );
+    const content = `
+      REPORTE DE EMPRESA
+      Empresa ID: ${companyId}
+      Parámetros: ${JSON.stringify(params)}
+      Fecha: ${new Date().toLocaleDateString()}
+    `;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    return of(blob);
+  }
+
+  // ================= UTILIDADES =================
+
+  private read(key: string): any[] {
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  }
+
+  private save(key: string, data: any[]): void {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  private initMockData(): void {
+    if (!localStorage.getItem(this.companiesKey)) {
+      this.save(this.companiesKey, [
+        {
+          id: 1,
+          name: 'Empresa Alpha',
+          internshipTypes: ['PREPROFESIONAL']
+        },
+        {
+          id: 2,
+          name: 'Empresa Beta',
+          internshipTypes: ['COMUNITARIA']
+        }
+      ]);
+    }
+
+    if (!localStorage.getItem(this.studentsKey)) {
+      this.save(this.studentsKey, [
+        { id: 1, name: 'Juan', companyId: 1 },
+        { id: 2, name: 'Ana', companyId: 1 },
+        { id: 3, name: 'Luis', companyId: 2 }
+      ]);
+    }
+
+    if (!localStorage.getItem(this.evaluationsKey)) {
+      this.save(this.evaluationsKey, [
+        { id: 1, companyId: 1, score: 8 },
+        { id: 2, companyId: 1, score: 6 },
+        { id: 3, companyId: 2, score: 9 }
+      ]);
+    }
   }
 }

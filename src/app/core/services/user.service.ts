@@ -1,37 +1,69 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { User } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/users`;
+
+  private storageKey = 'users';
+
+  constructor() {}
+
+  // ================= CRUD =================
 
   getAll(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    return of(this.read()).pipe(delay(300));
   }
 
   getById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+    const user = this.read().find(u => u.id === id);
+    return of(user!).pipe(delay(300));
   }
 
   getTutors(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/tutors`);
+    const tutors = this.read().filter(u =>
+      u.roles?.some(r => r.name === 'TUTOR')
+    );
+    return of(tutors).pipe(delay(300));
   }
 
   create(user: User): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+    const users = this.read();
+    user.id = Date.now();
+    users.push(user);
+    this.save(users);
+    return of(user).pipe(delay(300));
   }
 
   update(id: number, user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, user);
+    const users = this.read();
+    const index = users.findIndex(u => u.id === id);
+
+    if (index !== -1) {
+      users[index] = { ...user, id };
+      this.save(users);
+      return of(users[index]).pipe(delay(300));
+    }
+
+    throw new Error('Usuario no encontrado');
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const users = this.read().filter(u => u.id !== id);
+    this.save(users);
+    return of(void 0).pipe(delay(200));
+  }
+
+  // ================= STORAGE =================
+
+  private read(): User[] {
+    return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+  }
+
+  private save(data: User[]): void {
+    localStorage.setItem(this.storageKey, JSON.stringify(data));
   }
 }

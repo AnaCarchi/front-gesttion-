@@ -9,4 +9,5 @@ export interface User {
   roles?: Role[];
   person?: Person;
   status: string;
+  subjectType?: string;
 }
