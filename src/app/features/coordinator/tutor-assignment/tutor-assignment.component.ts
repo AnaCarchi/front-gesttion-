@@ -2,18 +2,19 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { UserService } from '../../../../core/services/user.service';
-import { StudentService } from '../../../../core/services/student.service';
-import { CareerService } from '../../../../core/services/career.service';
-import { AcademicPeriodService } from '../../../../core/services/academic-period.service';
-import { TrainingAssignmentService } from '../../../../core/services/training-assignment.service';
+import { UserService } from '../../../core/services/user.service';
+import { StudentService } from '../../../core/services/student.service';
+import { CareerService } from '../../../core/services/career.service';
+import { AcademicPeriodService } from '../../../core/services/academic-period.service';
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
 
 import {
   Student,
   Career,
   AcademicPeriod,
-  TrainingAssignment
-} from '../../../../core/models';
+  TrainingAssignment,
+  User
+} from '../../../core/models';
 
 @Component({
   selector: 'app-assign-tutor',
@@ -123,8 +124,8 @@ export class AssignTutorComponent implements OnInit {
   careers: Career[] = [];
   students: Student[] = [];
 
-  enterpriseTutors: any[] = [];
-  academicTutors: any[] = [];
+  enterpriseTutors: User[] = [];
+  academicTutors: User[] = [];
 
   selectedCareerId: number | '' = '';
 
