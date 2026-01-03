@@ -13,7 +13,10 @@
     <form #registerForm="ngForm" (ngSubmit)="submit(registerForm)" class="register-form">
       <div class="row">
         <div class="form-group">
-          <label for="name">Nombres</label>
+          <label for="name" class="label-with-icon">
+            <span class="material-icons">badge</span>
+            Nombres
+          </label>
           <input
             type="text"
             id="name"
@@ -26,7 +29,10 @@
         </div>
 
         <div class="form-group">
-          <label for="lastname">Apellidos</label>
+          <label for="lastname" class="label-with-icon">
+            <span class="material-icons">person</span>
+            Apellidos
+          </label>
           <input
             type="text"
             id="lastname"
@@ -40,7 +46,10 @@
       </div>
 
       <div class="form-group">
-        <label for="email">Correo Electrónico</label>
+        <label for="email" class="label-with-icon">
+          <span class="material-icons">mail</span>
+          Correo Electrónico
+        </label>
         <input
           type="email"
           id="email"
@@ -53,7 +62,10 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Contraseña</label>
+        <label for="password" class="label-with-icon">
+          <span class="material-icons">lock</span>
+          Contraseña
+        </label>
         <input
           type="password"
           id="password"
@@ -66,7 +78,8 @@
         />
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="registerForm.invalid">
+        <span class="material-icons">person_add</span>
         Crear cuenta
       </button>
     </form>
