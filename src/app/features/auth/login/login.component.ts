@@ -28,8 +28,7 @@ export class LoginComponent {
   // ✅ FORMULARIO REACTIVO
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    role: ['', Validators.required]
+    password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   constructor(
@@ -47,9 +46,6 @@ export class LoginComponent {
     return this.loginForm.get('password');
   }
 
-  get role(): AbstractControl | null {
-    return this.loginForm.get('role');
-  }
   // ===========================================================
 
   onSubmit(): void {
@@ -61,36 +57,40 @@ export class LoginComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    const { email, password, role } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-    const success = this.authService.login(
+    const user = this.authService.login(
       email as string,
       password as string
     );
 
     this.loading = false;
 
-    if (!success) {
+    if (!user) {
       this.errorMessage = 'Credenciales incorrectas';
       return;
     }
 
-    // 🔀 REDIRECCIÓN SEGÚN ROL
-    switch (role) {
-      case 'admin':
+    const roleName = user.roles[0]?.name;
+
+    switch (roleName) {
+      case 'ADMIN':
         this.router.navigate(['/admin']);
         break;
-      case 'coordinator':
+      case 'COORDINATOR':
         this.router.navigate(['/coordinator']);
         break;
-      case 'tutor':
+      case 'TUTOR_ACADEMIC':
         this.router.navigate(['/tutor']);
         break;
-      case 'student':
+      case 'TUTOR_ENTERPRISE':
+        this.router.navigate(['/tutor-enterprise']);
+        break;
+      case 'STUDENT':
         this.router.navigate(['/student']);
         break;
       default:
-        this.router.navigate(['/']);
+        this.router.navigate(['/auth/login']);
     }
   }
 }
