@@ -179,7 +179,7 @@ export class DashboardComponent {
 
   navigateTutor(): void {
     if (this.hasRole('TUTOR_ACADEMIC')) {
-      this.router.navigate(['/tutor-academic/dashboard']);
+      this.router.navigate(['/tutor/dashboard']);
     } else if (this.hasRole('TUTOR_ENTERPRISE')) {
       this.router.navigate(['/tutor-enterprise/dashboard']);
     }

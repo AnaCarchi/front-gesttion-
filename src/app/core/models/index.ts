@@ -15,8 +15,8 @@ export * from './constants';
 export * from './vinculation.model';
 export * from './internship.model';
 export * from './evaluation.model';
+export * from './evaluation-template.model';
 export * from './academic-period.model';
-
 
 
 

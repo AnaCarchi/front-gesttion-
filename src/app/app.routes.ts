@@ -28,13 +28,17 @@ export const routes: Routes = [
   },
   {
     path: 'tutor',
-    canActivate: [
-      authGuard,
-      roleGuard(['TUTOR_ACADEMIC', 'TUTOR_ENTERPRISE'])
-    ],
+    canActivate: [authGuard, roleGuard(['TUTOR_ACADEMIC'])],
     loadChildren: () =>
       import('./features/tutor/tutor.routes')
         .then(m => m.TUTOR_ROUTES)
+  },
+  {
+    path: 'tutor-enterprise',
+    canActivate: [authGuard, roleGuard(['TUTOR_ENTERPRISE'])],
+    loadChildren: () =>
+      import('./features/tutor-enterprise/tutor-enterprise.routes')
+        .then(m => m.TUTOR_ENTERPRISE_ROUTES)
   },
   {
     path: 'student',

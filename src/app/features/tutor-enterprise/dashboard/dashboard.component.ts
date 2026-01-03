@@ -10,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <h1>Dashboard Tutor Académico</h1>
+    <h1>Dashboard Tutor Empresarial</h1>
 
     <p *ngIf="period">
       Periodo activo: <strong>{{ period.name }}</strong>
@@ -37,7 +37,7 @@ export class DashboardComponent implements OnInit {
     this.period = periods[periods.length - 1];
 
     const assignments = this.assignmentService.getAll().filter(a =>
-      a.academicTutorId === tutor?.id &&
+      a.tutorEnterpriseId === tutor?.id &&
       a.academicPeriodId === this.period.id
     );
 

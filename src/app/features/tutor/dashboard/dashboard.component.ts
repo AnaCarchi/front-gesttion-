@@ -49,9 +49,9 @@ export class DashboardComponent implements OnInit {
     const assignments: TrainingAssignment[] =
       this.assignmentService.getAll().filter(
         (a: TrainingAssignment) =>
-          a.academicTutorId === tutor.id &&
-          a.academicPeriodId === this.period!.id
-      );
+        a.tutorAcademicId === tutor.id &&
+        a.academicPeriodId === this.period!.id
+    );
 
     this.totalStudents =
       new Set(assignments.map((a: TrainingAssignment) => a.studentId)).size;

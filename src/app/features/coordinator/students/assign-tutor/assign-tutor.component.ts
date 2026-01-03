@@ -53,7 +53,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         <!-- TUTOR ACADÉMICO -->
         <mat-form-field appearance="outline" class="full">
           <mat-label>Tutor Académico</mat-label>
-          <mat-select [(value)]="assignment.academicTutorId">
+          <mat-select [(value)]="assignment.tutorAcademicId">
             <mat-option [value]="null">Sin asignar</mat-option>
             <mat-option
               *ngFor="let t of academicTutors"
@@ -67,7 +67,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         <!-- TUTOR EMPRESARIAL -->
         <mat-form-field appearance="outline" class="full">
           <mat-label>Tutor Empresarial</mat-label>
-          <mat-select [(value)]="assignment.enterpriseTutorId">
+          <mat-select [(value)]="assignment.tutorEnterpriseId">
             <mat-option [value]="null">Sin asignar</mat-option>
             <mat-option
               *ngFor="let t of enterpriseTutors"
@@ -122,7 +122,7 @@ export class AssignTutorComponent implements OnInit {
 
     this.student = this.studentService.getById(this.assignment.studentId);
     this.career = this.careerService.getById(this.assignment.careerId);
-    this.period = this.periodService.getById(this.assignment.periodId);
+    this.period = this.periodService.getById(this.assignment.academicPeriodId);
 
     const users = this.userService.getAll();
 
@@ -144,9 +144,9 @@ export class AssignTutorComponent implements OnInit {
 
   private getTypeLabel(type: TrainingType): string {
     switch (type) {
-      case 'VINCULACION': return 'Vinculación';
-      case 'DUAL': return 'Prácticas Dual';
-      case 'PREPROFESIONAL': return 'Prácticas Preprofesionales';
+      case 'VINCULATION': return 'Vinculación';
+      case 'DUAL_PRACTICE': return 'Prácticas Dual';
+      case 'PREPROFESSIONAL_PRACTICE': return 'Prácticas Preprofesionales';
       default: return '';
     }
   }

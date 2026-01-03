@@ -157,10 +157,10 @@ export class AssignTutorComponent implements OnInit {
   }
 
   assignTutors(student: Student): void {
-    const enterpriseTutorId = this.enterpriseTutorMap[student.id];
-    const academicTutorId = this.academicTutorMap[student.id];
+    const tutorEnterpriseId = this.enterpriseTutorMap[student.id];
+    const tutorAcademicId = this.academicTutorMap[student.id];
 
-    if (!enterpriseTutorId && !academicTutorId) return;
+    if (!tutorEnterpriseId && !tutorAcademicId) return;
 
     const assignment: TrainingAssignment = {
       id: 0,
@@ -169,8 +169,8 @@ export class AssignTutorComponent implements OnInit {
       careerId: student.careerId,
       academicPeriodId: student.academicPeriodId,
       type: this.getTrainingType(student),
-      enterpriseTutorId,
-      academicTutorId
+      tutorEnterpriseId,
+      tutorAcademicId
     };
 
     this.assignmentService.create(assignment);

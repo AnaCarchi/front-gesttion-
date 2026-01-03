@@ -8,4 +8,5 @@ export interface User {
   isActive: boolean;
   roles: Role[];
   person: Person;
+  careerIds?: number[];
 }

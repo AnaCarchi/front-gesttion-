@@ -7,12 +7,14 @@ import { AcademicPeriodService } from '../../../../core/services/academic-period
 import { TrainingAssignmentService } from '../../../../core/services/training-assignment.service';
 import { CareerService } from '../../../../core/services/career.service';
 import { StudentService } from '../../../../core/services/student.service';
+import { UserService } from '../../../../core/services/user.service';
 
 import {
   TrainingAssignment,
   TrainingType,
   AcademicPeriod,
   Career,
+  Student,
   User
 } from '../../../../core/models';
 
@@ -53,8 +55,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
       <ng-container matColumnDef="student">
         <th mat-header-cell *matHeaderCellDef>Estudiante</th>
         <td mat-cell *matCellDef="let a">
-          {{ getStudent(a.studentId)?.person.name }}
-          {{ getStudent(a.studentId)?.person.lastname }}
+          {{ getStudentUser(a.studentId)?.person.name }}
+          {{ getStudentUser(a.studentId)?.person.lastname }}
         </td>
       </ng-container>
 
@@ -128,6 +130,7 @@ export class StudentListComponent implements OnInit {
   private assignmentService = inject(TrainingAssignmentService);
   private careerService = inject(CareerService);
   private studentService = inject(StudentService);
+  private userService = inject(UserService);
   private router = inject(Router);
 
   currentUser!: User;
@@ -136,7 +139,8 @@ export class StudentListComponent implements OnInit {
   assignments: TrainingAssignment[] = [];
   filteredAssignments: TrainingAssignment[] = [];
 
-  students: User[] = [];
+  students: Student[] = [];
+  users: User[] = [];
   careers: Career[] = [];
 
   selectedType: TrainingType | '' = '';
@@ -146,6 +150,7 @@ export class StudentListComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser()!;
     this.students = this.studentService.getAll();
+    this.users = this.userService.getAll();
     this.careers = this.careerService.getAll();
 
     const periods = this.periodService.getAll();
@@ -180,8 +185,10 @@ export class StudentListComponent implements OnInit {
     ]);
   }
 
-  getStudent(id: number): User | undefined {
-    return this.students.find(s => s.id === id);
+  getStudentUser(id: number): User | undefined {
+    const student = this.students.find(s => s.id === id);
+    if (!student) return undefined;
+    return this.users.find(u => u.id === student.userId);
   }
 
   getCareer(id: number): Career | undefined {
