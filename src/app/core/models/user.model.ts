@@ -1,13 +1,11 @@
-import { Role } from './role.model';
 import { Person } from './person.model';
+import { Role } from './role.model';
 
 export interface User {
   id: number;
   email: string;
-  passwordHash?: string;
-  createdAt?: Date;
-  roles?: Role[];
-  person?: Person;
-  status: string;
-  subjectType?: string;
+  password: string;
+  isActive: boolean;
+  roles: Role[];
+  person: Person;
 }

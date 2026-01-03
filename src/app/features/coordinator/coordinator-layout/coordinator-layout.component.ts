@@ -1,301 +1,118 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
+
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-coordinator-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatListModule,
+    MatButtonModule
+  ],
   template: `
-<div class="coordinator-layout" [class.collapsed]="isCollapsed">
+    <mat-sidenav-container class="layout">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+      <!-- SIDEBAR -->
+      <mat-sidenav mode="side" opened class="sidenav">
 
-    <!-- HEADER -->
-    <div class="sidebar-header">
-      <img
-        src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
-        class="logo-img"
-        alt="Yavirac Logo"
-      />
-      <span class="logo-text">Yavirac</span>
+        <div class="logo">
+          <mat-icon>supervisor_account</mat-icon>
+          <span>Coordinación</span>
+        </div>
 
-      <button class="btn-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
+        <mat-nav-list>
+          <a mat-list-item routerLink="dashboard">
+            <mat-icon matListIcon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </a>
 
-    <!-- NAV -->
-    <nav class="sidebar-nav">
-      <a routerLink="/coordinator/dashboard" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="12" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="2" y="12" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="12" y="12" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Dashboard</span>
-      </a>
+          <a mat-list-item routerLink="students">
+            <mat-icon matListIcon>school</mat-icon>
+            <span>Estudiantes</span>
+          </a>
 
-      <a routerLink="/coordinator/students" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-          <path d="M5 19v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Estudiantes</span>
-      </a>
+          <a mat-list-item routerLink="tutors">
+            <mat-icon matListIcon>groups</mat-icon>
+            <span>Tutores</span>
+          </a>
 
-      <a routerLink="/coordinator/reports" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M5 2h12a2 2 0 0 1 2 2v16l-8-4-8 4V4a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Reportes</span>
-      </a>
+          <a mat-list-item routerLink="reports">
+            <mat-icon matListIcon>bar_chart</mat-icon>
+            <span>Reportes</span>
+          </a>
+        </mat-nav-list>
 
-      <a routerLink="/coordinator/tutors"
-   routerLinkActive="active"
-   class="nav-item">
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-    <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-    <circle cx="15" cy="7" r="3" stroke="currentColor" stroke-width="2"/>
-    <path d="M3 17v-1a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1M12 17v-1a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1" stroke="currentColor" stroke-width="2"/>
-  </svg>
-  <span class="nav-text">Tutores</span>
-</a>
+      </mat-sidenav>
 
-      <a routerLink="/coordinator/tutor-assignments"
-   routerLinkActive="active"
-   class="nav-item">
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-    <rect x="2" y="2" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-    <circle cx="11" cy="8" r="2" stroke="currentColor" stroke-width="2"/>
-    <path d="M7 15v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
-  </svg>
-  <span class="nav-text">Designación de Tutores</span>
-</a> 
+      <!-- CONTENT -->
+      <mat-sidenav-content>
+        <mat-toolbar color="primary">
+          <span class="spacer"></span>
+          <button mat-icon-button (click)="logout()">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </mat-toolbar>
 
-    </nav>
+        <div class="content">
+          <router-outlet></router-outlet>
+        </div>
+      </mat-sidenav-content>
 
-    <!-- FOOTER -->
-    <div class="sidebar-footer">
-      <button class="btn-logout" (click)="logout()">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M7 16L3 16C2.44772 16 2 15.5523 2 15L2 5C2 4.44772 2.44772 4 3 4L7 4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M13 13L18 10L13 7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M6 10H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <span class="nav-text">Cerrar sesión</span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-    <header class="top-bar">
-      <h2>Panel de Coordinador</h2>
-
-      <div class="user-info">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M5 16c0-2.5 2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        <span>Coordinador de Carrera</span>
-      </div>
-    </header>
-
-    <div class="content-area">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
-
-</div>
-`,
+    </mat-sidenav-container>
+  `,
   styles: [`
-/* ================= GENERAL ================= */
-.coordinator-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f7fb;
-  font-family: 'Segoe UI', sans-serif;
-}
+    .layout { height: 100vh; }
 
-/* ================= SIDEBAR ================= */
-.sidebar {
-  width: 260px;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  transition: width 0.3s ease;
-}
+    .sidenav {
+      width: 260px;
+      background: #0f172a;
+      color: #fff;
+    }
 
-/* ================= HEADER ================= */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      font-weight: bold;
+      font-size: 18px;
+    }
 
-.logo-img {
-  width: 40px;
-}
+    mat-nav-list a {
+      color: #e5e7eb;
+    }
 
-.logo-text {
-  font-size: 20px;
-  font-weight: bold;
-  color: #f97316;
-  white-space: nowrap;
-}
+    mat-nav-list a mat-icon {
+      color: #93c5fd;
+    }
 
-.btn-toggle {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: #cbd5f5;
-  cursor: pointer;
-}
+    .spacer { flex: 1; }
 
-/* ================= NAV ================= */
-.sidebar-nav {
-  flex: 1;
-  padding: 16px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  color: #cbd5f5;
-  text-decoration: none;
-  margin-bottom: 6px;
-  transition: all 0.25s ease;
-}
-
-.nav-item svg {
-  flex-shrink: 0;
-}
-
-.nav-item:hover {
-  background: rgba(59,130,246,0.15);
-  color: #fff;
-  transform: translateX(4px);
-}
-
-.nav-item.active {
-  background: #2563eb;
-  color: white;
-}
-
-/* ================= FOOTER ================= */
-.sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-.btn-logout {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(249,115,22,0.15);
-  color: #f97316;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.btn-logout:hover {
-  background: rgba(249,115,22,0.3);
-}
-
-/* ================= MAIN ================= */
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  display: flex;
-  flex-direction: column;
-  transition: margin-left 0.3s ease;
-}
-
-/* ================= TOP BAR ================= */
-.top-bar {
-  background: white;
-  padding: 20px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.top-bar h2 {
-  margin: 0;
-  font-size: 22px;
-  color: #0f172a;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #2563eb;
-  font-weight: 500;
-}
-
-/* ================= CONTENT ================= */
-.content-area {
-  padding: 32px;
-}
-
-/* ================= COLLAPSED ================= */
-.coordinator-layout.collapsed .sidebar {
-  width: 80px;
-}
-
-.coordinator-layout.collapsed .main-content {
-  margin-left: 80px;
-}
-
-.coordinator-layout.collapsed .logo-text,
-.coordinator-layout.collapsed .nav-text {
-  display: none;
-}
-
-.coordinator-layout.collapsed .nav-item,
-.coordinator-layout.collapsed .btn-logout {
-  justify-content: center;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .coordinator-layout.collapsed .sidebar {
-    width: 70px;
-  }
-}
+    .content {
+      padding: 24px;
+    }
   `]
 })
 export class CoordinatorLayoutComponent {
 
   private authService = inject(AuthService);
-
-  isCollapsed = false;
-
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
-  }
+  private router = inject(Router);
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

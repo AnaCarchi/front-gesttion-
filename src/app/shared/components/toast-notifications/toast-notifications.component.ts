@@ -6,17 +6,22 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="toast-container">
-      <!-- Los toasts aparecerán aquí -->
+    <div class="toast" *ngIf="message">
+      {{ message }}
     </div>
   `,
   styles: [`
-    .toast-container {
+    .toast {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
+      bottom: 24px;
+      right: 24px;
+      background: #2563eb;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
     }
   `]
 })
-export class ToastNotificationsComponent {}
+export class ToastNotificationsComponent {
+  message = '';
+}

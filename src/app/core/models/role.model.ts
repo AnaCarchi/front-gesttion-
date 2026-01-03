@@ -1,9 +1,11 @@
-import { Permission } from './permission.model';
+export type RoleName =
+  | 'ADMIN'
+  | 'COORDINATOR'
+  | 'TUTOR_ACADEMIC'
+  | 'TUTOR_ENTERPRISE'
+  | 'STUDENT';
 
 export interface Role {
   id: number;
-  name: string;
-  description?: string;
-  permissions?: Permission[];
-  status: string;
+  name: RoleName;
 }

@@ -1,69 +1,83 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { User } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
 
-  private storageKey = 'users';
+  private readonly storageKey = 'users';
 
-  constructor() {}
-
-  // ================= CRUD =================
-
-  getAll(): Observable<User[]> {
-    return of(this.read()).pipe(delay(300));
-  }
-
-  getById(id: number): Observable<User> {
-    const user = this.read().find(u => u.id === id);
-    return of(user!).pipe(delay(300));
-  }
-
-  getTutors(): Observable<User[]> {
-    const tutors = this.read().filter(u =>
-      u.roles?.some(r => r.name === 'TUTOR')
-    );
-    return of(tutors).pipe(delay(300));
-  }
-
-  create(user: User): Observable<User> {
-    const users = this.read();
-    user.id = Date.now();
-    users.push(user);
-    this.save(users);
-    return of(user).pipe(delay(300));
-  }
-
-  update(id: number, user: User): Observable<User> {
-    const users = this.read();
-    const index = users.findIndex(u => u.id === id);
-
-    if (index !== -1) {
-      users[index] = { ...user, id };
-      this.save(users);
-      return of(users[index]).pipe(delay(300));
+  constructor() {
+    if (!localStorage.getItem(this.storageKey)) {
+      localStorage.setItem(this.storageKey, JSON.stringify([]));
     }
-
-    throw new Error('Usuario no encontrado');
   }
 
-  delete(id: number): Observable<void> {
-    const users = this.read().filter(u => u.id !== id);
-    this.save(users);
-    return of(void 0).pipe(delay(200));
+  // ===========================
+  // LECTURA
+  // ===========================
+
+  getAll(): User[] {
+    try {
+      return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    } catch {
+      return [];
+    }
   }
 
-  // ================= STORAGE =================
-
-  private read(): User[] {
-    return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+  getById(id: number): User | undefined {
+    return this.getAll().find(u => u.id === id);
   }
 
-  private save(data: User[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(data));
+  findByEmail(email: string): User | undefined {
+    return this.getAll().find(u => u.email === email);
+  }
+
+  // ===========================
+  // CREACIÓN
+  // ===========================
+
+  create(user: User): User {
+    const users = this.getAll();
+
+    const newUser: User = {
+      ...user,
+      id: user.id && user.id !== 0 ? user.id : Date.now(),
+      roles: user.roles || [],
+      isActive: user.isActive ?? true
+    };
+
+    users.push(newUser);
+    localStorage.setItem(this.storageKey, JSON.stringify(users));
+    return newUser;
+  }
+
+  // ===========================
+  // ACTUALIZACIÓN
+  // ===========================
+
+  update(user: User): void {
+    const users = this.getAll().map(u =>
+      u.id === user.id ? user : u
+    );
+
+    localStorage.setItem(this.storageKey, JSON.stringify(users));
+  }
+
+  // ===========================
+  // ELIMINACIÓN
+  // ===========================
+
+  delete(id: number): void {
+    const users = this.getAll().filter(u => u.id !== id);
+    localStorage.setItem(this.storageKey, JSON.stringify(users));
+  }
+
+  // ===========================
+  // ROLES (USADOS EN GUARDS)
+  // ===========================
+
+  hasRole(userId: number, roleName: string): boolean {
+    const user = this.getById(userId);
+    return !!user?.roles?.some(r => r.name === roleName);
   }
 }

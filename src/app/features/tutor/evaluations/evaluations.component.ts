@@ -1,570 +1,132 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { EvaluationService } from '../../../core/services/evaluation.service';
-import { Evaluation } from '../../../core/models';
-import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
+import { AcademicPeriodService } from '../../../core/services/academic-period.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-evaluations',
+  selector: 'app-tutor-evaluations',
   standalone: true,
-  imports: [CommonModule, RouterLink, DateFormatPipe],
+  imports: [CommonModule],
   template: `
-   <div class="evaluations-container">
+    <h2>Evaluaciones Académicas</h2>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div>
-      <h1>
-        <span class="material-icons">assignment</span>
-        Historial de Evaluaciones
-      </h1>
-      <p>Todas las evaluaciones realizadas</p>
-    </div>
+    <p *ngIf="activePeriod" class="period">
+      Periodo activo:
+      <strong>{{ activePeriod.name }}</strong>
+    </p>
 
-    <a routerLink="/tutor/my-students" class="btn btn-primary">
-      <span class="material-icons">add</span>
-      Nueva Evaluación
-    </a>
-  </div>
-
-  <!-- FILTROS -->
-  <div class="filters-card">
-    <div class="filter-tabs">
-      <button class="tab-btn" [class.active]="selectedFilter === 'all'" (click)="filterEvaluations('all')">
-        Todas ({{ evaluations.length }})
-      </button>
-      <button class="tab-btn" [class.active]="selectedFilter === 'vinculation'" (click)="filterEvaluations('vinculation')">
-        Vinculación
-      </button>
-      <button class="tab-btn" [class.active]="selectedFilter === 'dual'" (click)="filterEvaluations('dual')">
-        Prácticas Dual
-      </button>
-      <button class="tab-btn" [class.active]="selectedFilter === 'prepro'" (click)="filterEvaluations('prepro')">
-        Preprofesionales
-      </button>
-    </div>
-  </div>
-
-  <!-- LOADING -->
-  <div class="loading-spinner" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Cargando evaluaciones...</p>
-  </div>
-
-  <!-- LISTA -->
-  <div class="evaluations-list" *ngIf="!loading && filteredEvaluations.length > 0">
-
-    <div class="evaluation-card" *ngFor="let evaluation of filteredEvaluations">
-
-      <!-- HEADER CARD -->
-      <div class="eval-header">
-
-        <div class="student-info">
-          <div class="student-avatar">
-            {{ getInitials(evaluation.student.person?.name, evaluation.student.person?.lastname) }}
-          </div>
-
-          <div class="student-details">
-            <h3>{{ evaluation.student.person?.name }} {{ evaluation.student.person?.lastname }}</h3>
-            <p class="student-email">{{ evaluation.student.email }}</p>
-          </div>
-        </div>
-
-        <div class="eval-meta">
-          <span class="eval-date">
-            <span class="material-icons">calendar_today</span>
-            {{ evaluation.evaluationDate | dateFormat }}
-          </span>
-
-          <span class="subject-badge"
-            [class.vinculation]="evaluation.subjectType === 'VINCULATION'"
-            [class.dual]="evaluation.subjectType === 'DUAL_INTERNSHIP'"
-            [class.prepro]="evaluation.subjectType === 'PREPROFESSIONAL_INTERNSHIP'">
-            {{ getSubjectTypeLabel(evaluation.subjectType) }}
-          </span>
-        </div>
-
-      </div>
-
-      <!-- BODY -->
-      <div class="eval-body">
-
-        <div class="eval-info-grid">
-          <div class="info-item">
-            <span class="label">Plantilla</span>
-            <span class="value">{{ evaluation.template.name }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="label">Estado</span>
-            <span class="status-badge" [class.active]="evaluation.status === 'Aprobado'">
-              {{ evaluation.status }}
+    <table *ngIf="evaluations.length; else empty" class="table">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Empresa</th>
+          <th>Tipo</th>
+          <th>Nota</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of evaluations">
+          <td>{{ e.studentName }}</td>
+          <td>{{ e.enterpriseName || '—' }}</td>
+          <td>{{ getTypeLabel(e.type) }}</td>
+          <td>{{ e.grade }}</td>
+          <td>
+            <span [class.approved]="e.status === 'APPROVED'"
+                  [class.failed]="e.status === 'FAILED'">
+              {{ e.status }}
             </span>
-          </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-          <div class="info-item" *ngIf="evaluation.score">
-            <span class="label">Calificación</span>
-            <span class="score-value">{{ evaluation.score }}/10</span>
-          </div>
-        </div>
-
-        <div class="eval-comments" *ngIf="evaluation.comments">
-          <h4>
-            <span class="material-icons">comment</span>
-            Comentarios
-          </h4>
-          <p>{{ evaluation.comments }}</p>
-        </div>
-
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="eval-actions">
-        <a [routerLink]="['/tutor/evaluate', evaluation.student.id]" class="btn btn-sm btn-outline">
-          <span class="material-icons">visibility</span>
-          Ver Detalle
-        </a>
-
-        <button class="btn btn-sm btn-outline" (click)="downloadEvaluation(evaluation.id)">
-          <span class="material-icons">download</span>
-          Descargar
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- EMPTY -->
-  <div class="empty-state" *ngIf="!loading && filteredEvaluations.length === 0">
-    <span class="material-icons empty-icon">assignment</span>
-    <h3>No hay evaluaciones</h3>
-    <p>Aún no has realizado evaluaciones</p>
-
-    <a routerLink="/tutor/my-students" class="btn btn-primary">
-      Evaluar Estudiantes
-    </a>
-  </div>
-
-  <!-- ERROR -->
-  <div class="error-message" *ngIf="errorMessage">
-    <span class="material-icons">warning</span>
-    <span>{{ errorMessage }}</span>
-  </div>
-
-</div>
+    <ng-template #empty>
+      <p class="empty">
+        No existen evaluaciones registradas en este periodo.
+      </p>
+    </ng-template>
   `,
   styles: [`
-:root {
-  --blue: #2563eb;
-  --blue-dark: #1e40af;
-  --blue-soft: #eff6ff;
-  --orange: #f97316;
-  --black: #111827;
-  --gray: #6b7280;
-  --border: #e5e7eb;
-}
+    h2 {
+      margin-bottom: 8px;
+    }
 
-/* ================= CONTAINER ================= */
-.evaluations-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 10px;
-}
+    .period {
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
 
-/* ================= HEADER ================= */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 28px;
-}
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
 
-.header h1 {
-  font-size: 30px;
-  font-weight: 700;
-  color: var(--black);
-  margin-bottom: 6px;
-}
+    .table th,
+    .table td {
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
 
-.header p {
-  font-size: 15px;
-  color: var(--gray);
-  margin: 0;
-}
+    .table th {
+      background: #f9fafb;
+      text-align: left;
+    }
 
-/* ================= BUTTONS ================= */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-}
+    .approved {
+      color: #16a34a;
+      font-weight: 600;
+    }
 
-.btn-primary {
-  background: var(--blue);
-  color: white;
-  border: none;
-}
+    .failed {
+      color: #dc2626;
+      font-weight: 600;
+    }
 
-.btn-primary:hover {
-  background: var(--blue-dark);
-}
-
-.btn-outline {
-  border: 1.5px solid var(--border);
-  background: white;
-  color: var(--black);
-}
-
-.btn-outline:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-}
-
-.btn-sm {
-  padding: 8px 14px;
-  font-size: 13px;
-}
-
-/* ================= FILTERS ================= */
-.filters-card {
-  background: white;
-  border-radius: 16px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.filter-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tab-btn {
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 1.5px solid var(--border);
-  background: white;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--gray);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-btn:hover {
-  border-color: var(--blue);
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-.tab-btn.active {
-  background: var(--blue);
-  color: white;
-  border-color: var(--blue);
-  box-shadow: 0 6px 16px rgba(37,99,235,0.35);
-}
-
-/* ================= LIST ================= */
-.evaluations-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* ================= CARD ================= */
-.evaluation-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: all 0.25s ease;
-}
-
-.evaluation-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px rgba(37,99,235,0.15);
-}
-
-/* ================= CARD HEADER ================= */
-.eval-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 24px;
-  border-bottom: 1px solid var(--border);
-}
-
-.student-info {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.student-avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.student-details h3 {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--black);
-  margin-bottom: 4px;
-}
-
-.student-email {
-  font-size: 13px;
-  color: var(--gray);
-}
-
-/* ================= META ================= */
-.eval-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-end;
-}
-
-.eval-date {
-  font-size: 13px;
-  color: var(--gray);
-}
-
-/* ================= SUBJECT BADGES ================= */
-.subject-badge {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.subject-badge.vinculation {
-  background: rgba(249,115,22,0.15);
-  color: var(--orange);
-}
-
-.subject-badge.dual {
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-.subject-badge.prepro {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* ================= BODY ================= */
-.eval-body {
-  padding: 24px;
-}
-
-.eval-info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.info-item .label {
-  font-size: 12px;
-  color: var(--gray);
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.info-item .value {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--black);
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #fee2e2;
-  color: #991b1b;
-  width: fit-content;
-}
-
-.status-badge.active {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.score-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--orange);
-}
-
-/* ================= COMMENTS ================= */
-.eval-comments {
-  background: #f9fafb;
-  padding: 16px;
-  border-radius: 12px;
-  border-left: 4px solid var(--blue);
-}
-
-/* ================= ACTIONS ================= */
-.eval-actions {
-  padding: 16px 24px;
-  background: #f9fafb;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 10px;
-}
-
-/* ================= EMPTY / LOADING ================= */
-.empty-state,
-.loading-spinner {
-  text-align: center;
-  padding: 80px 20px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ================= ERROR ================= */
-.error-message {
-  margin-top: 20px;
-  padding: 16px 20px;
-  border-radius: 12px;
-  background: #fee2e2;
-  color: #991b1b;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-  }
-
-  .eval-header {
-    flex-direction: column;
-  }
-
-  .eval-meta {
-    align-items: flex-start;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-`]
-
+    .empty {
+      font-style: italic;
+      color: #6b7280;
+    }
+  `]
 })
 export class EvaluationsComponent implements OnInit {
-  private evaluationService = inject(EvaluationService);
 
-  evaluations: Evaluation[] = [];
-  filteredEvaluations: Evaluation[] = [];
-  loading = true;
-  errorMessage = '';
-  selectedFilter = 'all';
+  private assignmentService = inject(TrainingAssignmentService);
+  private periodService = inject(AcademicPeriodService);
+  private authService = inject(AuthService);
+
+  evaluations: any[] = [];
+  activePeriod: any;
 
   ngOnInit(): void {
-    this.loadEvaluations();
+    const tutor = this.authService.getCurrentUser();
+    const periods = this.periodService.getAll();
+
+    if (!periods.length || !tutor) return;
+
+    this.activePeriod = periods[periods.length - 1];
+
+    this.evaluations = this.assignmentService.getAll().filter(a =>
+      a.academicTutorId === tutor.id &&
+      a.academicPeriodId === this.activePeriod.id &&
+      a.grade != null
+    );
   }
 
-  private loadEvaluations(): void {
-    this.loading = true;
-    this.evaluationService.getByTutor().subscribe({
-      next: (evaluations) => {
-        this.evaluations = evaluations;
-        this.filteredEvaluations = evaluations;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Error al cargar las evaluaciones';
-        this.loading = false;
-        console.error('Error:', error);
-      }
-    });
-  }
-
-  filterEvaluations(filter: string): void {
-    this.selectedFilter = filter;
-    
-    if (filter === 'all') {
-      this.filteredEvaluations = this.evaluations;
-    } else {
-      const typeMap: { [key: string]: string } = {
-        'vinculation': 'VINCULATION',
-        'dual': 'DUAL_INTERNSHIP',
-        'prepro': 'PREPROFESSIONAL_INTERNSHIP'
-      };
-      
-      this.filteredEvaluations = this.evaluations.filter(
-        e => e.subjectType === typeMap[filter]
-      );
+  getTypeLabel(type: string): string {
+    switch (type) {
+      case 'VINCULATION':
+        return 'Vinculación';
+      case 'DUAL_PRACTICE':
+        return 'Prácticas Formación Dual';
+      case 'PREPROFESSIONAL_PRACTICE':
+        return 'Prácticas Preprofesionales';
+      default:
+        return '';
     }
-  }
-
-  getInitials(name?: string, lastname?: string): string {
-    const n = name?.charAt(0) || '';
-    const l = lastname?.charAt(0) || '';
-    return (n + l).toUpperCase() || 'E';
-  }
-
-  getSubjectTypeLabel(type: string): string {
-    const labels: { [key: string]: string } = {
-      'VINCULATION': 'Vinculación',
-      'DUAL_INTERNSHIP': 'Prácticas Dual',
-      'PREPROFESSIONAL_INTERNSHIP': 'Preprofesionales'
-    };
-    return labels[type] || type;
-  }
-
-  downloadEvaluation(id: number): void {
-    // TODO: Implementar descarga de evaluación
-    console.log('Downloading evaluation:', id);
-    alert('Función de descarga en desarrollo');
   }
 }

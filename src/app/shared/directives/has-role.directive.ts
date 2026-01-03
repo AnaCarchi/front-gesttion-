@@ -1,39 +1,22 @@
-import { 
-  Directive, 
-  Input, 
-  TemplateRef, 
-  ViewContainerRef,
-  OnInit,
-  inject 
-} from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 
 @Directive({
-  selector: '[appHasRole]',
-  standalone: true
+  selector: '[hasRole]'
 })
-export class HasRoleDirective implements OnInit {
-  private authService = inject(AuthService);
-  private templateRef = inject(TemplateRef<any>);
-  private viewContainer = inject(ViewContainerRef);
+export class HasRoleDirective {
 
-  @Input() appHasRole!: string | string[];
+  private auth = inject(AuthService);
 
-  ngOnInit() {
-    this.updateView();
-  }
+  constructor(
+    private tpl: TemplateRef<any>,
+    private vcr: ViewContainerRef
+  ) {}
 
-  private updateView() {
-    const roles = Array.isArray(this.appHasRole) 
-      ? this.appHasRole 
-      : [this.appHasRole];
-    
-    const hasRole = roles.some(role => this.authService.hasRole(role));
-
-    if (hasRole) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
-      this.viewContainer.clear();
-    }
+  @Input() set hasRole(role: string) {
+    const user = this.auth.getCurrentUser();
+    const has = user?.roles?.some(r => r.name === role);
+    this.vcr.clear();
+    if (has) this.vcr.createEmbeddedView(this.tpl);
   }
 }

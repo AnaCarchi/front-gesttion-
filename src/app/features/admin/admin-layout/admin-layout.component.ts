@@ -1,288 +1,126 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatListModule,
+    MatButtonModule
+  ],
   template: `
-<div class="admin-layout" [class.collapsed]="isCollapsed">
+    <mat-sidenav-container class="layout">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+      <!-- SIDEBAR -->
+      <mat-sidenav mode="side" opened class="sidenav">
+        <div class="logo">
+          <mat-icon>school</mat-icon>
+          <span>Administración</span>
+        </div>
 
-    <!-- HEADER -->
-    <div class="sidebar-header">
-      <img
-        src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
-        class="logo-img"
-        alt="Yavirac Logo"
-      />
-      <span class="logo-text">Yavirac</span>
+        <mat-nav-list>
+          <a mat-list-item routerLink="dashboard">
+            <mat-icon matListIcon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </a>
 
-      <button class="btn-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
+          <a mat-list-item routerLink="periods">
+            <mat-icon matListIcon>date_range</mat-icon>
+            <span>Periodos</span>
+          </a>
 
-    <!-- NAV -->
-    <nav class="sidebar-nav">
-      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <rect x="2" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="12" y="2" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="2" y="12" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-          <rect x="12" y="12" width="8" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Dashboard</span>
-      </a>
+          <a mat-list-item routerLink="careers">
+            <mat-icon matListIcon>menu_book</mat-icon>
+            <span>Carreras</span>
+          </a>
 
-      <a routerLink="/admin/periods" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <rect x="2" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-          <path d="M2 9h18M6 2v4M16 2v4" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Periodos</span>
-      </a>
+          <a mat-list-item routerLink="users">
+            <mat-icon matListIcon>group</mat-icon>
+            <span>Usuarios</span>
+          </a>
+        </mat-nav-list>
+      </mat-sidenav>
 
-      <a routerLink="/admin/careers" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M11 2L2 6L11 10L20 6L11 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M2 16L11 20L20 16" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M2 11L11 15L20 11" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-        </svg>
-        <span class="nav-text">Carreras</span>
-      </a>
+      <!-- CONTENT -->
+      <mat-sidenav-content>
+        <mat-toolbar color="primary" class="toolbar">
+          <span class="spacer"></span>
+          <button mat-icon-button (click)="logout()">
+            <mat-icon>logout</mat-icon>
+          </button>
+        </mat-toolbar>
 
-      <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
-          <path d="M5 19v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span class="nav-text">Usuarios</span>
-      </a>
-    </nav>
+        <div class="content">
+          <router-outlet></router-outlet>
+        </div>
+      </mat-sidenav-content>
 
-    <!-- FOOTER -->
-    <div class="sidebar-footer">
-      <button class="btn-logout" (click)="logout()">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M7 16L3 16C2.44772 16 2 15.5523 2 15L2 5C2 4.44772 2.44772 4 3 4L7 4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M13 13L18 10L13 7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M6 10H18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <span class="nav-text">Cerrar sesión</span>
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="main-content">
-    <header class="top-bar">
-      <h2>Panel de Administración</h2>
-
-      <div class="user-info">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <span>Administrador</span>
-      </div>
-    </header>
-
-    <div class="content-area">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
-
-</div>
-`,
+    </mat-sidenav-container>
+  `,
   styles: [`
-/* ================= GENERAL ================= */
-.admin-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f5f7fb;
-  font-family: 'Segoe UI', sans-serif;
-}
+    .layout {
+      height: 100vh;
+    }
 
-/* ================= SIDEBAR ================= */
-.sidebar {
-  width: 260px;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  transition: width 0.3s ease;
-}
+    .sidenav {
+      width: 240px;
+      background: #0f172a;
+      color: #fff;
+    }
 
-/* ================= HEADER ================= */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-.logo-img {
-  width: 40px;
-}
+    mat-nav-list a {
+      color: #e5e7eb;
+    }
 
-.logo-text {
-  font-size: 20px;
-  font-weight: bold;
-  color: #f97316;
-  white-space: nowrap;
-}
+    mat-nav-list a mat-icon {
+      color: #93c5fd;
+    }
 
-.btn-toggle {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: #cbd5f5;
-  cursor: pointer;
-}
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-/* ================= NAV ================= */
-.sidebar-nav {
-  flex: 1;
-  padding: 16px;
-}
+    .content {
+      padding: 24px;
+    }
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  color: #cbd5f5;
-  text-decoration: none;
-  margin-bottom: 6px;
-  transition: all 0.25s ease;
-}
-
-.nav-item svg {
-  flex-shrink: 0;
-}
-
-.nav-item:hover {
-  background: rgba(59,130,246,0.15);
-  color: #fff;
-  transform: translateX(4px);
-}
-
-.nav-item.active {
-  background: #2563eb;
-  color: white;
-}
-
-/* ================= FOOTER ================= */
-.sidebar-footer {
-  padding: 16px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-
-.btn-logout {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(249,115,22,0.15);
-  color: #f97316;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.btn-logout:hover {
-  background: rgba(249,115,22,0.3);
-}
-
-/* ================= MAIN ================= */
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  display: flex;
-  flex-direction: column;
-  transition: margin-left 0.3s ease;
-}
-
-/* ================= TOP BAR ================= */
-.top-bar {
-  background: white;
-  padding: 20px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.top-bar h2 {
-  margin: 0;
-  font-size: 22px;
-  color: #0f172a;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #2563eb;
-  font-weight: 500;
-}
-
-/* ================= CONTENT ================= */
-.content-area {
-  padding: 32px;
-}
-
-/* ================= COLLAPSED ================= */
-.admin-layout.collapsed .sidebar {
-  width: 80px;
-}
-
-.admin-layout.collapsed .main-content {
-  margin-left: 80px;
-}
-
-.admin-layout.collapsed .logo-text,
-.admin-layout.collapsed .nav-text {
-  display: none;
-}
-
-.admin-layout.collapsed .nav-item,
-.admin-layout.collapsed .btn-logout {
-  justify-content: center;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .admin-layout.collapsed .sidebar {
-    width: 70px;
-  }
-}
+    .spacer {
+      flex: 1;
+    }
   `]
 })
 export class AdminLayoutComponent {
 
   private authService = inject(AuthService);
-
-  isCollapsed = false;
-
-  toggleSidebar(): void {
-    this.isCollapsed = !this.isCollapsed;
-  }
+  private router = inject(Router);
 
   logout(): void {
     this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

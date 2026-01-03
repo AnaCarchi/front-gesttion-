@@ -3,17 +3,19 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
-  return true; //borrar 
-  
-  // const authService = inject(AuthService);
-  // const router = inject(Router);
 
-  // if (authService.isAuthenticated()) { //conectar 
-  //   return true;
-  // }
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  // router.navigate(['/auth/login'], { 
-  //   queryParams: { returnUrl: state.url } 
-  // });
-  // return false;
+  // ✅ Validación correcta según tu AuthService
+  if (authService.isLoggedIn()) {
+    return true;
+  }
+
+  // ❌ No autenticado
+  router.navigate(['/auth/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+
+  return false;
 };

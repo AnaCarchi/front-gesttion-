@@ -1,68 +1,81 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { Vinculation } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class VinculationService {
 
-  private storageKey = 'vinculations';
+  private readonly key = 'vinculations';
 
-  constructor() {}
-
-  // ================= CRUD =================
-
-  getAll(): Observable<Vinculation[]> {
-    return of(this.read()).pipe(delay(300));
+  constructor() {
+    // Inicializa storage si no existe
+    if (!localStorage.getItem(this.key)) {
+      localStorage.setItem(this.key, JSON.stringify([]));
+    }
   }
 
-  getById(id: number): Observable<Vinculation> {
-    const vinculation = this.read().find(v => v.id === id);
-    return of(vinculation!).pipe(delay(300));
+  // ===========================
+  // LECTURA
+  // ===========================
+
+  private read(): Vinculation[] {
+    try {
+      return JSON.parse(localStorage.getItem(this.key) || '[]');
+    } catch {
+      return [];
+    }
   }
 
-  create(vinculation: Vinculation): Observable<Vinculation> {
+  private save(data: Vinculation[]): void {
+    localStorage.setItem(this.key, JSON.stringify(data));
+  }
+
+  // ===========================
+  // CONSULTAS
+  // ===========================
+
+  getByAssignment(assignmentId: number): Vinculation | undefined {
+    return this.read().find(v => v.trainingAssignmentId === assignmentId);
+  }
+
+  getAll(): Vinculation[] {
+    return this.read();
+  }
+
+  // ===========================
+  // CREACIÓN
+  // ===========================
+
+  create(vinculation: Vinculation): Vinculation {
     const data = this.read();
+
     const newVinculation: Vinculation = {
       ...vinculation,
-      id: Date.now()
+      id: vinculation.id && vinculation.id !== 0 ? vinculation.id : Date.now()
     };
 
     data.push(newVinculation);
     this.save(data);
-
-    return of(newVinculation).pipe(delay(300));
+    return newVinculation;
   }
 
-  update(vinculation: Vinculation): Observable<Vinculation> {
-    const data = this.read();
-    const index = data.findIndex(v => v.id === vinculation.id);
+  // ===========================
+  // ACTUALIZACIÓN
+  // ===========================
 
-    if (index === -1) {
-      throw new Error('Vinculación no encontrada');
-    }
+  update(vinculation: Vinculation): void {
+    const updated = this.read().map(v =>
+      v.id === vinculation.id ? vinculation : v
+    );
 
-    data[index] = vinculation;
-    this.save(data);
-
-    return of(vinculation).pipe(delay(300));
+    this.save(updated);
   }
 
-  delete(id: number): Observable<void> {
-    const data = this.read().filter(v => v.id !== id);
-    this.save(data);
-    return of(void 0).pipe(delay(200));
-  }
+  // ===========================
+  // ELIMINACIÓN
+  // ===========================
 
-  // ================= STORAGE =================
-
-  private read(): Vinculation[] {
-    return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
-  }
-
-  private save(data: Vinculation[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(data));
+  delete(id: number): void {
+    const filtered = this.read().filter(v => v.id !== id);
+    this.save(filtered);
   }
 }

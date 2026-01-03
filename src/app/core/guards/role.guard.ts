@@ -1,37 +1,33 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { RoleName } from '../models/role.model';
 
-export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
-  return (route, state) => {
-    
-    return true; //borrar
+export const roleGuard = (allowedRoles: RoleName[]): CanActivateFn => {
+  return () => {
 
-    /* 
-    // DESCOMENTAR ESTO CUANDO TENGAS EL BACKEND FUNCIONANDO:
-    
     const authService = inject(AuthService);
     const router = inject(Router);
 
     const user = authService.getCurrentUser();
-    
-    if (!user) {
+
+    // ❌ Sin sesión o sin roles
+    if (!user || !user.roles || user.roles.length === 0) {
       router.navigate(['/auth/login']);
       return false;
     }
 
-    const hasRole = user.roles?.some(role => 
-      allowedRoles.some(allowedRole => 
-        role.name.toLowerCase() === allowedRole.toLowerCase()
-      )
+    // ✅ Validar por nombre del rol
+    const hasRole = user.roles.some(role =>
+      allowedRoles.includes(role.name)
     );
 
     if (hasRole) {
       return true;
     }
 
+    // ❌ No autorizado
     router.navigate(['/unauthorized']);
     return false;
-    */
   };
 };

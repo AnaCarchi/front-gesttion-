@@ -1,45 +1,32 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router);
   const authService = inject(AuthService);
+  const router = inject(Router);
 
   return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'Ha ocurrido un error';
+    catchError(error => {
+      let message = 'Ha ocurrido un error inesperado';
 
-      if (error.error instanceof ErrorEvent) {
-        errorMessage = `Error: ${error.error.message}`;
-      } else {
-        switch (error.status) {
-          case 401:
-            errorMessage = 'No autorizado. Por favor inicie sesión.';
-            authService.logout();
-            break;
-          case 403:
-            errorMessage = 'No tiene permisos para realizar esta acción.';
-            break;
-          case 404:
-            errorMessage = 'Recurso no encontrado.';
-            break;
-          case 500:
-            errorMessage = 'Error interno del servidor.';
-            break;
-          default:
-            if (error.error?.message) {
-              errorMessage = error.error.message;
-            } else if (error.error?.title) {
-              errorMessage = error.error.title;
-            }
-        }
+      // 🔐 Sesión inválida (simulada)
+      if (error.status === 401) {
+        message = 'Sesión expirada. Inicie sesión nuevamente.';
+        authService.logout();
+        router.navigate(['/auth/login']);
       }
 
-      console.error('Error interceptado:', errorMessage, error);
-      return throwError(() => new Error(errorMessage));
+      // 🚫 Acceso no autorizado
+      if (error.status === 403) {
+        message = 'No tiene permisos para acceder a esta sección.';
+        router.navigate(['/unauthorized']);
+      }
+
+      console.error('[Interceptor Error]', message, error);
+      return throwError(() => new Error(message));
     })
   );
 };

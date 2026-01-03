@@ -1,33 +1,18 @@
-import { 
-  Directive, 
-  Input, 
-  TemplateRef, 
-  ViewContainerRef,
-  OnInit,
-  inject 
-} from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
+import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 
 @Directive({
-  selector: '[appHasPermission]',
-  standalone: true
+  selector: '[hasPermission]'
 })
-export class HasPermissionDirective implements OnInit {
-  private authService = inject(AuthService);
-  private templateRef = inject(TemplateRef<any>);
-  private viewContainer = inject(ViewContainerRef);
+export class HasPermissionDirective {
 
-  @Input() appHasPermission!: string;
-
-  ngOnInit() {
-    this.updateView();
+  @Input() set hasPermission(_: string) {
+    // Placeholder: permisos reales si los agregas luego
   }
 
-  private updateView() {
-    if (this.authService.hasPermission(this.appHasPermission)) {
-      this.viewContainer.createEmbeddedView(this.templateRef);
-    } else {
-      this.viewContainer.clear();
-    }
+  constructor(
+    private tpl: TemplateRef<any>,
+    private vcr: ViewContainerRef
+  ) {
+    this.vcr.createEmbeddedView(this.tpl);
   }
 }

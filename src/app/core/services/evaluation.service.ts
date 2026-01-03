@@ -1,102 +1,49 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Evaluation, EvaluationTemplate } from '../models';
+import { Evaluation } from '../models';
+import { STORAGE_KEYS } from '../models/constants';
+import { TrainingAssignmentService } from './training-assignment.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class EvaluationService {
 
-  private evaluationsKey = 'evaluations';
-  private templatesKey = 'evaluationTemplates';
+  private key = STORAGE_KEYS.EVALUATIONS;
 
-  constructor() {
-    this.initMockData();
+  constructor(
+    private trainingService: TrainingAssignmentService
+  ) {
+    if (!localStorage.getItem(this.key)) {
+      localStorage.setItem(this.key, JSON.stringify([]));
+    }
   }
 
-  // ================= PLANTILLAS =================
-  getTemplateByType(type: string): Observable<EvaluationTemplate> {
-    const templates = this.read(this.templatesKey);
-    const template = templates.find((t: any) => t.type === type);
-    return of(template);
+  private read(): Evaluation[] {
+    return JSON.parse(localStorage.getItem(this.key) || '[]');
   }
 
-  // ================= CREAR =================
-  create(evaluation: any): Observable<Evaluation> {
-    const evaluations = this.read(this.evaluationsKey);
+  private save(data: Evaluation[]) {
+    localStorage.setItem(this.key, JSON.stringify(data));
+  }
+
+  getByAssignment(assignmentId: number): Evaluation[] {
+    return this.read().filter(e => e.trainingAssignmentId === assignmentId);
+  }
+
+  evaluate(evaluation: Evaluation): void {
+    const data = this.read();
 
     const newEvaluation: Evaluation = {
       ...evaluation,
       id: Date.now(),
-      createdAt: new Date()
+      evaluatedAt: new Date().toISOString()
     };
 
-    evaluations.push(newEvaluation);
-    this.save(this.evaluationsKey, evaluations);
+    data.push(newEvaluation);
+    this.save(data);
 
-    return of(newEvaluation);
-  }
-
-  // ================= POR ESTUDIANTE =================
-  getByStudent(studentId: number): Observable<Evaluation[]> {
-    const evaluations = this.read(this.evaluationsKey)
-      .filter((e: any) => e.studentId === studentId);
-
-    return of(evaluations);
-  }
-
-  // ================= POR TUTOR =================
-  getByTutor(): Observable<Evaluation[]> {
-    const evaluations = this.read(this.evaluationsKey);
-    return of(evaluations);
-  }
-
-  // ================= ACTUALIZAR =================
-  update(id: number, evaluation: Evaluation): Observable<Evaluation> {
-    const evaluations = this.read(this.evaluationsKey);
-
-    const index = evaluations.findIndex((e: any) => e.id === id);
-    if (index !== -1) {
-      evaluations[index] = { ...evaluations[index], ...evaluation };
-      this.save(this.evaluationsKey, evaluations);
-    }
-
-    return of(evaluations[index]);
-  }
-
-  // ================= UTILIDADES =================
-  private read(key: string): any[] {
-    return JSON.parse(localStorage.getItem(key) || '[]');
-  }
-
-  private save(key: string, data: any[]): void {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
-  // ================= DATOS INICIALES =================
-  private initMockData(): void {
-
-    if (!localStorage.getItem(this.templatesKey)) {
-      this.save(this.templatesKey, [
-        {
-          type: 'EMPRESA',
-          questions: [
-            { id: 1, text: 'Responsabilidad', maxScore: 10 },
-            { id: 2, text: 'Puntualidad', maxScore: 10 }
-          ]
-        },
-        {
-          type: 'TUTOR',
-          questions: [
-            { id: 1, text: 'Desempeño', maxScore: 10 },
-            { id: 2, text: 'Conocimiento', maxScore: 10 }
-          ]
-        }
-      ]);
-    }
-
-    if (!localStorage.getItem(this.evaluationsKey)) {
-      this.save(this.evaluationsKey, []);
-    }
+    // 🔥 Actualiza estado del TrainingAssignment
+    this.trainingService.applyFinalGrade(
+      newEvaluation.trainingAssignmentId,
+      newEvaluation.grade
+    );
   }
 }

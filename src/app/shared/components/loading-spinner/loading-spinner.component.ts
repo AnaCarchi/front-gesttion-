@@ -6,37 +6,32 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="loading-spinner">
+    <div class="overlay">
       <div class="spinner"></div>
       <p>Cargando...</p>
     </div>
   `,
   styles: [`
-    .loading-spinner {
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      padding: 40px;
+      align-items: center;
+      z-index: 9999;
     }
-
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #e5e7eb;
-      border-top-color: #667eea;
+      width: 48px;
+      height: 48px;
+      border: 5px solid #e5e7eb;
+      border-top-color: #2563eb;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 1s linear infinite;
     }
-
     @keyframes spin {
       to { transform: rotate(360deg); }
-    }
-
-    p {
-      margin-top: 16px;
-      color: #6b7280;
-      font-size: 14px;
     }
   `]
 })

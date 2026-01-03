@@ -1,21 +1,12 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'status',
-  standalone: true
-})
+@Pipe({ name: 'status' })
 export class StatusPipe implements PipeTransform {
   transform(value: string): string {
-    const statusMap: { [key: string]: string } = {
-      'Activo': 'Activo',
-      'Inactivo': 'Inactivo',
-      'Matriculado': 'Matriculado',
-      'Graduado': 'Graduado',
-      'Aprobado': 'Aprobado',
-      'Pendiente': 'Pendiente',
-      'Rechazado': 'Rechazado'
-    };
-
-    return statusMap[value] || value;
+    switch (value) {
+      case 'APPROVED': return 'Aprobado';
+      case 'FAILED': return 'Reprobado';
+      default: return value;
+    }
   }
 }

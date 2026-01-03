@@ -1,310 +1,105 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+
+import { UserService } from '../../../core/services/user.service';
+import { StudentService } from '../../../core/services/student.service';
+
+import { User, Student } from '../../../core/models';
+
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-tutor-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatIconModule
+  ],
   template: `
-  <div class="card">
+    <h2>Listado de Tutores</h2>
 
-    <!-- HEADER -->
-    <div class="header">
-      <h3>Lista de Tutores</h3>
-      <button class="btn-primary" (click)="openModal()">
-        + Nuevo Tutor
-      </button>
-    </div>
+    <table mat-table [dataSource]="tutors" class="mat-elevation-z1">
 
-    <!-- TABLE -->
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Nombres</th>
-          <th>Apellidos</th>
-          <th>Cédula</th>
-          <th>Carrera</th>
-          <th>Tipo</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
+      <!-- NOMBRE -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Tutor</th>
+        <td mat-cell *matCellDef="let t">
+          {{ t.fullName }}
+        </td>
+      </ng-container>
 
-      <tbody>
-        <tr *ngFor="let tutor of tutors">
-          <td>{{ tutor.names }}</td>
-          <td>{{ tutor.lastnames }}</td>
-          <td>{{ tutor.cedula }}</td>
-          <td>{{ tutor.career }}</td>
-          <td>{{ tutor.type }}</td>
-          <td>
-            <span
-              class="status"
-              [class.active]="tutor.active"
-              [class.inactive]="!tutor.active">
-              {{ tutor.active ? 'Activo' : 'Inactivo' }}
-            </span>
-          </td>
-        </tr>
+      <!-- TIPO -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Tipo</th>
+        <td mat-cell *matCellDef="let t">
+          <span *ngIf="isAcademic(t)">Académico</span>
+          <span *ngIf="isEnterprise(t)">Empresarial</span>
+        </td>
+      </ng-container>
 
-        <tr *ngIf="tutors.length === 0">
-          <td colspan="6" class="empty">
-            No hay tutores registrados
-          </td>
-        </tr>
-      </tbody>
+      <!-- ASIGNACIONES -->
+      <ng-container matColumnDef="assignments">
+        <th mat-header-cell *matHeaderCellDef>Asignaciones</th>
+        <td mat-cell *matCellDef="let t">
+          {{ getAssignmentCount(t) }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
     </table>
-  </div>
-
-  <!-- MODAL -->
-  <div class="modal-backdrop" *ngIf="showModal">
-    <div class="modal">
-
-      <h4>Nuevo Tutor</h4>
-
-      <form (ngSubmit)="addTutor()">
-
-        <div class="form-group">
-          <label>Nombres</label>
-          <input type="text" [(ngModel)]="newTutor.names" name="names" required />
-        </div>
-
-        <div class="form-group">
-          <label>Apellidos</label>
-          <input type="text" [(ngModel)]="newTutor.lastnames" name="lastnames" required />
-        </div>
-
-        <div class="form-group">
-          <label>Cédula</label>
-          <input type="text" [(ngModel)]="newTutor.cedula" name="cedula" required />
-        </div>
-
-        <div class="form-group">
-          <label>Carrera</label>
-          <input type="text" [(ngModel)]="newTutor.career" name="career" required />
-        </div>
-
-        <div class="form-group">
-          <label>Tipo</label>
-          <select [(ngModel)]="newTutor.type" name="type" required>
-            <option value="">Seleccione</option>
-            <option value="Académico">Académico</option>
-            <option value="Empresarial">Empresarial</option>
-          </select>
-        </div>
-
-        <div class="form-group checkbox">
-          <label>
-            <input type="checkbox" [(ngModel)]="newTutor.active" name="active" />
-            Tutor activo
-          </label>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="closeModal()">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-primary">
-            Guardar
-          </button>
-        </div>
-
-      </form>
-    </div>
-  </div>
   `,
   styles: [`
-    /* CARD */
-    .card {
-      background: white;
-      padding: 24px;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
-
-    /* HEADER */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    h3 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      color: #0f172a;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .btn-primary:hover {
-      background: #1e40af;
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    /* TABLE */
-    .table {
+    table {
       width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      padding: 12px;
-      border-bottom: 2px solid #e5e7eb;
-      font-size: 13px;
-      text-transform: uppercase;
-      color: #2563eb;
-    }
-
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #e5e7eb;
-      font-size: 14px;
-      color: #374151;
-    }
-
-    tr:hover {
-      background: #f9fafb;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 20px;
-      color: #6b7280;
-    }
-
-    /* STATUS */
-    .status {
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .status.active {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .status.inactive {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    /* MODAL */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: white;
-      padding: 24px;
-      border-radius: 14px;
-      width: 420px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    }
-
-    .modal h4 {
-      margin-bottom: 16px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      font-size: 13px;
-      margin-bottom: 4px;
-      color: #374151;
-    }
-
-    .form-group input,
-    .form-group select {
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
-    }
-
-    .checkbox {
-      margin-top: 8px;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+      margin-top: 16px;
     }
   `]
 })
-export class TutorListComponent {
+export class TutorListComponent implements OnInit {
 
-  showModal = false;
+  private userService = inject(UserService);
+  private studentService = inject(StudentService);
 
-  tutors = [
-    {
-      names: 'María',
-      lastnames: 'López',
-      cedula: '0102030405',
-      career: 'Desarrollo de Software',
-      type: 'Académico',
-      active: true
-    }
-  ];
+  tutors: User[] = [];
+  students: Student[] = [];
 
-  newTutor = this.resetTutor();
+  columns = ['name', 'type', 'assignments'];
 
-  openModal() {
-    this.showModal = true;
+  ngOnInit(): void {
+    const users = this.userService.getAll();
+    this.students = this.studentService.getAll();
+
+    // ✅ Tutores académicos y empresariales
+    this.tutors = users.filter(u =>
+      u.roles.includes('ACADEMIC_TUTOR') ||
+      u.roles.includes('ENTERPRISE_TUTOR')
+    );
   }
 
-  closeModal() {
-    this.showModal = false;
-    this.newTutor = this.resetTutor();
+  isAcademic(user: User): boolean {
+    return user.roles.includes('ACADEMIC_TUTOR');
   }
 
-  addTutor() {
-    this.tutors.push({ ...this.newTutor });
-    this.closeModal();
+  isEnterprise(user: User): boolean {
+    return user.roles.includes('ENTERPRISE_TUTOR');
   }
 
-  resetTutor() {
-    return {
-      names: '',
-      lastnames: '',
-      cedula: '',
-      career: '',
-      type: '',
-      active: true
-    };
+  getAssignmentCount(user: User): number {
+  if (this.isAcademic(user)) {
+    return this.assignments.filter(
+      a => a.academicTutorId === user.id
+    ).length;
   }
+
+  if (this.isEnterprise(user)) {
+    return this.assignments.filter(
+      a => a.enterpriseTutorId === user.id
+    ).length;
+  }
+
+  return 0;
+}
 }

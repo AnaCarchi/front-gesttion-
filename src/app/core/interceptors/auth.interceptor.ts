@@ -1,17 +1,28 @@
-import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const token = authService.getToken();
+export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
+  return () => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
 
-  if (token && !req.url.includes('/auth/')) {
-    const cloned = req.clone({
-      headers: req.headers.set('Authorization', `Bearer ${token}`)
-    });
-    return next(cloned);
-  }
+    const user = authService.getCurrentUser();
 
-  return next(req);
+    if (!user) {
+      router.navigate(['/auth/login']);
+      return false;
+    }
+
+    const hasRole = user.roles.some(r =>
+      allowedRoles.includes(r.name)
+    );
+
+    if (!hasRole) {
+      router.navigate(['/unauthorized']);
+      return false;
+    }
+
+    return true;
+  };
 };

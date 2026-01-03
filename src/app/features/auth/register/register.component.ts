@@ -1,60 +1,49 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { FormsModule, NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { User } from '../../../core/models';
+import { UserService } from '../../../core/services/user.service';
 
 @Component({
-  selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  selector: 'app-register',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private router = inject(Router);
 
-  registerForm: FormGroup;
   loading = false;
-  errorMessage = '';
-  successMessage = '';
 
-  constructor() {
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
-    });
-  }
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) {}
 
-  onSubmit(): void {
-    if (this.registerForm.invalid) {
-      return;
-    }
+  submit(form: NgForm): void {
+    if (form.invalid) return;
 
-    if (this.registerForm.value.password !== this.registerForm.value.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden';
-      return;
-    }
-
-    this.loading = true;
-    this.errorMessage = '';
-
-    const { email, password } = this.registerForm.value;
-
-    this.authService.register({ email, password }).subscribe({
-      next: (response) => {
-        this.successMessage = 'Registro exitoso. Redirigiendo al login...';
-        setTimeout(() => {
-          this.router.navigate(['/auth/login']);
-        }, 2000);
-      },
-      error: (error) => {
-        this.errorMessage = error.message || 'Error al registrar usuario';
-        this.loading = false;
+    const user: User = {
+      id: Date.now(),
+      email: form.value.email,
+      password: form.value.password,
+      isActive: true,
+      roles: [
+        {
+          id: Date.now(),
+          name: 'STUDENT'
+        }
+      ],
+      person: {
+        id: Date.now(),
+        name: form.value.name,
+        lastname: form.value.lastname,
+        identification: ''
       }
-    });
+    };
+
+    this.userService.create(user);
+    this.router.navigate(['/auth/login']);
   }
 }

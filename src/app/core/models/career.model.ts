@@ -1,11 +1,11 @@
-import { AcademicPeriod } from './academic-period.model';
+export type CareerType = 'DUAL' | 'TRADITIONAL';
 
 export interface Career {
   id: number;
-  periodId: number;
   name: string;
-  description?: string;
-  academicPeriod?: AcademicPeriod; // singular
-  status: string;
-  isDual?: boolean;
+  academicPeriodId: number;
+
+  hasVinculation: boolean;
+  hasDualInternship: boolean;
+  hasPreprofessional: boolean;
 }
