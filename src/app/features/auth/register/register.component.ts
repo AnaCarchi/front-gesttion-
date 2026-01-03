@@ -24,6 +24,8 @@ export class RegisterComponent {
   submit(form: NgForm): void {
     if (form.invalid) return;
 
+    const roleName = this.resolveRole(form.value.email);
+
     const user: User = {
       id: Date.now(),
       email: form.value.email,
@@ -32,7 +34,7 @@ export class RegisterComponent {
       roles: [
         {
           id: Date.now(),
-          name: 'STUDENT'
+          name: roleName
         }
       ],
       person: {
@@ -45,5 +47,31 @@ export class RegisterComponent {
 
     this.userService.create(user);
     this.router.navigate(['/auth/login']);
+  }
+
+  private resolveRole(email: string): User['roles'][number]['name'] {
+    const normalizedEmail = (email || '').toLowerCase();
+
+    if (normalizedEmail.includes('admin')) {
+      return 'ADMIN';
+    }
+
+    if (normalizedEmail.includes('coordinator')) {
+      return 'COORDINATOR';
+    }
+
+    if (normalizedEmail.includes('tutor-enterprise') || normalizedEmail.includes('enterprise')) {
+      return 'TUTOR_ENTERPRISE';
+    }
+
+    if (normalizedEmail.includes('tutor-academic') || normalizedEmail.includes('academic')) {
+      return 'TUTOR_ACADEMIC';
+    }
+
+    if (normalizedEmail.includes('tutor')) {
+      return 'TUTOR_ACADEMIC';
+    }
+
+    return 'STUDENT';
   }
 }

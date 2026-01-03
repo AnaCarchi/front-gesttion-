@@ -27,7 +27,7 @@
 .register-card {
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.397);
+  background: rgba(255, 255, 255, 0.3);
   width: 100%;
   max-width: 600px;
   padding: 2.5rem;
@@ -84,7 +84,7 @@
   font-size: 0.9rem;
   margin-bottom: 0.3rem;
   font-weight: 600;
-  color: #000000;
+  color: var(--text-primary);
 }
 
 /* Inputs */
@@ -92,7 +92,7 @@
 .form-group select {
   padding: 0.5rem 0.7rem;
   border-radius: 6px;
-  border: 1px solid #555555;
+  border: 1px solid var(--border-color);
   font-size: 0.9rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -100,8 +100,8 @@
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #1e3c72;
-  box-shadow: 0 0 5px rgba(30, 60, 114, 0.4);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(123, 182, 245, 0.35);
   outline: none;
 }
 
@@ -116,25 +116,9 @@
 }
 
 /* ================= BOTÓN ================= */
-.btn-register {
-  padding: 0.9rem;
-  border: none;
-  border-radius: 12px;
-  background: #2a5298;
-  color: white;
+.btn.btn-primary {
   font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.btn-register:hover:not(:disabled) {
-  background: #1e3c72;
-}
-
-.btn-register:disabled {
-  background: #95a5a6;
-  cursor: not-allowed;
+  border-radius: 12px;
 }
 
 /* ================= FOOTER ================= */
@@ -144,9 +128,13 @@
 }
 
 .register-footer a {
-  color: #000000;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 500;
+}
+
+.btn .material-icons {
+  font-size: 18px;
 }
 
 .register-footer a:hover {
