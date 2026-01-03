@@ -53,7 +53,7 @@ import {
             <select [(ngModel)]="enterpriseTutorMap[s.id]">
               <option value="">-- Seleccione --</option>
               <option *ngFor="let t of enterpriseTutors" [value]="t.id">
-                {{ t.person?.name }} {{ t.person?.lastname }}
+                {{ t.person.name }} {{ t.person.lastname }}
               </option>
             </select>
           </td>
@@ -62,7 +62,7 @@ import {
             <select [(ngModel)]="academicTutorMap[s.id]">
               <option value="">-- Seleccione --</option>
               <option *ngFor="let t of academicTutors" [value]="t.id">
-                {{ t.person?.name }} {{ t.person?.lastname }}
+                {{ t.person.name }} {{ t.person.lastname }}
               </option>
             </select>
           </td>
