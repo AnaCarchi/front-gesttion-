@@ -2,5 +2,9 @@ export interface Student {
   id: number;
   userId: number;
   careerId: number;
-  periodId: number;
+  academicPeriodId: number;
+  isActive?: boolean;
+  hasVinculation?: boolean;
+  hasDualPractice?: boolean;
+  hasPreprofessionalPractice?: boolean;
 }

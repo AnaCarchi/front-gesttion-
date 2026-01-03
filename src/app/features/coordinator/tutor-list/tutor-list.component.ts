@@ -2,9 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { UserService } from '../../../core/services/user.service';
-import { StudentService } from '../../../core/services/student.service';
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
 
-import { User, Student } from '../../../core/models';
+import { User, TrainingAssignment } from '../../../core/models';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -61,45 +61,45 @@ import { MatIconModule } from '@angular/material/icon';
 export class TutorListComponent implements OnInit {
 
   private userService = inject(UserService);
-  private studentService = inject(StudentService);
+  private assignmentService = inject(TrainingAssignmentService);
 
   tutors: User[] = [];
-  students: Student[] = [];
+  assignments: TrainingAssignment[] = [];
 
   columns = ['name', 'type', 'assignments'];
 
   ngOnInit(): void {
     const users = this.userService.getAll();
-    this.students = this.studentService.getAll();
+    this.assignments = this.assignmentService.getAll();
 
     // ✅ Tutores académicos y empresariales
     this.tutors = users.filter(u =>
-      u.roles.includes('ACADEMIC_TUTOR') ||
-      u.roles.includes('ENTERPRISE_TUTOR')
+      u.roles?.some(r => r.name === 'TUTOR_ACADEMIC') ||
+      u.roles?.some(r => r.name === 'TUTOR_ENTERPRISE')
     );
   }
 
   isAcademic(user: User): boolean {
-    return user.roles.includes('ACADEMIC_TUTOR');
+    return user.roles?.some(r => r.name === 'TUTOR_ACADEMIC');
   }
 
   isEnterprise(user: User): boolean {
-    return user.roles.includes('ENTERPRISE_TUTOR');
+    return user.roles?.some(r => r.name === 'TUTOR_ENTERPRISE');
   }
 
   getAssignmentCount(user: User): number {
-  if (this.isAcademic(user)) {
-    return this.assignments.filter(
-      a => a.academicTutorId === user.id
-    ).length;
-  }
+    if (this.isAcademic(user)) {
+      return this.assignments.filter(
+        a => a.tutorAcademicId === user.id
+      ).length;
+    }
 
-  if (this.isEnterprise(user)) {
-    return this.assignments.filter(
-      a => a.enterpriseTutorId === user.id
-    ).length;
-  }
+    if (this.isEnterprise(user)) {
+      return this.assignments.filter(
+        a => a.tutorEnterpriseId === user.id
+      ).length;
+    }
 
-  return 0;
-}
+    return 0;
+  }
 }

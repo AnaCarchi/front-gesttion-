@@ -7,4 +7,8 @@ export interface Evaluation {
   comments?: string;
 
   evaluatedAt: string;
+  templateId?: number;
+  fields?: Array<{ fieldId: number; value: string }>;
+  subjectType?: string;
+  studentId?: number;
 }

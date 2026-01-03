@@ -60,7 +60,7 @@ export class MyStudentsComponent implements OnInit {
 
     this.assignments = this.assignmentService.getAll().filter(
       (a: TrainingAssignment) =>
-        a.academicTutorId === tutor.id &&
+        a.tutorAcademicId === tutor.id &&
         a.academicPeriodId === period.id
     );
   }

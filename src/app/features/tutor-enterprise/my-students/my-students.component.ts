@@ -25,7 +25,7 @@ import { AuthService } from '../../core/services/auth.service';
         <td>{{ a.type }}</td>
         <td>{{ a.status }}</td>
         <td>
-          <a [routerLink]="['/tutor-enterprise/evaluate', a.id]">
+          <a [routerLink]="['/tutor-enterprise/evaluate', a.studentId]">
             Evaluar
           </a>
         </td>
@@ -50,7 +50,7 @@ export class MyStudentsComponent implements OnInit {
     const period = this.periodService.getAll().slice(-1)[0];
 
     this.assignments = this.assignmentService.getAll().filter(a =>
-      a.enterpriseTutorId === tutor?.id &&
+      a.tutorEnterpriseId === tutor?.id &&
       a.academicPeriodId === period.id
     );
   }

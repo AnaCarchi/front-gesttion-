@@ -2,16 +2,15 @@ import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guard';
 import { roleGuard } from '../../core/guards/role.guard';
 
-export const TUTOR_ROUTES: Routes = [
+export const TUTOR_ENTERPRISE_ROUTES: Routes = [
   {
     path: '',
-    canActivate: [authGuard, roleGuard(['TUTOR_ACADEMIC'])],
+    canActivate: [authGuard, roleGuard(['TUTOR_ENTERPRISE'])],
     loadComponent: () =>
-      import('./tutor-enterprise-layout/tutor-layout.componentt.component')
-        .then(m => m.TutorLayoutComponent),
+      import('./tutor-enterprise-layout/tutor-enterprise-layout.component')
+        .then(m => m.TutorEnterpriseLayoutComponent),
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-
       {
         path: 'dashboard',
         loadComponent: () =>
@@ -31,9 +30,9 @@ export const TUTOR_ROUTES: Routes = [
             .then(m => m.EvaluationsComponent)
       },
       {
-        path: 'evaluate/:id',
+        path: 'evaluate/:studentId',
         loadComponent: () =>
-          import('./evaluation-form/evaluation-form.component')
+          import('./my-students/evaluation-form/evaluation-form.component')
             .then(m => m.EvaluationFormComponent)
       }
     ]

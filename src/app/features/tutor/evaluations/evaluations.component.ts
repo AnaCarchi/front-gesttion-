@@ -111,7 +111,7 @@ export class EvaluationsComponent implements OnInit {
     this.activePeriod = periods[periods.length - 1];
 
     this.evaluations = this.assignmentService.getAll().filter(a =>
-      a.academicTutorId === tutor.id &&
+      a.tutorAcademicId === tutor.id &&
       a.academicPeriodId === this.activePeriod.id &&
       a.grade != null
     );

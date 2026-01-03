@@ -10,7 +10,17 @@ import {
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { StudentService } from '../../../../core/services/student.service';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
-import { Student, EvaluationTemplate } from '../../../../core/models';
+import { TrainingAssignmentService } from '../../../../core/services/training-assignment.service';
+import { UserService } from '../../../../core/services/user.service';
+import { CareerService } from '../../../../core/services/career.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import {
+  Career,
+  EvaluationTemplate,
+  Student,
+  TrainingType,
+  User
+} from '../../../../core/models';
 
 @Component({
   selector: 'app-evaluation-form',
@@ -21,7 +31,7 @@ import { Student, EvaluationTemplate } from '../../../../core/models';
 
       <!-- HEADER -->
       <div class="header">
-        <a routerLink="/tutor/my-students" class="back-link">
+        <a routerLink="/tutor-enterprise/my-students" class="back-link">
           <span class="material-icons">arrow_back</span>
           Volver
         </a>
@@ -35,23 +45,23 @@ import { Student, EvaluationTemplate } from '../../../../core/models';
       <div class="student-info-card" *ngIf="student">
         <div class="student-header">
           <div class="student-avatar">
-            {{ getInitials(student.person?.name, student.person?.lastname) }}
+            {{ getInitials(studentUser?.person?.name, studentUser?.person?.lastname) }}
           </div>
 
           <div class="student-details">
             <h2>
               <span class="material-icons">person</span>
-              {{ student.person?.name }} {{ student.person?.lastname }}
+              {{ studentUser?.person?.name }} {{ studentUser?.person?.lastname }}
             </h2>
 
             <div class="student-meta">
               <span>
                 <span class="material-icons">mail</span>
-                {{ student.email }}
+                {{ studentUser?.email }}
               </span>
               <span>
                 <span class="material-icons">school</span>
-                {{ student.career?.name || 'Sin carrera' }}
+                {{ studentCareer?.name || 'Sin carrera' }}
               </span>
             </div>
           </div>
@@ -60,7 +70,7 @@ import { Student, EvaluationTemplate } from '../../../../core/models';
         <!-- SELECCIÓN ASIGNATURA -->
         <div
           class="subject-selection"
-          *ngIf="student.enrolledSubjects && student.enrolledSubjects.length > 1"
+          *ngIf="availableSubjects.length > 1"
         >
           <label>
             <span class="material-icons">library_books</span>
@@ -69,14 +79,14 @@ import { Student, EvaluationTemplate } from '../../../../core/models';
 
           <div class="subjects-grid">
             <button
-              *ngFor="let subject of student.enrolledSubjects"
+              *ngFor="let subject of availableSubjects"
               type="button"
               class="subject-btn"
-              [class.selected]="selectedSubjectType === subject.type"
-              (click)="selectSubject(subject.type)"
+              [class.selected]="selectedSubjectType === subject"
+              (click)="selectSubject(subject)"
             >
               <span class="material-icons">assignment</span>
-              {{ getSubjectName(subject.type) }}
+              {{ getSubjectName(subject) }}
             </button>
           </div>
         </div>
@@ -207,7 +217,7 @@ import { Student, EvaluationTemplate } from '../../../../core/models';
           <button
             type="button"
             class="btn btn-secondary"
-            routerLink="/tutor/my-students"
+            routerLink="/tutor-enterprise/my-students"
           >
             <span class="material-icons">close</span>
             Cancelar
@@ -370,13 +380,20 @@ export class EvaluationFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private studentService = inject(StudentService);
   private evaluationService = inject(EvaluationService);
+  private assignmentService = inject(TrainingAssignmentService);
+  private userService = inject(UserService);
+  private careerService = inject(CareerService);
+  private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   evaluationForm: FormGroup;
   student?: Student;
   template?: EvaluationTemplate;
-  selectedSubjectType?: string;
+  selectedSubjectType?: TrainingType;
+  studentUser?: User;
+  studentCareer?: Career;
+  availableSubjects: TrainingType[] = [];
 
   loading = true;
   submitting = false;
@@ -398,26 +415,52 @@ export class EvaluationFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params.subscribe(p => {
-      this.studentId = +p['studentId'];
+      this.studentId = Number(p['studentId']);
       this.loadStudent();
     });
   }
 
   loadStudent(): void {
-    this.studentService.getById(this.studentId!).subscribe(s => {
-      this.student = s;
-      if (s.enrolledSubjects?.length === 1) {
-        this.selectSubject(s.enrolledSubjects[0].type);
-      }
+    const student = this.studentService.getById(this.studentId!);
+    if (!student) {
+      this.errorMessage = 'Estudiante no encontrado';
       this.loading = false;
-    });
+      return;
+    }
+
+    this.student = student;
+    this.studentUser = this.userService.getById(student.userId);
+    this.studentCareer = this.careerService.getById(student.careerId);
+
+    const assignments = this.assignmentService.getAll().filter(a =>
+      a.studentId === student.id
+    );
+
+    this.availableSubjects = Array.from(
+      new Set(assignments.map(a => a.type))
+    );
+
+    if (this.availableSubjects.length === 1) {
+      this.selectSubject(this.availableSubjects[0]);
+    }
+
+    if (this.availableSubjects.length === 0) {
+      this.errorMessage = 'El estudiante no tiene asignaturas registradas';
+    }
+
+    this.loading = false;
   }
 
-  selectSubject(type: string): void {
+  selectSubject(type: TrainingType): void {
     this.selectedSubjectType = type;
-    this.evaluationService.getTemplateByType(type).subscribe(t => {
-      this.template = t;
-      this.buildForm();
+    this.evaluationService.getTemplateByType(type).subscribe({
+      next: template => {
+        this.template = template;
+        this.buildForm();
+      },
+      error: () => {
+        this.errorMessage = 'No se pudo cargar la plantilla de evaluación';
+      }
     });
   }
 
@@ -440,15 +483,19 @@ export class EvaluationFormComponent implements OnInit {
 
     const data = {
       studentId: this.studentId,
-      subjectType: this.selectedSubjectType,
+      subjectType: this.selectedSubjectType!,
       templateId: this.template?.id,
+      evaluatorId: this.auth.getCurrentUser()?.id,
       ...this.evaluationForm.value
     };
 
     this.evaluationService.create(data).subscribe({
       next: () => {
         this.successMessage = 'Evaluación guardada correctamente';
-        setTimeout(() => this.router.navigate(['/tutor/my-students']), 1500);
+        setTimeout(
+          () => this.router.navigate(['/tutor-enterprise/my-students']),
+          1500
+        );
       },
       error: () => {
         this.errorMessage = 'Error al guardar evaluación';
@@ -469,8 +516,8 @@ export class EvaluationFormComponent implements OnInit {
   getSubjectName(type: string): string {
     return {
       VINCULATION: 'Vinculación',
-      DUAL_INTERNSHIP: 'Prácticas Dual',
-      PREPROFESSIONAL_INTERNSHIP: 'Preprofesionales'
+      DUAL_PRACTICE: 'Prácticas Dual',
+      PREPROFESSIONAL_PRACTICE: 'Preprofesionales'
     }[type] || type;
   }
 }
