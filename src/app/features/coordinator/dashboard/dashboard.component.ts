@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { AcademicPeriodService } from '../../../core/services/academic-period.service';
@@ -16,7 +17,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 @Component({
   selector: 'app-coordinator-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatGridListModule],
+  imports: [CommonModule, RouterLink, MatCardModule, MatIconModule, MatGridListModule],
   template: `
     <div class="header">
       <div class="title">
@@ -27,6 +28,20 @@ import { MatGridListModule } from '@angular/material/grid-list';
         <p *ngIf="!activePeriod" class="warn">
           No hay periodos registrados. Pida al administrador crear un periodo.
         </p>
+      </div>
+      <div class="quick-actions">
+        <a class="action-chip" routerLink="/coordinator/students">
+          <span class="material-icons">supervisor_account</span>
+          Estudiantes
+        </a>
+        <a class="action-chip" routerLink="/coordinator/tutors">
+          <span class="material-icons">badge</span>
+          Tutores
+        </a>
+        <a class="action-chip" routerLink="/coordinator/reports">
+          <span class="material-icons">analytics</span>
+          Reportes
+        </a>
       </div>
     </div>
 
@@ -99,6 +114,35 @@ import { MatGridListModule } from '@angular/material/grid-list';
         </div>
       </mat-card>
     </div>
+
+    <section class="assignment-section">
+      <h2>
+        <span class="material-icons">assignment</span>
+        Gestión rápida
+      </h2>
+      <div class="assignment-grid">
+        <div class="assignment-card">
+          <span class="material-icons">task_alt</span>
+          <div>
+            <h3>Asignar tutores</h3>
+            <p>Gestiona tutores académicos y empresariales por estudiante.</p>
+          </div>
+          <a class="btn btn-primary btn-sm" routerLink="/coordinator/tutor-assignments">
+            Ir
+          </a>
+        </div>
+        <div class="assignment-card">
+          <span class="material-icons">filter_alt</span>
+          <div>
+            <h3>Filtrar estudiantes</h3>
+            <p>Revisa por vinculación, dual o preprofesionales.</p>
+          </div>
+          <a class="btn btn-outline btn-sm" routerLink="/coordinator/students">
+            Ver listado
+          </a>
+        </div>
+      </div>
+    </section>
   `,
   styles: [`
     .header {
@@ -106,6 +150,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
       justify-content: space-between;
       align-items: flex-end;
       margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
     .title h1 {
@@ -118,19 +164,44 @@ import { MatGridListModule } from '@angular/material/grid-list';
       color: #b45309;
     }
 
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--secondary-soft);
+      color: #a15415;
+      font-weight: 600;
+      font-size: 13px;
+      border: 1px solid #f6d7b8;
+    }
+
+    .action-chip .material-icons {
+      font-size: 16px;
+    }
+
     .stat-card {
       height: 100%;
       display: flex;
       align-items: center;
       gap: 16px;
       padding: 16px;
+      border-radius: 16px;
+      background: var(--bg-primary);
     }
 
     .stat-card mat-icon {
       font-size: 48px;
       width: 48px;
       height: 48px;
-      color: #2563eb;
+      color: var(--primary-color);
     }
 
     .info {
@@ -156,7 +227,59 @@ import { MatGridListModule } from '@angular/material/grid-list';
     }
 
     .wide mat-icon {
-      color: #0f172a;
+      color: var(--secondary-color);
+    }
+
+    .assignment-section {
+      margin-top: 28px;
+    }
+
+    .assignment-section h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .assignment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .assignment-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--box-shadow);
+    }
+
+    .assignment-card .material-icons {
+      color: var(--primary-color);
+      font-size: 28px;
+    }
+
+    .assignment-card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .assignment-card p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .assignment-card .btn {
+      grid-column: span 2;
+      justify-self: flex-start;
+      margin-top: 8px;
     }
   `]
 })

@@ -12,16 +12,16 @@ export class AuthService {
   // ===========================
   // LOGIN
   // ===========================
-  login(email: string, password: string): boolean {
+  login(email: string, password: string): User | null {
     const user = this.userService.getAll().find(u =>
       u.email === email &&
       u.password === password
     );
 
-    if (!user) return false;
+    if (!user) return null;
 
     localStorage.setItem(this.currentUserKey, JSON.stringify(user));
-    return true;
+    return user;
   }
 
   // ===========================

@@ -55,8 +55,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
       <ng-container matColumnDef="student">
         <th mat-header-cell *matHeaderCellDef>Estudiante</th>
         <td mat-cell *matCellDef="let a">
-          {{ getStudentUser(a.studentId)?.person.name }}
-          {{ getStudentUser(a.studentId)?.person.lastname }}
+          {{ getStudentUser(a.studentId)?.person?.name }}
+          {{ getStudentUser(a.studentId)?.person?.lastname }}
         </td>
       </ng-container>
 

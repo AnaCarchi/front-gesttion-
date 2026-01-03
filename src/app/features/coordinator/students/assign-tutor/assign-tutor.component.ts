@@ -43,7 +43,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
         <!-- INFO -->
         <div class="info">
           <p><strong>Estudiante:</strong>
-            {{ student?.person.name }} {{ student?.person.lastname }}
+            {{ studentUser?.person?.name }} {{ studentUser?.person?.lastname }}
           </p>
           <p><strong>Carrera:</strong> {{ career?.name }}</p>
           <p><strong>Periodo:</strong> {{ period?.name }}</p>
@@ -104,6 +104,7 @@ export class AssignTutorComponent implements OnInit {
   assignment!: TrainingAssignment;
 
   student?: Student;
+  studentUser?: User;
   career?: Career;
   period?: AcademicPeriod;
 
@@ -123,6 +124,9 @@ export class AssignTutorComponent implements OnInit {
     this.student = this.studentService.getById(this.assignment.studentId);
     this.career = this.careerService.getById(this.assignment.careerId);
     this.period = this.periodService.getById(this.assignment.academicPeriodId);
+    if (this.student) {
+      this.studentUser = this.userService.getById(this.student.userId);
+    }
 
     const users = this.userService.getAll();
 

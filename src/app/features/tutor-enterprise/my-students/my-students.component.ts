@@ -2,9 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { TrainingAssignmentService } from '../../core/services/training-assignment.service';
-import { AcademicPeriodService } from '../../core/services/academic-period.service';
-import { AuthService } from '../../core/services/auth.service';
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
+import { AcademicPeriodService } from '../../../core/services/academic-period.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-enterprise-my-students',
