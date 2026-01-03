@@ -91,8 +91,13 @@ export class BulkUploadComponent {
           email,
           password: '123456',
           isActive: true,
-          person: { name: firstName, lastname: lastName },
-          roles: [{ name: 'STUDENT' }]
+          person: {
+            id: Date.now(),
+            name: firstName,
+            lastname: lastName,
+            identification: ''
+          },
+          roles: [{ id: Date.now(), name: 'STUDENT' }]
         });
       }
 

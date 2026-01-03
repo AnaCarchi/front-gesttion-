@@ -130,7 +130,7 @@ export class InternshipPreprofessionalComponent implements OnInit {
     this.assignment.documents = this.assignment.documents || [];
     this.assignment.documents.push({
       name: fileName,
-      uploadedAt: new Date()
+      uploadedAt: new Date().toISOString()
     });
 
     this.assignmentService.update(this.assignment);
