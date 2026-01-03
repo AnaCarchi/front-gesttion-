@@ -76,7 +76,7 @@ export const COORDINATOR_ROUTES: Routes = [
         path: 'tutor-assignments',
         loadComponent: () =>
           import('./tutor-assignment/tutor-assignment.component')
-        .then(m => m.TutorAssignmentComponent)
+            .then(m => m.AssignTutorComponent)
       }
     ]
   }

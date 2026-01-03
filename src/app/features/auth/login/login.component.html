@@ -53,26 +53,6 @@
         </div>
       </div>
 
-      <!-- ROLE -->
-      <div class="form-group">
-        <label for="role">Selecciona tu Rol</label>
-        <select
-          id="role"
-          formControlName="role"
-          class="form-control"
-          [class.is-invalid]="role?.invalid && role?.touched"
-        >
-          <option value="">-- Seleccione un rol --</option>
-          <option value="admin">Administrador</option>
-          <option value="coordinator">Coordinador</option>
-          <option value="tutor">Tutor Empresarial</option>
-          <option value="student">Estudiante</option>
-        </select>
-        <div class="invalid-feedback" *ngIf="role?.invalid && role?.touched">
-          <span>Debes seleccionar un rol</span>
-        </div>
-      </div>
-
       <!-- ERROR -->
       <div class="alert alert-danger" *ngIf="errorMessage">
         {{ errorMessage }}

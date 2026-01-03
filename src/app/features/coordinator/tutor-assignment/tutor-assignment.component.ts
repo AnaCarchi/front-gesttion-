@@ -2,18 +2,19 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { UserService } from '../../../../core/services/user.service';
-import { StudentService } from '../../../../core/services/student.service';
-import { CareerService } from '../../../../core/services/career.service';
-import { AcademicPeriodService } from '../../../../core/services/academic-period.service';
-import { TrainingAssignmentService } from '../../../../core/services/training-assignment.service';
+import { UserService } from '../../../core/services/user.service';
+import { StudentService } from '../../../core/services/student.service';
+import { CareerService } from '../../../core/services/career.service';
+import { AcademicPeriodService } from '../../../core/services/academic-period.service';
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
 
 import {
   Student,
   Career,
   AcademicPeriod,
-  TrainingAssignment
-} from '../../../../core/models';
+  TrainingAssignment,
+  User
+} from '../../../core/models';
 
 @Component({
   selector: 'app-assign-tutor',
@@ -52,7 +53,7 @@ import {
             <select [(ngModel)]="enterpriseTutorMap[s.id]">
               <option value="">-- Seleccione --</option>
               <option *ngFor="let t of enterpriseTutors" [value]="t.id">
-                {{ t.person?.name }} {{ t.person?.lastname }}
+                {{ t.person.name }} {{ t.person.lastname }}
               </option>
             </select>
           </td>
@@ -61,7 +62,7 @@ import {
             <select [(ngModel)]="academicTutorMap[s.id]">
               <option value="">-- Seleccione --</option>
               <option *ngFor="let t of academicTutors" [value]="t.id">
-                {{ t.person?.name }} {{ t.person?.lastname }}
+                {{ t.person.name }} {{ t.person.lastname }}
               </option>
             </select>
           </td>
@@ -123,8 +124,8 @@ export class AssignTutorComponent implements OnInit {
   careers: Career[] = [];
   students: Student[] = [];
 
-  enterpriseTutors: any[] = [];
-  academicTutors: any[] = [];
+  enterpriseTutors: User[] = [];
+  academicTutors: User[] = [];
 
   selectedCareerId: number | '' = '';
 
