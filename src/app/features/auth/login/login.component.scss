@@ -31,7 +31,7 @@
   padding: 2rem 2rem 1.8rem;
   border-radius: 16px;
 
-  background: rgba(255, 255, 255, 0.096);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
 
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
@@ -77,14 +77,14 @@
 .login-header h1 {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #000000;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .login-header p {
   margin-top: 0.4rem;
   font-size: 0.9rem;
-  color: #0f0f0f;
+  color: var(--text-secondary);
 }
 
 /* ================= FORM ================= */
@@ -97,7 +97,7 @@
   font-weight: 600;
   margin-bottom: 0.35rem;
   display: block;
-  color: #000000;
+  color: var(--text-primary);
 }
 
 .login-form input,
@@ -106,15 +106,15 @@
   padding: 0.55rem 0.75rem;
   font-size: 0.9rem;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-color);
   transition: border 0.2s, box-shadow 0.2s;
 }
 
 .login-form input:focus,
 .login-form select:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(123, 182, 245, 0.25);
 }
 
 /* ================= VALIDACIONES ================= */
@@ -150,14 +150,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
+  background: linear-gradient(135deg, var(--primary-color), #5c97d9);
   color: white;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 6px 16px rgba(123, 182, 245, 0.4);
 }
 
 .btn-primary:disabled {
@@ -173,7 +173,7 @@
 }
 
 .login-footer a {
-  color: #5498ff;
+  color: var(--primary-color);
   font-weight: 600;
   text-decoration: none;
 }
@@ -185,4 +185,11 @@
 /* ================= SPINNER ================= */
 .spinner-border {
   margin-right: 6px;
+}
+
+.loading-content,
+.btn .material-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }

@@ -1,7 +1,5 @@
 <div class="register-container">
   <div class="register-card">
-
-    <!-- HEADER -->
     <div class="login-header">
       <img
         src="https://ignug.yavirac.edu.ec/assets/images/web/logo_login.png"
@@ -12,89 +10,78 @@
       <p>Sistema de Gestión Yavirac</p>
     </div>
 
-    <!-- FORMULARIO -->
-    <form
-      [formGroup]="registerForm"
-      (ngSubmit)="onSubmit()"
-      class="register-form"
-    >
-
-      <!-- NOMBRES Y APELLIDOS -->
+    <form #registerForm="ngForm" (ngSubmit)="submit(registerForm)" class="register-form">
       <div class="row">
         <div class="form-group">
-          <label for="firstName">Nombres</label>
+          <label for="name" class="label-with-icon">
+            <span class="material-icons">badge</span>
+            Nombres
+          </label>
           <input
             type="text"
-            id="firstName"
-            formControlName="firstName"
+            id="name"
+            name="name"
             class="form-control"
             placeholder="Ingrese sus nombres"
-            [class.is-invalid]="firstName?.invalid && firstName?.touched"
+            required
+            ngModel
           />
-          <div class="invalid-feedback" *ngIf="firstName?.invalid && firstName?.touched">
-            El nombre es obligatorio
-          </div>
         </div>
 
         <div class="form-group">
-          <label for="lastName">Apellidos</label>
+          <label for="lastname" class="label-with-icon">
+            <span class="material-icons">person</span>
+            Apellidos
+          </label>
           <input
             type="text"
-            id="lastName"
-            formControlName="lastName"
+            id="lastname"
+            name="lastname"
             class="form-control"
             placeholder="Ingrese sus apellidos"
-            [class.is-invalid]="lastName?.invalid && lastName?.touched"
+            required
+            ngModel
           />
-          <div class="invalid-feedback" *ngIf="lastName?.invalid && lastName?.touched">
-            El apellido es obligatorio
-          </div>
         </div>
       </div>
 
-      <!-- EMAIL -->
       <div class="form-group">
-        <label for="email">Correo Electrónico</label>
+        <label for="email" class="label-with-icon">
+          <span class="material-icons">mail</span>
+          Correo Electrónico
+        </label>
         <input
           type="email"
           id="email"
-          formControlName="email"
+          name="email"
           class="form-control"
           placeholder="correo@ejemplo.com"
-          [class.is-invalid]="email?.invalid && email?.touched"
+          required
+          ngModel
         />
-        <div class="invalid-feedback" *ngIf="email?.invalid && email?.touched">
-          <span *ngIf="email?.errors?.['required']">El correo es requerido</span>
-          <span *ngIf="email?.errors?.['email']">Ingrese un correo válido</span>
-        </div>
       </div>
 
-      <!-- PASSWORDS -->
-      <div class="row">
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="form-control"
-            placeholder="••••••"
-            [class.is-invalid]="password?.invalid && password?.touched"
-          />
-          <div class="invalid-feedback" *ngIf="password?.invalid && password?.touched">
-            <span *ngIf="password?.errors?.['required']">La contraseña es requerida</span>
-            <span *ngIf="password?.errors?.['minlength']">Mínimo 6 caracteres</span>
-          </div>
-        </div>
+      <div class="form-group">
+        <label for="password" class="label-with-icon">
+          <span class="material-icons">lock</span>
+          Contraseña
+        </label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="••••••"
+          required
+          minlength="6"
+          ngModel
+        />
+      </div>
 
-        <div class="form-group">
-          <label for="confirmPassword">Confirmar Contraseña</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            class="form-control"
-            placeholder="••••••"
-            [class.is-invalid]="confirmPassword?.invalid && confirmPassword?.touched"
-          />
-          <div class="invalid-feedback" *ngI*
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="registerForm.invalid">
+        <span class="material-icons">person_add</span>
+        Crear cuenta
+      </button>
+    </form>
+  </div>
+</div>

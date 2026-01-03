@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { TrainingAssignmentService } from '../../core/services/training-assignment.service';
+import { TrainingAssignmentService } from '../../../core/services/training-assignment.service';
 
 @Component({
   selector: 'app-evaluation-form',
